@@ -78,7 +78,7 @@ class tsl710(MessageBasedDriver):
         """
         self.query('FTF')
 
-    @Feat(units='dBm', limits=-(20, 10, 0.01))
+    @Feat(limits=(-20, 10, 0.01))
     def powerdB(self):
         """
         Sets the optical power in dBm
@@ -315,7 +315,7 @@ class tsl710(MessageBasedDriver):
         self.query('CF')
 
 if __name__ == '__main__':
-    from lantz.ui.qtwidgets import start_test_app
+    from lantz.ui.app import start_test_app
 
     with tsl710.via_gpib(1) as inst:
         start_test_app(inst)

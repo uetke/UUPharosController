@@ -22,7 +22,6 @@ class tsl710(MessageBasedDriver):
                          'parity': constants.Parity.none,
                          'stop_bits': constants.StopBits.one,}}
 
-
     def initialize(self):
         super().initialize()
 
@@ -41,7 +40,7 @@ class tsl710(MessageBasedDriver):
     @Action()
     def lf(self):
         """
-        Sets OOF the LD current.
+        Sets OFF the LD current.
         :return:
         """
         self.write('LF')
@@ -62,7 +61,7 @@ class tsl710(MessageBasedDriver):
     def frequency(self, value):
         self.query('FQ%.5f' % value)
 
-    @Feat(limits=(-100,100,0.01))
+    @Feat(limits=(-100, 100, 0.01))
     def fine_tune(self):
         return self.query('FT')
 
@@ -319,13 +318,13 @@ if __name__ == '__main__':
 
     with tsl710.via_gpib(1) as inst:
         start_test_app(inst)
-
-if __name__ == '__main__':
-    from lantz import Q_
-    nm = Q_('nm')
-    with tsl710.via_gpib(1) as inst:
-        print('Instrument identified as %s' % inst.idn)
-        print('Current wavelength: %s nm' % inst.wavelength)
-        print('Changing wavelength to 1492nm')
-        inst.wavelength = 1492*nm
-        print('Current wavelength: %s nm' % inst.wavelength)
+#
+# if __name__ == '__main__':
+#     from lantz import Q_
+#     nm = Q_('nm')
+#     with tsl710.via_gpib(1) as inst:
+#         print('Instrument identified as %s' % inst.idn)
+#         print('Current wavelength: %s nm' % inst.wavelength)
+#         print('Changing wavelength to 1492nm')
+#         inst.wavelength = 1492*nm
+#         print('Current wavelength: %s nm' % inst.wavelength)

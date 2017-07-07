@@ -1,0 +1,55 @@
+%YAML 1.2
+---
+
+# Configures the steps of an experiment
+
+steps:
+  init:
+    TSL-710:
+      params:
+        wavelength:
+          value:  1540
+          units: nm
+        start_wavelength:
+          value: 1492
+          units: nm
+        stop_wavelength:
+          value: 1588
+          units: nm
+      settings:
+        - enable_trigger
+        - coherent_control_on
+        - open_shutter
+
+    detectors:
+      NI-DAQ:
+        PhotoDiode1:
+          time_resol:
+            value: 1
+            units: ms
+          length:
+            value: 1000
+            units: steps
+      oscilloscope:
+        NewSignal1:
+          time_resol:
+            value: 1
+            units: ms
+            length:
+              value: 1000
+              units: steps
+  scan:
+    axis:
+      TSL-710:
+        type: fixed
+        trigger: software
+      Stage1:
+        type: variable
+        range: [10, 20, .1]
+      time:
+        repetitions: 20
+
+  finish:
+    TSL-10:
+      settings:
+       - close_shutter

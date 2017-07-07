@@ -1,0 +1,23 @@
+%YAML 1.2
+---
+# Defaults for the laser
+tsl-710:
+  wavelength: 1520 nm
+  start_wavelength: 1492 nm
+  stop_wavelength: 1548 nm
+  power: 1 mW
+  speed: 1 nm/s
+  steps: 100
+  step: 1 nm
+  wait: 1 ms
+  step_time: 1 s
+  sweeps: 1
+  sweep: continuous
+  mode: one
+  trigger: false
+  LD: true
+  auto_power: true
+  coherent: true
+  fine_tune: false
+  shutter: true
+  trigger_output: false

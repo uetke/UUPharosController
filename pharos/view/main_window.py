@@ -1,21 +1,21 @@
-
-from GUI.mainwindow import MainWindowGUI
+from .GUI.mainwindow import MainWindowGUI
 
 
 class MainWindow(MainWindowGUI):
-    def __init__(self, _session):
+    def __init__(self, session):
         MainWindowGUI.__init__(self, parent=None)
-        self.laser = _session['laser']
-        self.adq = _session['adq']
+        self.laser = session.laser
+        self.daq = session.daq
 
-        self.wavelength = self.laser.wavelength
+        #self.wavelength = self.laser.wavelength
 
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     import sys
-    session = {'laser': None,
-                'adq': None}
+    from model.lib.session import session
+    session.laser = None
+    session.adq = None
 
     ap = QApplication(sys.argv)
     window = MainWindow(session)

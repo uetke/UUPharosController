@@ -1,0 +1,71 @@
+%YAML 1.2
+---
+# Configure the devices relevant to the experiment
+
+devices:
+  TSL-710:
+    type: laser
+    model: santec
+    connection:
+      type: GPIB
+      port: 1
+    wavelength: 1492
+  NI-DAQ:
+    type: daq
+    model: ni
+    number: 1
+    ports:
+      input:
+        PhotoDiode1:
+          port: 1
+          type: analog
+          description: Forward Intensity
+          calibration:
+            units: V
+            slope: 1
+            offset: 0
+          limits:
+            min: -2.5
+            max: 2.5
+        PhotoDiode2:
+          port: 2
+          type: analog
+          description: Forward Intensity
+          calibration:
+            units: V
+            slope: 1
+            offset: 0
+          limits:
+            min: -2.5
+            max: 2.5
+      output:
+        name: Stage1
+        type: analog
+        description: X Direction
+        portid: 1
+        calibration:
+          units: um
+          slope: 0.2134
+          offset: 50
+        limits:
+          min: 0
+          max: 100
+#  oscilloscope:
+#    type: daq
+#    model: keysight
+#    ports:
+#      input:
+#        name: NewSignal1
+#        type: analog
+#        description: SignalOsci
+#        portid: 1
+#        calibration:
+#          units: V
+#          slope: 1
+#          offset: 1
+#        limits:
+#          min: -2.5
+#          max: 2.5
+
+
+

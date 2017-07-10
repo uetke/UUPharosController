@@ -11,42 +11,21 @@
 
 
 class DaqBase():
-    TRIG_EXTERNAL = 1
-    TRIG_INTERNAL = 2
-
-    def triggerAnalog(self, conditions):
+    def analog_input_setup(self, conditions):
         """Triggers an analog measurement. It does not read the value.
         conditions -- a dictionary with the needed parameters for an analog acquisition.
         """
         pass
 
-    def getAnalog(self,conditions):
+    def trigger_analog(self, task_number):
         """Gets the analog values acquired with the triggerAnalog function.
         conditions -- dictionary with the number of points ot be read
         """
         pass
 
-    def startMonitor(self,conditions):
+    def read_analog(self, task_number, conditions):
         """Starts continuous acquisition of the specified channels with the specified timing interval.
         conditions['devs'] -- list of devices to monitor
         conditions['accuracy'] -- accuracy for the monitor. If not defined defaults to 0.1s
-        """
-        pass
-
-    def readMonitor(self):
-        """Reads the monitor values of all the channels specified.
-        """
-        pass
-
-    def stopMonitor(self):
-        """Stops all the tasks related to the monitor.
-        """
-        pass
-
-    def fastTimetrace(self,conditions):
-        """ Acquires a fast timetrace of the selected devices.
-        conditions['devs'] -- list of devices to monitor
-        conditions['accuracy'] -- accuracy in milliseconds.
-        conditions['time'] -- total time of acquisition for each channel in seconds.
         """
         pass

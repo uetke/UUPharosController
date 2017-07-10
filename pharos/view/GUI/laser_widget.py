@@ -8,6 +8,7 @@ class LaserWidget(QtGui.QWidget, Ui_Form):
         QtGui.QWidget.__init__(self)
         #self.ui = Ui_Form()
         self.setupUi(self)
+        self.wavelength_labe.setToolTip("<b>Extra info</b>")
 
     def populate_values(self, dict):
         """
@@ -21,12 +22,12 @@ class LaserWidget(QtGui.QWidget, Ui_Form):
         self.speed_line.setText(dict['speed'])
         self.steps_line.setText(str(dict['steps']))
         self.step_line.setText(dict['step'])
+        self.trigger_step_line.setText(dict['trigger_step'])
         self.wait_line.setText(dict['wait'])
         self.step_time_line.setText(dict['step_time'])
         self.sweeps_line.setText(str(dict['sweeps']))
         self.power_line.setText(dict['power'])
         p = int(dict['power'].split(' ')[0])*100
-        self.power_slider.setValue(p)
 
         if dict['sweep'] == 'continuous':
             self.continuous_button.toggle()

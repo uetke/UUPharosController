@@ -5,115 +5,107 @@
 
     .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
 """
-
-from ._skeleton import DaqBase
-
+import PyDAQmx as nidaq
+import numpy as np
+from _skeleton import DaqBase
+from lantz import Q_
 
 class ni(DaqBase):
-    def __init__(self, _session):
+
+    def __init__(self, adq_num=1):
         """Class trap for condensing tasks that can be used for interacting with an optical trap.
         session -- class with important variables, including the adq card.
         """
-        self._session = _session
         self.running = False
-        stream = open(_session.task_conf, 'r')
-        self.tasks = yaml.load(stream)['task']
+        self.adq_num = adq_num
         self.monitorNum = []
-        if self._session.adq['type'] == 'ni':
-            self.adq = _session.adq['adq']
-        else:
-            raise Exception('Other types of cards not implemented for acquireAnalog')
+        self.tasks = []
 
-
-    def triggerAnalog(self, conditions):
-        """Triggers an analog measurement. It does not read the value.
-        conditions -- a dictionary with the needed parameters for an analog acquisition.
+    def analog_input_setup(self, conditions):
         """
-        if self._session.adq['type'] == 'ni':
-            self.adq.analogSetup(conditions['channel'], conditions['points'], conditions['accuracy'], conditions['limits'])
-            self.adq.analogTrigger()  # Starts the measurement.
-            self.running = True
+        Sets up a task for acquaring a number of analog channels.
+        conditions -- dictionary with the needed conditions to set up an acquisition.
+
+        """
+        t = nidaq.Task()
+        dev = 'Dev%s' % self.deviceNumber
+        if not isinstance(conditions['devices'], list):
+            channel = ["Dev%s/ai%s" % (self.adq_num, dev.port)]
+            limit_min = [dev.limit[0]]
+            limit_max = [dev.limit[1]]
         else:
-            raise Exception('Other types of cards not implemented for acquireAnalog')
+            channel = []
+            limit_max = []
+            limit_min = []
+            for dev in devs:
+                channel.append("Dev%s/ai%s" % (self.adq_num, dev.port))
+                limit_min.append(dev.limit[0])
+                limit_max.append(dev.limit[1])
+
+        channels = ', '.join(channel)
+        channels.encode('utf-8')
+        freq = 1/conditions['accuracy'].to('s')
+        if conditions['trigger'] == 'external':
+            trigger = "Dev%s/%s" % (self.adq_num,conditions['trigger_source'])
+        else:
+            trigger = ""
+        if 'trigger_edge' in conditions:
+            if conditions['trigger_edge'] == 'rising':
+                trigger_edge = nidaq.DAQmx_Val_Rising
+            elif conditions['trigger_edge'] == 'falling':
+                trigger_edge = nidaq.DAQmx_Val_Falling
+        else:
+            trigger_edge = nidaq.DAQmx_Val_Rising
+
+        t.CreateAIVoltageChan(channels, None, nidaq.DAQmx_Val_RSE, min(limit_min),
+                              max(limit_max), nidaq.DAQmx_Val_Volts, None)
+
+        if conditions['points'] > 0:
+            cont_finite = nidaq.DAQmx_Val_FiniteSamps
+        else:
+            cont_finite = nidaq.DAQmx_Val_ContSamps
+
+        t.DAQmxCfgSampClkTiming(trigger, freq.magnitude, trigger_edge, cont_finite, conditions['points'])
+        self.tasks.append(t)
+        return len(self.tasks)-1
+
+    def trigger_analog(self, task):
+        """
+        :param task: Task number to be triggered.
+        :return:
+        """
+        t = self.tasks[task]
+        t.StartTask()  # Starts the measurement.
+        self.running = True
 
 
-    def getAnalog(self, conditions):
+    def read_analog(self, task, conditions):
         """Gets the analog values acquired with the triggerAnalog function.
         conditions -- dictionary with the number of points ot be read
         """
-        if self._session.adq['type'] == 'ni':
-            return self.adq.analogRead(conditions['points'])
+
+        t = self.tasks[task]
+
+        read = nidaq.int32()
+        points = int(conditions['points'])
+        if points > 0:
+            data = np.zeros((points,), dtype=np.float64)
+            t.ReadAnalogF64(points, .2, nidaq.DAQmx_Val_GroupByChannel,
+                            data, points, nidaq.byref(read), None)
         else:
-            raise Exception('Other types of cards not implemented for getAnalog')
+            data = np.zeros((10000,), dtype=np.float64)
+            t.ReadAnalogF64(points, .2, nidaq.DAQmx_Val_GroupByChannel,
+                            data, points, nidaq.byref(read), None)
+        values = read.value
+        return values, data
 
 
-    def startMonitor(self, conditions):
-        """Starts continuous acquisition of the specified channels with the specified timing interval.
-        conditions['devs'] -- list of devices to monitor
-        conditions['accuracy'] -- accuracy for the monitor. If not defined defaults to 0.1s
-        """
-        self.monitorTask = self.tasks['Monitor']
-        channels = []
-        if conditions['accuracy'] > 0:
-            accuracy = conditions['accuracy']
-        else:
-            accuracy = 0.1  # 100 milliseconds
-        if self._session.adq['type'] == 'ni':
-            if type(conditions['devs']) == type(""):
-                conditions['devs'] = [conditions['devs']]
-            for dev in conditions['devs']:
-                self.devsMonitor = len(conditions['devs'])
-                if dev.properties['Type'] == 'Analog':
-                    channels.append(dev.properties['Input']['Hardware']['PortID'])
-                    limitmax = dev.properties['Input']['Limits']['Max']
-                    limitmin = dev.properties['Input']['Limits']['Min']
-                    # print('Channel: %s'%channels[-1])
-                    # print('--- Limit Max: %s'%limitmax)
-                    # print('--- Limit Min: %s'%limitmin)
 
-            self.monitorNum = self.adq.analogSetup(self.monitorTask, channels, 0, accuracy, (limitmin, limitmax))
-            # for mon in self.monitorNum:
-            self.adq.analogTrigger(self.monitorNum)
-
-
-    def readMonitor(self):
-        """Reads the monitor values of all the channels specified.
-        """
-        val, data = self.adq.analogRead(self.monitorNum, -1)
-        return data[:val * self.devsMonitor]
-
-
-    def stopMonitor(self):
-        """Stops all the tasks related to the monitor.
-        """
-        if self._session.adq['type'] == 'ni':
-            self.adq.clear(self.monitorNum)
-
-
-    def fastTimetrace(self, conditions):
-        """ Acquires a fast timetrace of the selected devices.
-        conditions['devs'] -- list of devices to monitor
-        conditions['accuracy'] -- accuracy in milliseconds.
-        conditions['time'] -- total time of acquisition for each channel in seconds.
-        """
-
-        points = int(conditions['time'] * 1000 / conditions['accuracy'])
-
-        self.highSpeedTask = self.tasks['highSpeed']
-        if self._session.adq['type'] == 'ni':
-            if type(conditions['devs']) == type(""):
-                conditions['devs'] = [conditions['dev']]
-            data = []
-            for dev in conditions['devs']:
-                self.devsMonitor = len(conditions['devs'])
-                if dev.properties['Type'] == 'Analog':
-                    channel = dev.properties['Input']['Hardware']['PortID']
-                    limitmax = dev.properties['Input']['Limits']['Max']
-                    limitmin = dev.properties['Input']['Limits']['Min']
-                    self.highSpeedNum = self.adq.analogSetup(self.highSpeedTask, channel, points,
-                                                             conditions['accuracy'] / 1000, (limitmin, limitmax))
-                    self.adq.analogTrigger(self.highSpeedNum)
-                    v, d = self.adq.analogRead(self.highSpeedNum, points, conditions['time'])
-                    self.adq.clear(self.highSpeedNum)
-                    data.append(np.array(d))
-            return data
+if __name__ == '__main__':
+    a = ni()
+    b = 10*Q_('ms')
+    print(type(b))
+    # b = Q_(b, 'seconds')
+    print(1/b.to('seconds'))
+    print(nidaq.DAQmx_Val_Falling)
+    print(b.magnitude)

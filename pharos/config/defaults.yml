@@ -9,6 +9,7 @@ tsl-710:
   speed: 1 nm/s
   steps: 100
   step: 1 nm
+  trigger_step: 0.1 nm
   wait: 1 ms
   step_time: 1 s
   sweeps: 1

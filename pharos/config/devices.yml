@@ -20,6 +20,9 @@ devices:
           port: 1
           type: analog
           description: Forward Intensity
+          trigger:
+            mode: external
+            port: PFI0
           calibration:
             units: V
             slope: 1

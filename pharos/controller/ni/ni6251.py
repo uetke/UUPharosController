@@ -84,7 +84,7 @@ class niDAQ():
         DAQmxCreateTask("",byref(self.task_Analog))
         DAQmxCreateAIVoltageChan(self.task_Analog,channels,None,DAQmx_Val_RSE,limits[0],limits[1],DAQmx_Val_Volts,None)
         if points>0:
-            DAQmxCfgSampClkTiming(self.task_Analog,"",freq,DAQmx_Val_Rising,DAQmx_Val_FiniteSamps,points)
+            DAQmxCfgSampClkTiming(self.task_Analog,"",freq,DAQmx_Val_Rising,,points)
         else:
             DAQmxCfgSampClkTiming(self.task_Analog,"",freq,DAQmx_Val_Rising,DAQmx_Val_ContSamps,points)
         return taskAnalogNumber

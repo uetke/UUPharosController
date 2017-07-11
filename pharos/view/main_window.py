@@ -6,8 +6,11 @@ class MainWindow(MainWindowGUI):
         MainWindowGUI.__init__(self, parent=None)
         self.laser = session.laser
         self.daq = session.daq
+        self.sesion = session
+        self.monitor = []
 
-        #self.wavelength = self.laser.wavelength
+
+
 
 
 if __name__ == '__main__':

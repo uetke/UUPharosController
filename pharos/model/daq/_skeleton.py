@@ -12,20 +12,29 @@
 
 class DaqBase():
     def analog_input_setup(self, conditions):
-        """Triggers an analog measurement. It does not read the value.
+        """
         conditions -- a dictionary with the needed parameters for an analog acquisition.
         """
         pass
 
     def trigger_analog(self, task_number):
-        """Gets the analog values acquired with the triggerAnalog function.
+        """
+        Triggers an analog measurement. It does not read the value.
+
         conditions -- dictionary with the number of points ot be read
         """
         pass
 
+    def analog_output_setup(self, conditions):
+        """
+        Sets up an analog output task.
+
+        :param conditions:
+        :return:
+        """
+
     def read_analog(self, task_number, conditions):
-        """Starts continuous acquisition of the specified channels with the specified timing interval.
-        conditions['devs'] -- list of devices to monitor
-        conditions['accuracy'] -- accuracy for the monitor. If not defined defaults to 0.1s
+        """
+        Gets the analog values acquired with the triggerAnalog function.
         """
         pass

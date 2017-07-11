@@ -1,4 +1,3 @@
 class device(object):
-    def __init__(self, dict):
-        for key in dict:
-            self.__setattr__(key, dict[key])
+    def __init__(self, properties):
+       self.properties = properties

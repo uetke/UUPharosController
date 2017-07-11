@@ -7,17 +7,17 @@
 """
 import PyDAQmx as nidaq
 import numpy as np
-from _skeleton import DaqBase
+from ._skeleton import DaqBase
 from lantz import Q_
 
 class ni(DaqBase):
 
-    def __init__(self, adq_num=1):
+    def __init__(self, daq_num=1):
         """Class trap for condensing tasks that can be used for interacting with an optical trap.
         session -- class with important variables, including the adq card.
         """
         self.running = False
-        self.adq_num = adq_num
+        self.daq_num = daq_num
         self.monitorNum = []
         self.tasks = []
 
@@ -30,15 +30,15 @@ class ni(DaqBase):
         t = nidaq.Task()
         dev = 'Dev%s' % self.deviceNumber
         if not isinstance(conditions['devices'], list):
-            channel = ["Dev%s/ai%s" % (self.adq_num, dev.port)]
+            channel = ["Dev%s/ai%s" % (self.daq_num, dev.port)]
             limit_min = [dev.limit[0]]
             limit_max = [dev.limit[1]]
         else:
             channel = []
             limit_max = []
             limit_min = []
-            for dev in devs:
-                channel.append("Dev%s/ai%s" % (self.adq_num, dev.port))
+            for dev in conditions['devices']:
+                channel.append("Dev%s/ai%s" % (self.daq_num, dev.port))
                 limit_min.append(dev.limit[0])
                 limit_max.append(dev.limit[1])
 
@@ -46,7 +46,7 @@ class ni(DaqBase):
         channels.encode('utf-8')
         freq = 1/conditions['accuracy'].to('s')
         if conditions['trigger'] == 'external':
-            trigger = "Dev%s/%s" % (self.adq_num,conditions['trigger_source'])
+            trigger = "Dev%s/%s" % (self.daq_num, conditions['trigger_source'])
         else:
             trigger = ""
         if 'trigger_edge' in conditions:

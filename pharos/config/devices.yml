@@ -14,38 +14,42 @@ devices:
     type: daq
     model: ni
     number: 1
-    ports:
-      input:
-        PhotoDiode1:
-          port: 1
-          type: analog
-          description: Forward Intensity
-          trigger:
-            mode: external
-            port: PFI0
-          calibration:
-            units: V
-            slope: 1
-            offset: 0
-          limits:
-            min: -2.5
-            max: 2.5
-        PhotoDiode2:
-          port: 2
-          type: analog
-          description: Forward Intensity
-          calibration:
-            units: V
-            slope: 1
-            offset: 0
-          limits:
-            min: -2.5
-            max: 2.5
-      output:
-        name: Stage1
+    devices:
+      PhotoDiode1:
+        name: Photodiode 1
+        port: 1
         type: analog
+        mode: input
+        description: Forward Intensity
+        trigger:
+          mode: external
+          port: PFI0
+        calibration:
+          units: V
+          slope: 1
+          offset: 0
+        limits:
+          min: -2.5
+          max: 2.5
+      PhotoDiode2:
+        name: Photodiode 2
+        port: 2
+        type: analog
+        mode: input
+        description: Forward Intensity
+        calibration:
+          units: V
+          slope: 1
+          offset: 0
+        limits:
+          min: -2.5
+          max: 2.5
+      Stage1:
+        name: Stage 1
+        type: analog
+        mode: output
         description: X Direction
-        portid: 1
+        port: 1
         calibration:
           units: um
           slope: 0.2134

@@ -43,19 +43,27 @@ for d in devices:
             raise Exception('Model for %s is not implemented' % devices[d])
 
         dev_num = devices[d]['number']
-        #session.daq = DaqClass(device_number=dev_num)
-        session.daq = None
-        inp = devices[d]['ports']['input']
-        for p in inp:
-            session.daq_devices.append(device(inp[p]))
-            session.daq_devices[-1].type = 'input'
-
-        out = devices[d]['ports']['input']
-        for p in out:
-            session.daq_devices.append(device(inp[p]))
-            session.daq_devices[-1].type = 'output'
+        session.daq = DaqClass(daq_num=dev_num)
+        for dev in devices[d]['devices']:
+            print(type(devices[d]['devices'][dev]))
+            session.daq_devices.append(device(devices[d]['devices'][dev]))
     else:
         raise Warning('Work in progress')
+
+
+def start_monitor(self, devs):
+    """
+    Starts the monitor on all the given devices
+    """
+    monitor_devices = []
+    for dev in devs:
+        if dev.properties['mode'] == 'input':
+            monitor_devices.append(dev)
+
+    conditions = {}
+    conditions['devices'] = monitor_devices
+    conditions['accuracy'] = 0.1
+    conditions['trigger'] = 'external'
 
 s = open('config/defaults.yml')
 defaults = yaml.load(s)
@@ -64,5 +72,6 @@ laser = defaults['tsl-710']
 ap = QApplication(sys.argv)
 m = MainWindow(session)
 m.laser_widget.populate_values(laser)
+
 m.show()
 ap.exit(ap.exec_())

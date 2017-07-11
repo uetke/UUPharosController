@@ -1,14 +1,13 @@
 import sys
-
+import os
+from PyQt4 import uic
 from pyqtgraph.Qt import QtGui
-from .QtCreator.LaserWidget.widget import Ui_Form
 
-class LaserWidget(QtGui.QWidget, Ui_Form):
+class LaserWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
-        #self.ui = Ui_Form()
-        self.setupUi(self)
-        self.wavelength_labe.setToolTip("<b>Extra info</b>")
+        p = os.path.dirname(__file__)
+        uic.loadUi(os.path.join(p,'QtCreator/laserwidget.ui'), self)
 
     def populate_values(self, dict):
         """

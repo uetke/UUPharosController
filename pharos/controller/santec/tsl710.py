@@ -318,7 +318,7 @@ if __name__ == '__main__':
 
     with tsl710.via_gpib(1) as inst:
         start_test_app(inst)
-#
+
 # if __name__ == '__main__':
 #     from lantz import Q_
 #     nm = Q_('nm')

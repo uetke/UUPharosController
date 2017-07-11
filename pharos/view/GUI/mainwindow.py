@@ -1,6 +1,9 @@
 from pyqtgraph.Qt import QtGui, QtCore
+from PyQt4 import uic
 from .laser_widget import LaserWidget
+from .monitor_config import MonitorConfig
 from .signal_monitor import SignalMonitorWidget
+
 
 class MainWindowGUI(QtGui.QMainWindow):
     """ Monitor of the relevant signals.
@@ -14,35 +17,31 @@ class MainWindowGUI(QtGui.QMainWindow):
 
         self.layout = QtGui.QHBoxLayout()
 
-        self.comboBox = QtGui.QComboBox(self)
-
-        dev = [{'name': 'test1'}, {'name': 'test2'}]
-        self.setup_dropdown(dev)
-
-        self.laser_widget = LaserWidget(self)
+        self.laser_widget = LaserWidget()
 
         self.layout.addWidget(self.laser_widget)
-        self.layout.addWidget(self.comboBox)
+
         self.central_widget.setLayout(self.layout)
-
+        self.monitor_config_widget = MonitorConfig()
+        QtCore.QObject.connect(self.monitor_config_widget.apply,QtCore.SIGNAL('clicked()'),self.apply_monitor)
         self.monitor = []
-
-
-    def setup_dropdown(self, devices):
-        for dev in devices:
-            self.comboBox.addItem(dev['name'])
+        self.setup_actions()
+        self.setup_menu()
 
     def update_wavelength(self, wl):
         self.wavelength_line.setText = "%s nm" % wl
 
-    def open_monitor(self):
-        self.monitor.append(SignalMonitorWidget(parent=self))
-        self.monitor[-1].show()
-        self.monitor[-1].set_id(1)
-        self.monitor[-1].set_name('Test')
+    def setup_actions(self):
+        self.monitor_config_action = QtGui.QAction("&Configure monitor", self)
+        self.monitor_config_action.triggered.connect(self.monitor_config_widget.show)
 
+    def setup_menu(self):
+        self.menu = self.menuBar()
+        self.monitor_menu = self.menu.addMenu("&Monitor")
+        self.monitor_menu.addAction(self.monitor_config_action)
 
-
+    def apply_monitor(self):
+        print('Apply monitor')
 
 
 

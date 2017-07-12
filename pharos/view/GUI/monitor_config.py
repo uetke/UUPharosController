@@ -14,14 +14,16 @@ class MonitorConfig(QtGui.QWidget):
         QtCore.QObject.connect(self.select_all, QtCore.SIGNAL('clicked()'), self.check_all )
 
     def populate_devices(self, devices):
-        self.devices = devices
+        self.devices = []
         for dev in devices:
-            self.ticks.append(QtGui.QCheckBox())
-            device_name = dev.properties['name']
-            device_description = dev.properties['description']
-            label = QtGui.QLabel(device_name)
-            label.setToolTip(device_description)
-            self.layout_widgets.addRow(label, self.ticks[-1])
+            if dev.properties['mode'] == 'input':
+                self.ticks.append(QtGui.QCheckBox())
+                device_name = dev.properties['name']
+                device_description = dev.properties['description']
+                label = QtGui.QLabel(device_name)
+                label.setToolTip(device_description)
+                self.layout_widgets.addRow(label, self.ticks[-1])
+                self.devices.append(dev)
 
     def check_all(self):
         if self.all_checked:

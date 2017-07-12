@@ -19,6 +19,7 @@ class SignalMonitorWidget(QtGui.QWidget):
             raise Exception('Cannot change the name of a running window.')
         else:
             self.name = name
+            self.setWindowTitle(name)
 
     def set_id(self, id):
         if self.id is not None:

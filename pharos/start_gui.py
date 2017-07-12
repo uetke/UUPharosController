@@ -1,6 +1,6 @@
 import sys
 import yaml
-from pprint import pprint
+from lantz import Q_
 from model.lib.session import session
 from model.lib.device import device
 from view.main_window import MainWindow
@@ -23,7 +23,6 @@ for d in devices:
             from controller.santec.tsl710 import tsl710 as LaserClass
         else:
             raise Exception('Model for %s is not implemented' % devices[d])
-        session.laser = None
         # port = devices[d]['connection']['port']
         # print(type(port))
         # connection_type = devices[d]['connection']['type']
@@ -45,8 +44,9 @@ for d in devices:
         dev_num = devices[d]['number']
         session.daq = DaqClass(daq_num=dev_num)
         for dev in devices[d]['devices']:
-            print(type(devices[d]['devices'][dev]))
-            session.daq_devices.append(device(devices[d]['devices'][dev]))
+            dd = device(devices[d]['devices'][dev])
+            print(dd.properties['limits'])
+            session.daq_devices.append(dd)
     else:
         raise Warning('Work in progress')
 
@@ -65,13 +65,16 @@ def start_monitor(self, devs):
     conditions['accuracy'] = 0.1
     conditions['trigger'] = 'external'
 
+
 s = open('config/defaults.yml')
 defaults = yaml.load(s)
 s.close()
 laser = defaults['tsl-710']
 ap = QApplication(sys.argv)
-m = MainWindow(session)
-m.laser_widget.populate_values(laser)
+with LaserClass.via_gpib(1) as session.laser:
 
-m.show()
-ap.exit(ap.exec_())
+    m = MainWindow(session)
+    m.laser_widget.populate_values(laser)
+    m.monitor_config_widget.populate_devices(session.daq_devices)
+    m.show()
+    ap.exit(ap.exec_())

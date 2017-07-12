@@ -1,6 +1,6 @@
 import os
 from PyQt4 import QtCore, QtGui, uic
-
+from .signal_monitor import SignalMonitorWidget
 
 class MonitorConfig(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -8,11 +8,13 @@ class MonitorConfig(QtGui.QWidget):
         p = os.path.dirname(__file__)
         uic.loadUi(os.path.join(p, 'QtCreator/monitor_config.ui'), self)
         self.ticks = []
+        self.devices = []
         self.all_checked = False
 
         QtCore.QObject.connect(self.select_all, QtCore.SIGNAL('clicked()'), self.check_all )
 
     def populate_devices(self, devices):
+        self.devices = devices
         for dev in devices:
             self.ticks.append(QtGui.QCheckBox())
             device_name = dev.properties['name']

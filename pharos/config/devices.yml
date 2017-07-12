@@ -13,7 +13,7 @@ devices:
   NI-DAQ:
     type: daq
     model: ni
-    number: 1
+    number: 2
     devices:
       PhotoDiode1:
         name: Photodiode 1
@@ -21,9 +21,6 @@ devices:
         type: analog
         mode: input
         description: Forward Intensity
-        trigger:
-          mode: external
-          port: PFI0
         calibration:
           units: V
           slope: 1

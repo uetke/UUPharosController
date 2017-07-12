@@ -28,25 +28,25 @@ class ni(DaqBase):
 
         """
         t = nidaq.Task()
-        dev = 'Dev%s' % self.deviceNumber
+        dev = 'Dev%s' % self.daq_num
         if not isinstance(conditions['devices'], list):
             channel = ["Dev%s/ai%s" % (self.daq_num, dev.port)]
-            limit_min = [dev.limit[0]]
-            limit_max = [dev.limit[1]]
+            limit_min = [dev.properties['limits']['min']]
+            limit_max = [dev.properties['limits']['max']]
         else:
             channel = []
             limit_max = []
             limit_min = []
             for dev in conditions['devices']:
-                channel.append("Dev%s/ai%s" % (self.daq_num, dev.port))
-                limit_min.append(dev.limit[0])
-                limit_max.append(dev.limit[1])
+                channel.append("Dev%s/ai%s" % (self.daq_num, dev.properties['port']))
+                limit_min.append(dev.properties['limits']['min'])
+                limit_max.append(dev.properties['limits']['max'])
 
         channels = ', '.join(channel)
         channels.encode('utf-8')
         freq = 1/conditions['accuracy'].to('s')
         if conditions['trigger'] == 'external':
-            trigger = "Dev%s/%s" % (self.daq_num, conditions['trigger_source'])
+            trigger = "/Dev%s/%s" % (self.daq_num, conditions['trigger_source'])
         else:
             trigger = ""
         if 'trigger_edge' in conditions:
@@ -57,7 +57,7 @@ class ni(DaqBase):
         else:
             trigger_edge = nidaq.DAQmx_Val_Rising
 
-        t.CreateAIVoltageChan(channels, None, nidaq.DAQmx_Val_RSE, min(limit_min),
+        t.CreateAIVoltageChan(channels, None, nidaq.DAQmx_Val_Diff, min(limit_min),
                               max(limit_max), nidaq.DAQmx_Val_Volts, None)
 
         if conditions['points'] > 0:
@@ -65,7 +65,7 @@ class ni(DaqBase):
         else:
             cont_finite = nidaq.DAQmx_Val_ContSamps
 
-        t.DAQmxCfgSampClkTiming(trigger, freq.magnitude, trigger_edge, cont_finite, conditions['points'])
+        t.CfgSampClkTiming(trigger, freq.magnitude, trigger_edge, cont_finite, conditions['points'])
         self.tasks.append(t)
         return len(self.tasks)-1
 
@@ -77,7 +77,6 @@ class ni(DaqBase):
         t = self.tasks[task]
         t.StartTask()  # Starts the measurement.
         self.running = True
-
 
     def read_analog(self, task, conditions):
         """Gets the analog values acquired with the triggerAnalog function.

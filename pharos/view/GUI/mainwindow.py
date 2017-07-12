@@ -1,5 +1,4 @@
 from pyqtgraph.Qt import QtGui, QtCore
-from PyQt4 import uic
 from .laser_widget import LaserWidget
 from .monitor_config import MonitorConfig
 from .signal_monitor import SignalMonitorWidget
@@ -23,10 +22,28 @@ class MainWindowGUI(QtGui.QMainWindow):
 
         self.central_widget.setLayout(self.layout)
         self.monitor_config_widget = MonitorConfig()
-        QtCore.QObject.connect(self.monitor_config_widget.apply,QtCore.SIGNAL('clicked()'),self.apply_monitor)
-        self.monitor = []
+        QtCore.QObject.connect(self.laser_widget.start_button, QtCore.SIGNAL('clicked()'), self.apply_monitor)
+
+        self.monitor = {}
+        self.devs_to_monitor = []
         self.setup_actions()
         self.setup_menu()
+
+
+    def apply_monitor(self):
+        devs_to_monitor = []
+        for i in range(len(self.monitor_config_widget.ticks)):
+            if self.monitor_config_widget.ticks[i].isChecked():
+                devs_to_monitor.append(self.monitor_config_widget.devices[i])
+
+        for dev in devs_to_monitor:
+            if dev.properties['name'] not in self.monitor:
+                self.monitor[dev.properties['name']] = SignalMonitorWidget()
+                self.monitor[dev.properties['name']].set_name(dev.properties['description'])
+
+            if not self.monitor[dev.properties['name']].isVisible():
+                self.monitor[dev.properties['name']].show()
+        self.devs_to_monitor = devs_to_monitor
 
     def update_wavelength(self, wl):
         self.wavelength_line.setText = "%s nm" % wl
@@ -40,8 +57,6 @@ class MainWindowGUI(QtGui.QMainWindow):
         self.monitor_menu = self.menu.addMenu("&Monitor")
         self.monitor_menu.addAction(self.monitor_config_action)
 
-    def apply_monitor(self):
-        print('Apply monitor')
 
 
 

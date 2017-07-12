@@ -13,9 +13,7 @@ from lantz.messagebased import MessageBasedDriver
 
 
 class tsl710(MessageBasedDriver):
-    DEFAULTS = {'COMMON': {'write_termination': '\r\n',
-                         'read_termination': '\r\n',
-                         'encoding': 'ascii',
+    DEFAULTS = {'COMMON': {'encoding': 'ascii',
                          },
                 'ASRL': {'baud_rate': 1200,
                          'bytesize': 8,
@@ -51,7 +49,7 @@ class tsl710(MessageBasedDriver):
 
     @wavelength.setter
     def wavelength(self, value):
-        self.write('WA%.4' % value)
+        self.query('WA%.4f' % value)
 
     @Feat(units='THz')
     def frequency(self):
@@ -127,15 +125,6 @@ class tsl710(MessageBasedDriver):
         self.query('SO')
 
     @Feat(units='nm', limits=(1480, 1640, 0.0001))
-    def start_wavelength(self):
-        """Start sweep wavelength."""
-        self.query('SS')
-
-    @start_wavelength.setter
-    def start_wavelength(self, value):
-        self.query('SS%.4f' % value)
-
-    @Feat(units='nm', limits=(1480, 1640, 0.0001))
     def stop_wavelength(self):
         """Stop sweep wavelength."""
         return self.query('SE')
@@ -143,12 +132,20 @@ class tsl710(MessageBasedDriver):
     @stop_wavelength.setter
     def stop_wavelength(self, value):
         self.query('SE%.4f' % value)
+        
+    @Feat(units='nm', limits=(1480, 1640, 0.0001))
+    def start_wavelength(self):
+        return self.query('SS')
 
+    @start_wavelength.setter
+    def start_wavelength(self, value):
+        self.query('SS%.4f'%value)
+        
     @Feat(units='THz')
     def start_frequency(self):
         """Start sweep frequency."""
         return self.query('SS')
-
+    
     @start_frequency.setter
     def start_frequency(self, value):
         self.query('SS%.5f' % value)
@@ -242,7 +239,6 @@ class tsl710(MessageBasedDriver):
         Executes sweeps or puts the device in trigger signal standby.
         The number of sweeps is defined by the method wavelength_sweeps.
         """
-
         self.query('SG')
 
     @Action()
@@ -273,7 +269,7 @@ class tsl710(MessageBasedDriver):
         'Setting to sweep start wavelength': 4
     })
     def sweep_condition(self):
-        return self.query('SK')
+        return int(self.query('SK'))
 
     @Action()
     def enable_trigger(self):
@@ -313,18 +309,24 @@ class tsl710(MessageBasedDriver):
     def coherent_control_off(self):
         self.query('CF')
 
+#if __name__ == '__main__':
+#    from lantz.ui.app import start_test_app
+#
+#    with tsl710.via_gpib(1) as inst:
+#        start_test_app(inst)
+
 if __name__ == '__main__':
-    from lantz.ui.app import start_test_app
-
+    from lantz import Q_
+    nm = Q_('nm')
     with tsl710.via_gpib(1) as inst:
-        start_test_app(inst)
-
-# if __name__ == '__main__':
-#     from lantz import Q_
-#     nm = Q_('nm')
-#     with tsl710.via_gpib(1) as inst:
-#         print('Instrument identified as %s' % inst.idn)
-#         print('Current wavelength: %s nm' % inst.wavelength)
-#         print('Changing wavelength to 1492nm')
-#         inst.wavelength = 1492*nm
-#         print('Current wavelength: %s nm' % inst.wavelength)
+        print('Instrument identified as %s' % inst.idn)
+        print('Current wavelength: %s' % inst.wavelength)
+        print('Changing wavelength to 1492nm')
+        inst.wavelength = 1492*nm
+        print(inst.query('SS'))
+        print('Current wavelength: %s' % inst.wavelength)
+        inst.start_wavelength = 1501*nm
+        inst.stop_wavelength = 1520*nm
+        print('Stop wavelength: %s' % inst.stop_wavelength)
+        print('Start wavelength: %s' % inst.start_wavelength)
+        

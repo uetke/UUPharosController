@@ -1,7 +1,8 @@
 import sys
 import os
 from PyQt4 import uic
-from pyqtgraph.Qt import QtGui
+from lantz.utils.qt import QtGui, QtCore
+from lantz.ui.widgets import connect_feat
 
 class LaserWidget(QtGui.QWidget):
     def __init__(self, parent=None):

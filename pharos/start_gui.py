@@ -69,12 +69,13 @@ def start_monitor(self, devs):
 s = open('config/defaults.yml')
 defaults = yaml.load(s)
 s.close()
-laser = defaults['tsl-710']
+laser_defaults = defaults['tsl-710']
 ap = QApplication(sys.argv)
 with LaserClass.via_gpib(1) as session.laser:
 
     m = MainWindow(session)
-    m.laser_widget.populate_values(laser)
+    m.laser_widget.connect_laser(session.laser)
+    m.laser_widget.populate_values(laser_defaults)
     m.monitor_config_widget.populate_devices(session.daq_devices)
     m.show()
     ap.exit(ap.exec_())

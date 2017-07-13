@@ -1,7 +1,7 @@
 import sys
 import os
 from PyQt4 import uic
-from lantz.utils.qt import QtGui, QtCore
+from PyQt4 import QtCore, QtGui
 from lantz.ui.widgets import connect_feat
 
 class LaserWidget(QtGui.QWidget):
@@ -9,6 +9,41 @@ class LaserWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self)
         p = os.path.dirname(__file__)
         uic.loadUi(os.path.join(p,'QtCreator/laserwidget.ui'), self)
+
+        self.LD_current = False
+        self.auto_power = False
+        self.coherent = False
+        self.fine_tune = False
+        self.shutter = False
+        self.trigger = False
+
+        QtCore.QObject.connect(self.LD_button,QtCore.SIGNAL('clicked()'), self.set_LD_current)
+        QtCore.QObject.connect(self.auto_power_button, QtCore.SIGNAL('clicked()'), self.set_auto_power)
+        QtCore.QObject.connect(self.coherent_button, QtCore.SIGNAL('clicked()'), self.set_coherent)
+        QtCore.QObject.connect(self.trigger_button, QtCore.SIGNAL('clicked()'), self.set_trigger)
+        
+    def set_LD_current(self):
+        self.LD_current = not self.LD_current
+        self.LD_button.setDown(self.LD_current)
+        self.laser.LD_current = self.LD_current
+
+    def set_auto_power(self):
+        self.auto_power = not self.auto_power
+        self.auto_power_button.setDown(self.auto_power)
+        self.laser.auto_power = self.auto_power
+
+    def set_coherent(self):
+        self.coherent = not self.coherent
+        self.coherent_button.setDown(self.coherent)
+        self.laser.coherent_control = self.coherent
+
+    def set_trigger(self):
+        self.trigger = not self.trigger
+        self.trigger_button.setDown(self.trigger)
+        self.laser.trigger = self.trigger
+
+    def connect_laser(self, laser):
+        self.laser = laser
 
     def populate_values(self, dict):
         """

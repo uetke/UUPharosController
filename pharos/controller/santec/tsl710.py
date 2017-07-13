@@ -22,26 +22,14 @@ class tsl710(MessageBasedDriver):
 
     def initialize(self):
         super().initialize()
+        self.coherent = False
+        self.LD = False
+        self.trigger_status = False
+        self.auto_power_status = False
 
     @Feat()
     def idn(self):
         return self.query('*IDN?')
-
-    @Action()
-    def lo(self):
-        """
-        Sets ON the LD current
-        :return:
-        """
-        self.write('LO')
-
-    @Action()
-    def lf(self):
-        """
-        Sets OFF the LD current.
-        :return:
-        """
-        self.write('LF')
 
     @Feat(units='nm', limits=(1480, 1640, 0.0001))
     def wavelength(self):
@@ -99,8 +87,20 @@ class tsl710(MessageBasedDriver):
     def powermW(self, value):
         self.query('LP%.2f' % value)
 
-    @Action()
+    @Feat(values=(True, False))
     def auto_power(self):
+        return self.auto_power_status
+
+    @auto_power.setter
+    def auto_power(self, value):
+        if value:
+            self.auto_power_on()
+        else:
+            self.manual_power()
+        self.auto_power_status = value
+
+    @Action()
+    def auto_power_on(self):
         """Sets the power control to auto."""
         self.query('AF')
 
@@ -271,6 +271,18 @@ class tsl710(MessageBasedDriver):
     def sweep_condition(self):
         return int(self.query('SK'))
 
+    @Feat(values=(True, False))
+    def trigger(self):
+        return self.trigger_status
+
+    @trigger.setter
+    def trigger(self, value):
+        if value:
+            self.enable_trigger()
+        else:
+            self.disable_trigger()
+        self.trigger_status = value
+
     @Action()
     def enable_trigger(self):
         self.query('TRE')
@@ -301,6 +313,19 @@ class tsl710(MessageBasedDriver):
     def interval_trigger(self, value):
         self.query('TW%.4f' % value)
 
+    @Feat(values=(True, False))
+    def coherent_control(self):
+        return self.coherent
+
+    @coherent_control.setter
+    def coherent_control(self, value):
+        if value:
+            self.coherent_control_on()
+        else:
+            self.coherent_control_off
+        self.coherent = value
+
+
     @Action()
     def coherent_control_on(self):
         self.query('CO')
@@ -308,6 +333,35 @@ class tsl710(MessageBasedDriver):
     @Action()
     def coherent_control_off(self):
         self.query('CF')
+
+    @Feat(values=(True, False))
+    def LD_current(self):
+        return self.LD
+
+    @LD_current.setter
+    def LD_current(self, value):
+        if value:
+            self.lo()
+        else:
+            self.lf()
+        self.LD = value
+
+    @Action()
+    def lo(self):
+        """
+        Sets ON the LD current
+        :return:
+        """
+        self.write('LO')
+
+    @Action()
+    def lf(self):
+        """
+        Sets OFF the LD current.
+        :return:
+        """
+        self.write('LF')
+
 
 #if __name__ == '__main__':
 #    from lantz.ui.app import start_test_app

@@ -7,7 +7,7 @@ from .signal_monitor import SignalMonitorWidget
 class MainWindowGUI(QtGui.QMainWindow):
     """ Monitor of the relevant signals.
     """
-    def __init__(self,parent=None):
+    def __init__(self, laser, parent=None):
         QtGui.QMainWindow.__init__(self, parent=parent)
         self.setWindowTitle('Pharos Monitoring Software')
 
@@ -16,7 +16,7 @@ class MainWindowGUI(QtGui.QMainWindow):
 
         self.layout = QtGui.QHBoxLayout()
 
-        self.laser_widget = LaserWidget()
+        self.laser_widget = LaserWidget(laser)
 
         self.layout.addWidget(self.laser_widget)
 
@@ -38,11 +38,11 @@ class MainWindowGUI(QtGui.QMainWindow):
 
         for dev in devs_to_monitor:
             if dev.properties['name'] not in self.monitor:
-                self.monitor[dev.properties['name']] = SignalMonitorWidget()
-                self.monitor[dev.properties['name']].set_name(dev.properties['description'])
+                self.monitor[dev.properties['name']] = {'widget': SignalMonitorWidget()}
+                self.monitor[dev.properties['name']]['widget'].set_name(dev.properties['description'])
 
-            if not self.monitor[dev.properties['name']].isVisible():
-                self.monitor[dev.properties['name']].show()
+            if not self.monitor[dev.properties['name']]['widget'].isVisible():
+                self.monitor[dev.properties['name']]['widget'].show()
         self.devs_to_monitor = devs_to_monitor
 
     def update_wavelength(self, wl):

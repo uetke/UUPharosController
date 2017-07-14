@@ -3,8 +3,9 @@ import yaml
 from lantz import Q_
 from model.lib.session import session
 from model.lib.device import device
-from view.main_window import MainWindow
 from PyQt4.Qt import QApplication
+from view.main_window import MainWindow
+
 
 
 config_devices = "config/devices.yml"
@@ -74,7 +75,6 @@ ap = QApplication(sys.argv)
 with LaserClass.via_gpib(1) as session.laser:
 
     m = MainWindow(session)
-    m.laser_widget.connect_laser(session.laser)
     m.laser_widget.populate_values(laser_defaults)
     m.monitor_config_widget.populate_devices(session.daq_devices)
     m.show()

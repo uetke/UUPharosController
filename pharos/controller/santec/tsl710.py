@@ -28,6 +28,7 @@ class tsl710(MessageBasedDriver):
         self.LD = False
         self.trigger_status = False
         self.auto_power_status = False
+        self.shutter_status = False
 
     @Feat()
     def idn(self):
@@ -89,17 +90,6 @@ class tsl710(MessageBasedDriver):
     def powermW(self, value):
         self.query('LP%.2f' % value)
 
-    #@Feat(values=(True, False))
-    #def auto_power(self):
-    #    return self.auto_power_status
-    #
-    #@auto_power.setter
-    #def auto_power(self, value):
-    #    if value:
-    #        self.auto_power_on()
-    #    else:
-    #        self.manual_power()
-    #    self.auto_power_status = value
 
     @Action()
     def auto_power_on(self):
@@ -118,13 +108,6 @@ class tsl710(MessageBasedDriver):
     def attenuator(self, value):
         self.query('AT%.2f' % value)
 
-    @Action()
-    def close_shutter(self):
-        self.query('SC')
-
-    @Action()
-    def open_shutter(self):
-        self.query('SO')
 
     @Feat(units='nm', limits=(1480, 1640, 0.0001))
     def stop_wavelength(self):
@@ -273,25 +256,6 @@ class tsl710(MessageBasedDriver):
     def sweep_condition(self):
         return int(self.query('SK'))
 
-    @Feat(values={True: True, False: False})
-    def trigger(self):
-        return self.trigger_status
-
-    @trigger.setter
-    def trigger(self, value):
-        if value:
-            self.enable_trigger()
-        else:
-            self.disable_trigger()
-        self.trigger_status = value
-
-    @Action()
-    def enable_trigger(self):
-        self.query('TRE')
-
-    @Action()
-    def disable_trigger(self):
-        self.query('TRD')
 
     @Feat(values={
         'None': 0,
@@ -315,38 +279,81 @@ class tsl710(MessageBasedDriver):
     def interval_trigger(self, value):
         self.query('TW%.4f' % value)
 
-    #@Feat(values=(True, False))
-    #def coherent_control(self):
-    #    return self.coherent
-    #
-    #@coherent_control.setter
-    #def coherent_control(self, value):
-    #    if value:
-    #        self.coherent_control_on()
-    #    else:
-    #        self.coherent_control_off
-    #    self.coherent = value
+    @Feat(values={True: True, False: False})
+    def coherent_control(self):
+       return self.coherent
 
+    @coherent_control.setter
+    def coherent_control(self, value):
+       if value:
+           self.coherent_control_on()
+       else:
+           self.coherent_control_off
+       self.coherent = value
+
+    @Feat(values={True: True, False: False})
+    def LD_current(self):
+       return self.LD
+
+    @LD_current.setter
+    def LD_current(self, value):
+       if value:
+           self.lo()
+       else:
+           self.lf()
+       self.LD = value
+
+    @Feat(values={True: True, False: False})
+    def auto_power(self):
+        return self.auto_power_status
+
+    @auto_power.setter
+    def auto_power(self, value):
+        if value:
+            self.auto_power_on()
+        else:
+            self.manual_power()
+        self.auto_power_status = value
+
+    @Feat(values={True: True, False: False})
+    def trigger(self):
+        return self.trigger_status
+
+    @trigger.setter
+    def trigger(self, value):
+        if value:
+            self.enable_trigger()
+        else:
+            self.disable_trigger()
+        self.trigger_status = value
+
+    @Feat(values={True: True, False: False})
+    def shutter(self):
+        return self.shutter_status
+
+    @shutter.setter
+    def shutter(self, value):
+        if value:
+            self.open_shutter()
+        else:
+            self.close_shutter()
+        self.shutter_status = value
 
     @Action()
-    def coherent_control_on(self):
-        self.query('CO')
+    def close_shutter(self):
+        self.query('SC')
 
     @Action()
-    def coherent_control_off(self):
-        self.query('CF')
+    def open_shutter(self):
+        self.query('SO')
 
-    #@Feat(values=(True, False))
-    #def LD_current(self):
-    #    return self.LD
-    #
-    #@LD_current.setter
-    #def LD_current(self, value):
-    #    if value:
-    #        self.lo()
-    #    else:
-    #        self.lf()
-    #    self.LD = value
+    @Action()
+    def enable_trigger(self):
+        self.query('TRE')
+
+    @Action()
+    def disable_trigger(self):
+        self.query('TRD')
 
     @Action()
     def lo(self):
@@ -364,7 +371,13 @@ class tsl710(MessageBasedDriver):
         """
         self.write('LF')
 
+    @Action()
+    def coherent_control_on(self):
+        self.query('CO')
 
+    @Action()
+    def coherent_control_off(self):
+        self.query('CF')
 #if __name__ == '__main__':
 #    from lantz.ui.app import start_test_app
 #

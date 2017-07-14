@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>369</width>
-    <height>432</height>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -72,22 +72,36 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="4">
-    <widget class="QWidget" name="devices_widget" native="true">
-     <widget class="QWidget" name="formLayoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>10</y>
-        <width>351</width>
-        <height>331</height>
-       </rect>
-      </property>
-      <layout class="QFormLayout" name="layout_widgets"/>
-     </widget>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Accuracy</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>accuracy</cstring>
+     </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="accuracy">
+     <property name="font">
+      <font>
+       <pointsize>12</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="4">
+    <layout class="QFormLayout" name="layout_widgets">
+     <item row="0" column="0">
+      <widget class="QWidget" name="devices_widget" native="true"/>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" colspan="2">
     <widget class="QPushButton" name="select_all">
      <property name="font">
       <font>

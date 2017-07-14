@@ -71,11 +71,12 @@ class ni(DaqBase):
 
         if conditions['points'] > 0:
             cont_finite = nidaq.DAQmx_Val_FiniteSamps
+            num_points = conditions['points']
         else:
             cont_finite = nidaq.DAQmx_Val_ContSamps
+            num_points = 10000
 
-        t.CfgSampClkTiming(trigger, freq.magnitude, trigger_edge, cont_finite, conditions['points'])
-        #t.CfgAnlgEdgeStartTrig('/dev2/APFI0',trigger_edge,0.5)
+        t.CfgSampClkTiming(trigger, freq.magnitude, trigger_edge, cont_finite, num_points)
         self.tasks.append(t)
         return len(self.tasks)-1
 
@@ -113,6 +114,10 @@ class ni(DaqBase):
         d = nidaq.bool32()
         t.GetTaskComplete(d)
         return d.value
+        
+    def stop_task(self, task):
+        t = self.tasks[task]
+        t.StopTask()
 
 if __name__ == '__main__':
     a = ni()

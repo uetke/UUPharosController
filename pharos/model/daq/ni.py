@@ -20,6 +20,7 @@ class ni(DaqBase):
         self.daq_num = daq_num
         self.monitorNum = []
         self.tasks = []
+        self.nidaq = nidaq
 
     def analog_input_setup(self, conditions):
         """
@@ -29,10 +30,11 @@ class ni(DaqBase):
         """
         t = nidaq.Task()
         dev = 'Dev%s' % self.daq_num
-        if not isinstance(conditions['devices'], list):
-            channel = ["Dev%s/ai%s" % (self.daq_num, dev.port)]
-            limit_min = [dev.properties['limits']['min']]
-            limit_max = [dev.properties['limits']['max']]
+        devices = conditions['devices']
+        if not isinstance(devices, list):
+            channel = ["Dev%s/ai%s" % (self.daq_num, devices.properties['port'])]
+            limit_min = [devices.properties['limits']['min']]
+            limit_max = [devices.properties['limits']['max']]
         else:
             channel = []
             limit_max = []
@@ -45,6 +47,8 @@ class ni(DaqBase):
         channels = ', '.join(channel)
         channels.encode('utf-8')
         freq = 1/conditions['accuracy'].to('s')
+        #freq = freq.magnitude
+        print('SAMPLES PER SECOND: %s' % freq)
         if conditions['trigger'] == 'external':
             trigger = "/Dev%s/%s" % (self.daq_num, conditions['trigger_source'])
         else:
@@ -57,7 +61,12 @@ class ni(DaqBase):
         else:
             trigger_edge = nidaq.DAQmx_Val_Rising
 
-        t.CreateAIVoltageChan(channels, None, nidaq.DAQmx_Val_Diff, min(limit_min),
+        if 'measure_mode' in conditions:
+            measure_mode = conditions['measure_mode']
+        else:
+            measure_mode = nidaq.DAQmx_Val_Diff
+
+        t.CreateAIVoltageChan(channels, None, measure_mode, min(limit_min),
                               max(limit_max), nidaq.DAQmx_Val_Volts, None)
 
         if conditions['points'] > 0:
@@ -66,6 +75,7 @@ class ni(DaqBase):
             cont_finite = nidaq.DAQmx_Val_ContSamps
 
         t.CfgSampClkTiming(trigger, freq.magnitude, trigger_edge, cont_finite, conditions['points'])
+        #t.CfgAnlgEdgeStartTrig('/dev2/APFI0',trigger_edge,0.5)
         self.tasks.append(t)
         return len(self.tasks)-1
 
@@ -98,7 +108,11 @@ class ni(DaqBase):
         values = read.value
         return values, data
 
-
+    def is_task_complete(self, task):
+        t = self.tasks[task]
+        d = nidaq.bool32()
+        t.GetTaskComplete(d)
+        return d.value
 
 if __name__ == '__main__':
     a = ni()

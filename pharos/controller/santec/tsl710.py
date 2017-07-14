@@ -273,17 +273,17 @@ class tsl710(MessageBasedDriver):
     def sweep_condition(self):
         return int(self.query('SK'))
 
-    #@Feat(values=(True, False))
-    #def trigger(self):
-    #    return self.trigger_status
-    #
-    #@trigger.setter
-    #def trigger(self, value):
-    #    if value:
-    #        self.enable_trigger()
-    #    else:
-    #        self.disable_trigger()
-    #    self.trigger_status = value
+    @Feat(values={True: True, False: False})
+    def trigger(self):
+        return self.trigger_status
+
+    @trigger.setter
+    def trigger(self, value):
+        if value:
+            self.enable_trigger()
+        else:
+            self.disable_trigger()
+        self.trigger_status = value
 
     @Action()
     def enable_trigger(self):

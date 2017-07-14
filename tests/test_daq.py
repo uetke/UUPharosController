@@ -7,8 +7,8 @@ import PyDAQmx as nidaq
 
 if __name__ == "__main__":
     daq = ni(daq_num=2)
-    dev1 = {'port': 1,
-            'limits': {'min': -2.5, 'max': 2.5}}
+    dev1 = {'port': 0,
+            'limits': {'min': 0, 'max': 2.5}}
     dev = device(dev1)
     conditions = {'devices': dev,
                   'accuracy': Q_('1.5 s')/7500,
@@ -16,7 +16,7 @@ if __name__ == "__main__":
                   'trigger_source': 'PFI0',
                   'trigger_edge': 'falling',
                   'measure_mode': nidaq.DAQmx_Val_Diff,
-                  'points': 7000}
+                  'points': 7500}
     ###############################################################
     # DAQmx_Val_RSE        - Referenced Single - Ended.
     # DAQmx_Val_NRSE       - Non - Referenced Single - Ended.
@@ -30,6 +30,7 @@ if __name__ == "__main__":
     t0 = time()
     while not daq.is_task_complete(t):
         sleep(0.1)
+    
     print('Took: %2f s' % (time()-t0))
 
     v, d = daq.read_analog(t, conditions)

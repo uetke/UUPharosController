@@ -1,8 +1,10 @@
 import os
 from PyQt4 import QtCore, QtGui, uic
+from lantz import Q_
 from .signal_monitor import SignalMonitorWidget
 
-class MonitorConfig(QtGui.QWidget):
+
+class MonitorConfigWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent=parent)
         p = os.path.dirname(__file__)
@@ -10,6 +12,7 @@ class MonitorConfig(QtGui.QWidget):
         self.ticks = []
         self.devices = []
         self.all_checked = False
+        self.monitors = {}
 
         QtCore.QObject.connect(self.select_all, QtCore.SIGNAL('clicked()'), self.check_all )
 
@@ -24,6 +27,7 @@ class MonitorConfig(QtGui.QWidget):
                 label.setToolTip(device_description)
                 self.layout_widgets.addRow(label, self.ticks[-1])
                 self.devices.append(dev)
+        self.configure_monitors(self.devices)
 
     def check_all(self):
         if self.all_checked:
@@ -34,6 +38,31 @@ class MonitorConfig(QtGui.QWidget):
             for t in self.ticks:
                 t.setChecked(True)
             self.all_checked = True
+
+    def configure_monitors(self, devs_to_monitor):
+        for dev in devs_to_monitor:
+            if dev.properties['name'] not in self.monitors:
+                self.monitors[dev.properties['name']] = {'widget': SignalMonitorWidget()}
+                self.monitors[dev.properties['name']]['widget'].set_name(dev.properties['description'])
+
+    def apply_monitor(self, conditions):
+        conditions['devices'] = []
+        for i in range(len(self.ticks)):
+            if self.ticks[i].isChecked():
+                conditions['devices'].append(self.devices[i])
+                self.monitors[self.devices[i].properties['name']]['widget'].show()
+
+        if self.trigger.currentIndex() == 0:
+            self.conditions['trigger'] = 'external'
+            self.conditions['trigger_source'] = self.trigger_info.text()
+        elif self.trigger.currentIndex() == 1:
+            self.conditions['trigger'] = 'internal'
+            self.conditions['accuracy'] = Q_(self.accuracy.text())
+        else:
+            raise Exception('That trigger mode is not supported.')
+
+        self.emit(QtCore.SIGNAL('conditions_ready'), conditions)
+
 
 
 
@@ -51,7 +80,7 @@ if __name__ == '__main__':
 
     devs = [dev1, dev2]
     app = QtGui.QApplication(sys.argv)
-    window = MonitorConfig()
+    window = MonitorConfigWidget()
     window.populate_devices(devs)
     window.show()
     sys.exit(app.exec_())

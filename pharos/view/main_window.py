@@ -1,98 +1,76 @@
-from PyQt4 import QtCore
-from .GUI.mainwindow import MainWindowGUI
-from lantz import Q_
-from lantz.ui.widgets import connect_feat
-from time import sleep
 import numpy as np
+from PyQt4 import QtCore
+from pharos.view.GUI.mainwindow import MainWindowGUI
+
 
 class MainWindow(MainWindowGUI):
     def __init__(self, session):
         MainWindowGUI.__init__(self, session.laser, parent=None)
         self.laser = session.laser
         self.daq = session.daq
-        self.sesion = session
+        self.session = session
+        self.monitor_task = None
 
-        QtCore.QObject.connect(self.laser_widget.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
+        self.monitor_timer = QtCore.QTimer()
 
+        QtCore.QObject.connect(self.laser_widget.start_button, QtCore.SIGNAL('clicked()'), self.configure_laser)
+        QtCore.QObject.connect(self.laser_widget, QtCore.SIGNAL('configure_monitor'), self.apply_monitor)
+        QtCore.QObject.connect(self.monitor_config_widget, QtCore.SIGNAL('conditions_ready'), self.start_monitor)
+        QtCore.QObject.connect(self.monitor_timer, QtCore.SIGNAL("timeout()"), self.update_monitor)
         #QtCore.QObject.connect(self.laser_widget.apply_button, QtCore.SIGNAL('clicked()'), self.update_laser)
 
-    def update_laser(self):
-        self.laser.wavelength = Q_(self.laser_widget.wavelength_line.text())
-        self.laser.start_wavelength = Q_(self.laser_widget.start_wavelength_line.text())
-        self.laser.stop_wavelength = Q_(self.laser_widget.stop_wavelength_line.text())
-        self.laser.speed = Q_(self.laser_widget.speed_line.text())
-        self.laser.trigger_step = Q_(self.laser_widget.trigger_step_line.text())
-        self.laser.step = Q_(self.laser_widget.step_line.text())
-        self.laser.power = Q_(self.laser_widget.power_line.text())
-        self.laser.wait = Q_(self.laser_widget.wait_line.text())
-        self.laser.step_time = Q_(self.laser_widget.step_time_line.text())
-        self.laser.sweeps = Q_(self.laser_widget.sweeps_line.text())
+        self.monitor_config_widget.populate_devices(self.session.daq_devices)
 
-    def start_monitor(self):
-        self.update_laser()
-        self.apply_monitor()
-        
-        if self.laser_widget.continuous_button.isChecked():
-            if self.laser_widget.one_button.isChecked():
-                if self.laser_widget.trigger_check.isChecked():
-                    sweep_mode = 'ContOneTrig'
-                else:
-                    sweep_mode = 'ContOne'
-            else:
-                if self.laser_widget.trigger_check.isChecked():
-                    sweep_mode = 'ContTwoTrig'
-                else:
-                    sweep_mode = 'ContTwo'
-        else:
-            if self.laser_widget.one_button.isChecked():
-                if self.laser_widget.trigger_check.isChecked():
-                    sweep_mode = 'StepOneTrig'
-                else:
-                    sweep_mode = 'StepOne'
-            else:
-                if self.laser_widget.trigger_check.isChecked():
-                    sweep_mode = 'StepTwoTrig'
-                else:
-                    sweep_mode = 'StepTwo'
-        print('Sweep mode: '+sweep_mode)
-        self.laser.sweep_mode = sweep_mode
-        points = int((self.laser.stop_wavelength-self.laser.start_wavelength)/self.laser.trigger_step)
-        wavelength = np.linspace(self.laser.start_wavelength, self.laser.stop_wavelength, points)
-        for dev in self.devs_to_monitor:
-            print(dev.properties)
-            monit = self.monitor[dev.properties['name']]
-            monit['widget'].main_plot.setLabel('bottom', 'Wavelength', units='nm')
-            monit['widget'].main_plot.showGrid(True, True)
-            monit['dataX'] = wavelength
-        
-        print('Point: %s' % points)
-        accuracy = self.laser.trigger_step/self.laser.speed
-        conditions = {'devices': self.devs_to_monitor,
-                      'accuracy': accuracy,
-                      'trigger': 'external',
-                      'trigger_source': 'PFI0',
-                      'points': points}
+    def start_monitor(self, conditions):
+        if self.monitor_task is not None:
+            if not self.monitor_task.is_task_complete():
+                print('Trying to trigger again the monitor')
+                return False
 
-        task = self.daq.analog_input_setup(conditions)
-        self.daq.trigger_analog(task)
+        self.devices_monitored = conditions['devices']
+        start_wl = self.laser.start_wavelength
+        stop_wl = self.laser.stop_wavelength
+        step = self.laser.trigger_step
+        num_points = (stop_wl - start_wl) / step
+        xdata = np.linspace(start_wl, stop_wl, num_points)
+
+        for dev in self.devices_monitored:
+            self.monitor_config_widget.monitors[dev.properties['name']].set_wavelength(xdata)
+
+        self.monitor_task = self.daq.analog_input_setup(conditions)
+        self.daq.trigger_analog(self.monitor_task)
         self.laser.execute_sweep()
-        # self.laser.software_trigger()
-        while not self.laser.sweep_condition == 'Stop':
-            print('Waiting for laser')
-            sleep(0.5)
+        self.monitor_timer.start(100) # In ms
 
-        conditions['points'] = -1
-        v, d = self.daq.read_analog(task, conditions)
-        for a in d:
-            print(a)
-        print('Sweep Finished')
+    def update_monitor(self):
+        conditions = {'points': -1}
+        try:
+            v, d = self.daq.read_analog(self.monitor_task, conditions)
+        except:
+            return
+        num_devs = len(self.devices_monitored)
+        data = d[:v*num_devs]
+        data = np.reshape(data, (num_devs, int(len(data) / num_devs)))
+
+        for i in range(num_devs):
+            dev = self.devices_monitored[i]
+            new_data = data[:,i]
+            self.monitor_config_widget.monitors[dev.properties['name']].set_ydata(new_data)
+            self.monitor_config_widget.monitors[dev.properties['name']].update_monitor()
+
+        if self.daq.is_task_complete(self.monitor_task):
+            self.monitor_task = None
+            self.monitor_timer.stop()
+
+
+
 
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     import sys
     from model.lib.session import session
     session.laser = None
-    session.adq = None
+    session.daq = None
 
     ap = QApplication(sys.argv)
     window = MainWindow(session)

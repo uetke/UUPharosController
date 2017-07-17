@@ -17,6 +17,7 @@ stream.close()
 devs = []
 session = session()
 session.daq_devices = []
+session.devs_to_monitor = []
 
 for d in devices:
     if devices[d]['type'] == 'laser':
@@ -46,8 +47,8 @@ for d in devices:
         session.daq = DaqClass(daq_num=dev_num)
         for dev in devices[d]['devices']:
             dd = device(devices[d]['devices'][dev])
-            print(dd.properties['limits'])
             session.daq_devices.append(dd)
+
     else:
         raise Warning('Work in progress')
 
@@ -70,12 +71,10 @@ def start_monitor(self, devs):
 s = open('config/defaults.yml')
 defaults = yaml.load(s)
 s.close()
-laser_defaults = defaults['tsl-710']
+session.laser_defaults = defaults['tsl-710']
 ap = QApplication(sys.argv)
 with LaserClass.via_gpib(1) as session.laser:
 
     m = MainWindow(session)
-    m.laser_widget.populate_values(laser_defaults)
-    m.monitor_config_widget.populate_devices(session.daq_devices)
     m.show()
     ap.exit(ap.exec_())

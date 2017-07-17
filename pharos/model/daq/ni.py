@@ -16,7 +16,6 @@ class ni(DaqBase):
         """Class trap for condensing tasks that can be used for interacting with an optical trap.
         session -- class with important variables, including the adq card.
         """
-        self.running = False
         self.daq_num = daq_num
         self.monitorNum = []
         self.tasks = []
@@ -46,7 +45,7 @@ class ni(DaqBase):
 
         channels = ', '.join(channel)
         channels.encode('utf-8')
-        freq = 1/conditions['accuracy'].to('s')
+        freq = int(1/conditions['accuracy'].to('s'))
         #freq = freq.magnitude
         print('SAMPLES PER SECOND: %s' % freq)
         if conditions['trigger'] == 'external':
@@ -87,7 +86,6 @@ class ni(DaqBase):
         """
         t = self.tasks[task]
         t.StartTask()  # Starts the measurement.
-        self.running = True
 
     def read_analog(self, task, conditions):
         """Gets the analog values acquired with the triggerAnalog function.

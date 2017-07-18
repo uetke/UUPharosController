@@ -66,7 +66,8 @@ NI-DAQ:
   type: daq
   model: ni
   number: 2
-  driver: model.daq.ni
+  driver: pharos.model.daq.ni
+  driver_name: ni
 
 oscilloscope:
   type: daq

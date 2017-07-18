@@ -51,13 +51,13 @@ class MonitorConfigWidget(QtGui.QWidget):
             if self.ticks[i].isChecked():
                 conditions['devices'].append(self.devices[i])
                 self.monitors[self.devices[i].properties['name']]['widget'].show()
-
+        
         if self.trigger.currentIndex() == 0:
-            self.conditions['trigger'] = 'external'
-            self.conditions['trigger_source'] = self.trigger_info.text()
+            conditions['trigger'] = 'external'
+            conditions['trigger_source'] = self.trigger_info.text()
         elif self.trigger.currentIndex() == 1:
-            self.conditions['trigger'] = 'internal'
-            self.conditions['accuracy'] = Q_(self.accuracy.text())
+            conditions['trigger'] = 'internal'
+            conditions['accuracy'] = Q_(self.accuracy.text())
         else:
             raise Exception('That trigger mode is not supported.')
 

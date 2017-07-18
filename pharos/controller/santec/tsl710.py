@@ -287,8 +287,10 @@ class tsl710(MessageBasedDriver):
     def coherent_control(self, value):
        if value:
            self.coherent_control_on()
+           print('Coherent ON')
        else:
            self.coherent_control_off
+           print('Coherent off')
        self.coherent = value
 
     @Feat(values={True: True, False: False})
@@ -361,7 +363,7 @@ class tsl710(MessageBasedDriver):
         Sets ON the LD current
         :return:
         """
-        self.write('LO')
+        self.query('LO')
 
     @Action()
     def lf(self):
@@ -369,7 +371,7 @@ class tsl710(MessageBasedDriver):
         Sets OFF the LD current.
         :return:
         """
-        self.write('LF')
+        self.query('LF')
 
     @Action()
     def coherent_control_on(self):
@@ -378,24 +380,24 @@ class tsl710(MessageBasedDriver):
     @Action()
     def coherent_control_off(self):
         self.query('CF')
-#if __name__ == '__main__':
-#    from lantz.ui.app import start_test_app
-#
-#    with tsl710.via_gpib(1) as inst:
-#        start_test_app(inst)
-
 if __name__ == '__main__':
-    from lantz import Q_
-    nm = Q_('nm')
+    from lantz.ui.app import start_test_app
+
     with tsl710.via_gpib(1) as inst:
-        print('Instrument identified as %s' % inst.idn)
-        print('Current wavelength: %s' % inst.wavelength)
-        print('Changing wavelength to 1492nm')
-        inst.wavelength = 1492*nm
-        print(inst.query('SS'))
-        print('Current wavelength: %s' % inst.wavelength)
-        inst.start_wavelength = 1501*nm
-        inst.stop_wavelength = 1520*nm
-        print('Stop wavelength: %s' % inst.stop_wavelength)
-        print('Start wavelength: %s' % inst.start_wavelength)
-        
+        start_test_app(inst)
+
+#if __name__ == '__main__':
+#    from lantz import Q_
+#    nm = Q_('nm')
+#    with tsl710.via_gpib(1) as inst:
+#        print('Instrument identified as %s' % inst.idn)
+#        print('Current wavelength: %s' % inst.wavelength)
+#        print('Changing wavelength to 1492nm')
+#        inst.wavelength = 1492*nm
+#        print(inst.query('SS'))
+#        print('Current wavelength: %s' % inst.wavelength)
+#        inst.start_wavelength = 1501*nm
+#        inst.stop_wavelength = 1520*nm
+#        print('Stop wavelength: %s' % inst.stop_wavelength)
+#        print('Start wavelength: %s' % inst.start_wavelength)
+#        

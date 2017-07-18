@@ -32,15 +32,15 @@ class SignalMonitorWidget(QtGui.QWidget):
 
     def set_wavelength(self, wavelength):
         self.wavelength = wavelength
-        self.ydata = np.empty(1,len(wavelength))
+        self.ydata = self.wavelength
+        self.ydata.fill(np.nan)
 
     def set_ydata(self, values):
-        if self.ydata == None:
-            raise Exception('wavelength not initialized')
+        #if self.ydata == None:
+        #    raise Exception('wavelength not initialized')
 
-        start = np.where(np.isnan(self.ydata))[0]
-
+        start = np.where(np.isnan(self.ydata))[0][0]
         self.ydata[start:len(values)] = values
 
     def update_monitor(self):
-        self.plot(self.xdata, self.ydata)
+        self.main_plot.plot(self.wavelength, self.ydata)

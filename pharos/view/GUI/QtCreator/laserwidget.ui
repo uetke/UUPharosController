@@ -6,29 +6,357 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>354</width>
-    <height>432</height>
+    <width>357</width>
+    <height>436</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <layout class="QGridLayout" name="gridLayout_4">
-   <item row="7" column="0">
-    <widget class="QPushButton" name="auto_power">
+   <item row="0" column="0">
+    <widget class="QLabel" name="wavelength_labe">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
      <property name="text">
-      <string>Auto Power</string>
+      <string>Wavelength</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>wavelength_line</cstring>
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <widget class="QPushButton" name="LD_current">
-     <property name="text">
-      <string>LD Current</string>
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="wavelength_line">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This is the tooltip&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
-   <item row="5" column="0" colspan="5">
+   <item row="0" column="2">
+    <widget class="QLineEdit" name="power_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QLabel" name="power_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Power</string>
+     </property>
+     <property name="buddy">
+      <cstring>power_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="start_wavelength_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>start_wavelength_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="start_wavelength_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLineEdit" name="stop_wavelength_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QLabel" name="stop_wavelength_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Stop</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>stop_wavelength_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="speed_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Speed</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>speed_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="speed_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="2">
+    <widget class="QLineEdit" name="wait_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QLabel" name="wait_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Wait Time</string>
+     </property>
+     <property name="buddy">
+      <cstring>wait_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="trigger_step_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Trig. Step</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>trigger_step_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="trigger_step_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QLineEdit" name="step_time_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QLabel" name="step_time_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Step Time</string>
+     </property>
+     <property name="buddy">
+      <cstring>step_time_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="step_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Step Size</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy">
+      <cstring>step_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <widget class="QLineEdit" name="step_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2">
+    <widget class="QLineEdit" name="sweeps_line">
+     <property name="maximumSize">
+      <size>
+       <width>80</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="3">
+    <widget class="QLabel" name="sweeps_label">
+     <property name="font">
+      <font>
+       <pointsize>13</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string># Sweeps</string>
+     </property>
+     <property name="buddy">
+      <cstring>sweeps_line</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="4">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QGroupBox" name="groupBox">
@@ -94,224 +422,86 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="1" colspan="2">
-    <widget class="QLineEdit" name="wavelength_line">
+   <item row="6" column="0" colspan="4">
+    <widget class="QSlider" name="fine_tune__Slider">
      <property name="enabled">
       <bool>true</bool>
      </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+     <property name="cursor">
+      <cursorShape>SizeVerCursor</cursorShape>
      </property>
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
+     <property name="minimum">
+      <number>-10000</number>
      </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
+     <property name="maximum">
+      <number>10000</number>
      </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksAbove</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1000</number>
      </property>
     </widget>
    </item>
-   <item row="2" column="4">
-    <widget class="QLabel" name="wait_label">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
+   <item row="7" column="0">
+    <widget class="QPushButton" name="LD_current">
      <property name="text">
-      <string>Wait Time</string>
+      <string>LD Current</string>
      </property>
-     <property name="buddy">
-      <cstring>wait_line</cstring>
+    </widget>
+   </item>
+   <item row="7" column="1">
+    <widget class="QPushButton" name="shutter">
+     <property name="text">
+      <string>Shutter</string>
      </property>
     </widget>
    </item>
    <item row="8" column="0">
+    <widget class="QPushButton" name="auto_power">
+     <property name="text">
+      <string>Auto Power</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1">
+    <widget class="QPushButton" name="trigger">
+     <property name="text">
+      <string>Trigger</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="0">
     <widget class="QPushButton" name="coherent_control">
      <property name="text">
       <string>Coherent</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="trigger_step_label">
+   <item row="9" column="1">
+    <widget class="QPushButton" name="fine_tune">
+     <property name="text">
+      <string>Fine Tune</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="2">
+    <widget class="QLabel" name="condition_label">
      <property name="font">
       <font>
        <pointsize>13</pointsize>
       </font>
      </property>
      <property name="text">
-      <string>Trig. Step</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>trigger_step_line</cstring>
+      <string>Current condition:</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="speed_label">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Speed</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>speed_line</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1" colspan="2">
-    <widget class="QLineEdit" name="speed_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QLineEdit" name="stop_wavelength_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="3" colspan="2">
-    <widget class="QPushButton" name="pause_button">
-     <property name="font">
-      <font>
-       <pointsize>15</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Pause</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="4">
-    <widget class="QLabel" name="sweeps_label">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string># Sweeps</string>
-     </property>
-     <property name="buddy">
-      <cstring>sweeps_line</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QLineEdit" name="trigger_step_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="3" colspan="2">
-    <widget class="QPushButton" name="stop_button">
-     <property name="font">
-      <font>
-       <pointsize>15</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Stop</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QLineEdit" name="power_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="4">
-    <widget class="QLabel" name="stop_wavelength_label">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Stop</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>stop_wavelength_line</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="4">
-    <widget class="QLabel" name="power_label">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Power</string>
-     </property>
-     <property name="buddy">
-      <cstring>power_line</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="3" colspan="2">
+   <item row="10" column="2" colspan="2">
     <widget class="QLineEdit" name="current_condition_line">
      <property name="maximumSize">
       <size>
@@ -329,25 +519,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="QLineEdit" name="step_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="3" colspan="2">
+   <item row="7" column="2" colspan="2">
     <widget class="QPushButton" name="start_button">
      <property name="font">
       <font>
@@ -362,161 +534,27 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="3">
-    <widget class="QLineEdit" name="wait_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
+   <item row="8" column="2" colspan="2">
+    <widget class="QPushButton" name="pause_button">
      <property name="font">
       <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3">
-    <widget class="QLineEdit" name="step_time_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="wavelength_labe">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="cursor">
-      <cursorShape>ArrowCursor</cursorShape>
-     </property>
-     <property name="text">
-      <string>Wavelength</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>wavelength_line</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="start_wavelength_label">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
+       <pointsize>15</pointsize>
       </font>
      </property>
      <property name="text">
-      <string>Start</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>start_wavelength_line</cstring>
+      <string>Pause</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="4">
-    <widget class="QLabel" name="step_time_label">
+   <item row="9" column="2" colspan="2">
+    <widget class="QPushButton" name="stop_button">
      <property name="font">
       <font>
-       <pointsize>13</pointsize>
+       <pointsize>15</pointsize>
       </font>
      </property>
      <property name="text">
-      <string>Step Time</string>
-     </property>
-     <property name="buddy">
-      <cstring>step_time_line</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="3">
-    <widget class="QLineEdit" name="sweeps_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="QLineEdit" name="start_wavelength_line">
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="step_label">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Step Size</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>step_line</cstring>
-     </property>
-    </widget>
-   </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="QLabel" name="condition_label">
-     <property name="font">
-      <font>
-       <pointsize>13</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Current condition:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
-    <widget class="QPushButton" name="shutter">
-     <property name="text">
-      <string>Shutter</string>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="1">
-    <widget class="QPushButton" name="trigger">
-     <property name="text">
-      <string>Trigger</string>
+      <string>Stop</string>
      </property>
     </widget>
    </item>

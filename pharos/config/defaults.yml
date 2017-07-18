@@ -9,16 +9,15 @@ tsl-710:
   speed: 1 nm/s
   steps: 100
   step: 1 nm
-  trigger_step: 0.1 nm
-  wait: 1 ms
-  step_time: 1 s
-  sweeps: 1
-  sweep: continuous
-  mode: one
-  trigger: false
-  LD: true
-  auto_power: true
-  coherent: true
-  fine_tune: false
-  shutter: true
-  trigger_output: false
+  interval_trigger: 0.001 nm
+  wait_time: 500 ms
+  step_time: 0.1 s
+  number_sweeps: 1
+  sweep_mode: ContOne
+  trigger: False
+  LD_current: True
+  auto_power: False
+  coherent_control: True
+  fine_tune: False
+  shutter: False
+  trigger: False

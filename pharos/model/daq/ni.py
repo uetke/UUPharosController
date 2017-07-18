@@ -45,7 +45,7 @@ class ni(DaqBase):
 
         channels = ', '.join(channel)
         channels.encode('utf-8')
-        freq = int(1/conditions['accuracy'].to('s'))
+        freq = int(1/conditions['accuracy'].to('s').magnitude)
         #freq = freq.magnitude
         print('SAMPLES PER SECOND: %s' % freq)
         if conditions['trigger'] == 'external':
@@ -75,7 +75,7 @@ class ni(DaqBase):
             cont_finite = nidaq.DAQmx_Val_ContSamps
             num_points = 10000
 
-        t.CfgSampClkTiming(trigger, freq.magnitude, trigger_edge, cont_finite, num_points)
+        t.CfgSampClkTiming(trigger, freq, trigger_edge, cont_finite, num_points)
         self.tasks.append(t)
         return len(self.tasks)-1
 

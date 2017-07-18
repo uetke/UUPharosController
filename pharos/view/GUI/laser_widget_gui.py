@@ -64,16 +64,16 @@ class LaserWidgetGUI(QtGui.QWidget):
 
     def update_laser(self):
         values = {
-            'wavelength': Q_(self.laser_widget.wavelength_line.text()),
-            'start_wavelength': Q_(self.laser_widget.start_wavelength_line.text()),
-            'stop_wavelength': Q_(self.laser_widget.stop_wavelength_line.text()),
-            'speed': Q_(self.laser_widget.speed_line.text()),
-            'trigger_step': Q_(self.laser_widget.trigger_step_line.text()),
-            'step ': Q_(self.laser_widget.step_line.text()),
-            'power': Q_(self.laser_widget.power_line.text()),
-            'wait': Q_(self.laser_widget.wait_line.text()),
-            'step_time': Q_(self.laser_widget.step_time_line.text()),
-            'sweeps': Q_(self.laser_widget.sweeps_line.text()),
+            'wavelength': Q_(self.wavelength_line.text()),
+            'start_wavelength': Q_(self.start_wavelength_line.text()),
+            'stop_wavelength': Q_(self.stop_wavelength_line.text()),
+            'speed': Q_(self.speed_line.text()),
+            'trigger_step': Q_(self.trigger_step_line.text()),
+            'step ': Q_(self.step_line.text()),
+            'power': Q_(self.power_line.text()),
+            'wait': Q_(self.wait_line.text()),
+            'step_time': Q_(self.step_time_line.text()),
+            'sweeps': Q_(self.sweeps_line.text()),
           }
         self.emit(QtCore.SIGNAL('values_updated'), values)
         return values

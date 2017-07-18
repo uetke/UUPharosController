@@ -2,74 +2,77 @@
 ---
 # Configure the devices relevant to the experiment
 
-devices:
-  TSL-710:
-    type: laser
-    model: santec
-    connection:
-      type: GPIB
-      port: 1
-    wavelength: 1492
-  NI-DAQ:
+TSL-710:
+  type: laser
+  name: Santec Laser
+  driver: controller.santec.tsl710
+  connection:
+    type: GPIB
+    port: 1
+
+PhotoDiode1:
+  name: Photodiode 1
+  port: 1
+  type: analog
+  mode: input
+  description: Forward Intensity
+  calibration:
+    units: V
+    slope: 1
+    offset: 0
+  limits:
+    min: -2.5
+    max: 2.5
+  connection:
     type: daq
-    model: ni
-    number: 2
-    devices:
-      PhotoDiode1:
-        name: Photodiode 1
-        port: 1
-        type: analog
-        mode: input
-        description: Forward Intensity
-        calibration:
-          units: V
-          slope: 1
-          offset: 0
-        limits:
-          min: -2.5
-          max: 2.5
-      PhotoDiode2:
-        name: Photodiode 2
-        port: 2
-        type: analog
-        mode: input
-        description: Forward Intensity
-        calibration:
-          units: V
-          slope: 1
-          offset: 0
-        limits:
-          min: -2.5
-          max: 2.5
-      Stage1:
-        name: Stage 1
-        type: analog
-        mode: output
-        description: X Direction
-        port: 1
-        calibration:
-          units: um
-          slope: 0.2134
-          offset: 50
-        limits:
-          min: 0
-          max: 100
-#  oscilloscope:
-#    type: daq
-#    model: keysight
-#    ports:
-#      input:
-#        name: NewSignal1
-#        type: analog
-#        description: SignalOsci
-#        portid: 1
-#        calibration:
-#          units: V
-#          slope: 1
-#          offset: 1
-#        limits:
-#          min: -2.5
-#          max: 2.5
+    device: NI-DAQ
+
+PhotoDiode2:
+  name: Photodiode 2
+  port: 2
+  type: analog
+  mode: input
+  description: Forward Intensity
+  calibration:
+    units: V
+    slope: 1
+    offset: 0
+  limits:
+    min: -2.5
+    max: 2.5
+  connection:
+    type: daq
+    device: NI-DAQ
+
+Stage1:
+  name: Stage 1
+  type: analog
+  mode: output
+  description: X Direction
+  port: 1
+  calibration:
+    units: um
+    slope: 0.2134
+    offset: 50
+  limits:
+    min: 0
+    max: 100
+  connection:
+    type: daq
+    device: NI-DAQ
+
+NI-DAQ:
+  name: NI-DAQ
+  type: daq
+  model: ni
+  number: 2
+  driver: model.daq.ni
+
+oscilloscope:
+  type: daq
+  driver: model.daq.keysight
+  name: Keysight oscilloscope
+
 
 
 

@@ -29,7 +29,11 @@ def from_yaml_to_devices(filename = "config/devices.yml", name=None):
             devs.append(dd)
     return devs
 
-
+def from_yaml_to_dict(filename='config/measurement.yml'):
+    stream = open(filename, 'r')
+    output = yaml.load(stream)
+    stream.close()
+    return output
 
 if __name__ == "__main__":
     d = from_yaml_to_devices('../../config/devices.yml',name='Santec Laser')

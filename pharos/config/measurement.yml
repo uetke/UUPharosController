@@ -2,15 +2,10 @@
 ---
 # Configures the steps of an experiment
 
-init:
-  tsl-710:
-    file: 'config/defaults.yml'
 
-  detectors:
-    NI-DAQ:
-      Photodiode 1
-    oscilloscope:
-      New Signal
+init:
+  devices: 'config/devices.yml'
+
 scan:
   axis:
     name:

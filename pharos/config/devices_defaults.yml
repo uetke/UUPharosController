@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 # Defaults for the laser
-tsl-710:
+Santec Laser:
   wavelength: 1520 nm
   start_wavelength: 1492 nm
   stop_wavelength: 1548 nm
@@ -19,5 +19,8 @@ tsl-710:
   auto_power: False
   coherent_control: True
   fine_tune: False
-  shutter: False
+  shutter: True
   trigger: False
+
+dummy daq:
+  test_value: 1

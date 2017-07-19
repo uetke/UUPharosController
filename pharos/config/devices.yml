@@ -3,13 +3,13 @@
 # Configure the devices relevant to the experiment
 
 TSL-710:
-  type: laser
+  type: scan laser
   name: Santec Laser
-  driver: controller.santec.tsl710
+  driver: controller.santec.tsl710/tsl710 # last one is the name of the class inside the file.
   connection:
     type: GPIB
     port: 1
-  defaults: config/devices_defaults.yml
+  #defaults: config/devices_defaults.yml
 
 PhotoDiode1:
   name: Photodiode 1
@@ -67,13 +67,28 @@ NI-DAQ:
   type: daq
   model: ni
   number: 2
-  driver: pharos.model.daq.ni
-  driver_name: ni
+  driver: pharos.model.daq.ni/ni
+  connection:
+    type: daq
+    port: 2
+  trigger: external
+  trigger_source: PFI0
 
 oscilloscope:
   type: daq
   driver: model.daq.keysight
   name: Keysight oscilloscope
+
+DummyDaq:
+  type: daq
+  name: dummy daq
+  driver: pharos.model.daq.daqDummy/dummyDaq
+  connection:
+    type: daq
+    port: 1
+  defaults: config/devices_defaults.yml
+  trigger: external
+  trigger_source: PFI0
 
 
 

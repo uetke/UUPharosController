@@ -5,10 +5,12 @@
 
     .. sectionauthor: Aquiles Carattino <aquiles@uetke.com>
 """
+from ._skeleton import DaqBase
 
-
-class dummyDaq():
-    def __init__(self):
+class dummyDaq(DaqBase):
+    def __init__(self, dev_number=None):
+        print('Initialized device with number: %s' % dev_number)
+        self.test_value = 0
         pass
 
     def triggerAnalog(self, conditions):

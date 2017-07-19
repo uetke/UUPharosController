@@ -1,0 +1,325 @@
+2017-07-19 15:23:23.060800 - Starting Santec Laser2017-07-19 15:23:23.060800 - 
+2017-07-19 15:23:23.610800 - Error initializing Santec Laser2017-07-19 15:23:23.610800 - 
+2017-07-19 15:23:23.610800 - Starting Photodiode 12017-07-19 15:23:23.610800 - 
+2017-07-19 15:23:23.610800 - Starting Photodiode 22017-07-19 15:23:23.610800 - 
+2017-07-19 15:23:23.610800 - Starting Stage 12017-07-19 15:23:23.610800 - 
+2017-07-19 15:23:23.610800 - Starting NI-DAQ2017-07-19 15:23:23.610800 - 
+2017-07-19 15:23:23.960800 - Starting Keysight oscilloscope2017-07-19 15:23:23.960800 - 
+2017-07-19 15:23:23.970800 - Error initializing Keysight oscilloscope2017-07-19 15:23:23.970800 - 
+2017-07-19 15:23:23.970800 - Starting dummy daq2017-07-19 15:23:23.970800 - 
+2017-07-19 15:23:23.970800 - Initialized device with number: 12017-07-19 15:23:23.970800 - 
+2017-07-19 15:23:23.970800 - Setting test_value to 12017-07-19 15:23:23.970800 - 
+2017-07-19 15:23:23.970800 - Going to monitor:2017-07-19 15:23:23.970800 - 
+2017-07-19 15:23:23.970800 - 	- Photodiode 12017-07-19 15:23:23.970800 - 
+2017-07-19 15:23:23.970800 - 	- Photodiode 22017-07-19 15:23:23.970800 - 
+2017-07-19 15:23:23.970800 - {'NI-DAQ': [<pharos.model.lib.device.device object at 0x0299B1B0>, <pharos.model.lib.device.device object at 0x0299B130>]}2017-07-19 15:23:23.970800 - 
+2017-07-19 15:23:42.914800 - Starting Santec Laser2017-07-19 15:23:43.414800 - Error initializing Santec Laser2017-07-19 15:23:43.414800 - Starting Photodiode 12017-07-19 15:23:43.414800 - Starting Photodiode 22017-07-19 15:23:43.414800 - Starting Stage 12017-07-19 15:23:43.414800 - Starting NI-DAQ2017-07-19 15:23:43.754800 - Starting Keysight oscilloscope2017-07-19 15:23:43.764800 - Error initializing Keysight oscilloscope2017-07-19 15:23:43.764800 - Starting dummy daq2017-07-19 15:23:43.764800 - Initialized device with number: 12017-07-19 15:23:43.764800 - Setting test_value to 12017-07-19 15:23:43.764800 - Going to monitor:2017-07-19 15:23:43.764800 - 	- Photodiode 12017-07-19 15:23:43.764800 - 	- Photodiode 22017-07-19 15:23:43.764800 - {'NI-DAQ': [<pharos.model.lib.device.device object at 0x021B5AF0>, <pharos.model.lib.device.device object at 0x029E6670>]}2017-07-19 15:24:12.022800 - Starting Santec Laser
+2017-07-19 15:24:12.512800 - Error initializing Santec Laser
+2017-07-19 15:24:12.512800 - Starting Photodiode 1
+2017-07-19 15:24:12.512800 - Starting Photodiode 2
+2017-07-19 15:24:12.512800 - Starting Stage 1
+2017-07-19 15:24:12.512800 - Starting NI-DAQ
+2017-07-19 15:24:12.862800 - Starting Keysight oscilloscope
+2017-07-19 15:24:12.862800 - Error initializing Keysight oscilloscope
+2017-07-19 15:24:12.862800 - Starting dummy daq
+2017-07-19 15:24:12.862800 - Initialized device with number: 1
+2017-07-19 15:24:12.862800 - Setting test_value to 1
+2017-07-19 15:24:12.862800 - Going to monitor:
+2017-07-19 15:24:12.862800 - 	- Photodiode 1
+2017-07-19 15:24:12.862800 - 	- Photodiode 2
+2017-07-19 15:24:12.862800 - {'NI-DAQ': [<pharos.model.lib.device.device object at 0x00625AF0>, <pharos.model.lib.device.device object at 0x029D6670>]}
+2017-07-19 15:26:03.421800 - Added Santec Laser to the experiment
+2017-07-19 15:26:03.421800 - Added Photodiode 1 to the experiment
+2017-07-19 15:26:03.421800 - Added Photodiode 2 to the experiment
+2017-07-19 15:26:03.421800 - Added Stage 1 to the experiment
+2017-07-19 15:26:03.421800 - Added NI-DAQ to the experiment
+2017-07-19 15:26:03.421800 - Added Keysight oscilloscope to the experiment
+2017-07-19 15:26:03.421800 - Added dummy daq to the experiment
+2017-07-19 15:26:03.421800 - Starting Santec Laser
+2017-07-19 15:26:03.932800 - Error initializing Santec Laser
+2017-07-19 15:26:03.932800 - Starting Photodiode 1
+2017-07-19 15:26:03.932800 - Starting Photodiode 2
+2017-07-19 15:26:03.932800 - Starting Stage 1
+2017-07-19 15:26:03.932800 - Starting NI-DAQ
+2017-07-19 15:26:04.272800 - Starting Keysight oscilloscope
+2017-07-19 15:26:04.272800 - Error initializing Keysight oscilloscope
+2017-07-19 15:26:04.272800 - Starting dummy daq
+2017-07-19 15:26:04.272800 - Initialized device with number: 1
+2017-07-19 15:26:04.282800 - Setting test_value to 1
+2017-07-19 15:26:04.282800 - Going to monitor:
+2017-07-19 15:26:04.282800 - 	- Photodiode 1
+2017-07-19 15:26:04.282800 - 	- Photodiode 2
+2017-07-19 15:26:04.282800 - {'NI-DAQ': [<pharos.model.lib.device.device object at 0x006C5AF0>, <pharos.model.lib.device.device object at 0x024C57B0>]}
+2017-07-19 15:27:14.377800 - Added Santec Laser to the experiment
+2017-07-19 15:27:14.377800 - Added Photodiode 1 to the experiment
+2017-07-19 15:27:14.377800 - Added Photodiode 2 to the experiment
+2017-07-19 15:27:14.377800 - Added Stage 1 to the experiment
+2017-07-19 15:27:14.377800 - Added NI-DAQ to the experiment
+2017-07-19 15:27:14.377800 - Added Keysight oscilloscope to the experiment
+2017-07-19 15:27:14.377800 - Added dummy daq to the experiment
+2017-07-19 15:30:45.869800 - Added Santec Laser to the experiment
+2017-07-19 15:30:45.869800 - Added Photodiode 1 to the experiment
+2017-07-19 15:30:45.869800 - Added Photodiode 2 to the experiment
+2017-07-19 15:30:45.869800 - Added Stage 1 to the experiment
+2017-07-19 15:30:45.869800 - Added NI-DAQ to the experiment
+2017-07-19 15:30:45.869800 - Added Keysight oscilloscope to the experiment
+2017-07-19 15:30:45.869800 - Added dummy daq to the experiment
+2017-07-19 15:45:08.208800 - Added Santec Laser to the experiment
+2017-07-19 15:45:08.208800 - Added Photodiode 1 to the experiment
+2017-07-19 15:45:08.208800 - Added Photodiode 2 to the experiment
+2017-07-19 15:45:08.208800 - Added Stage 1 to the experiment
+2017-07-19 15:45:08.208800 - Added NI-DAQ to the experiment
+2017-07-19 15:45:08.208800 - Added Keysight oscilloscope to the experiment
+2017-07-19 15:45:08.208800 - Added dummy daq to the experiment
+2017-07-19 15:45:36.606800 - Added Santec Laser to the experiment
+2017-07-19 15:45:36.606800 - Added Photodiode 1 to the experiment
+2017-07-19 15:45:36.606800 - Added Photodiode 2 to the experiment
+2017-07-19 15:45:36.606800 - Added Stage 1 to the experiment
+2017-07-19 15:45:36.606800 - Added NI-DAQ to the experiment
+2017-07-19 15:45:36.606800 - Added Keysight oscilloscope to the experiment
+2017-07-19 15:45:36.606800 - Added dummy daq to the experiment
+2017-07-19 15:47:03.335800 - Added Santec Laser to the experiment
+2017-07-19 15:47:03.335800 - Added Photodiode 1 to the experiment
+2017-07-19 15:47:03.335800 - Added Photodiode 2 to the experiment
+2017-07-19 15:47:03.335800 - Added Stage 1 to the experiment
+2017-07-19 15:47:03.335800 - Added NI-DAQ to the experiment
+2017-07-19 15:47:03.335800 - Added Keysight oscilloscope to the experiment
+2017-07-19 15:47:03.335800 - Added dummy daq to the experiment
+2017-07-19 16:02:12.088800 - Added Santec Laser to the experiment
+2017-07-19 16:02:12.088800 - Added Photodiode 1 to the experiment
+2017-07-19 16:02:12.088800 - Added Photodiode 2 to the experiment
+2017-07-19 16:02:12.088800 - Added Stage 1 to the experiment
+2017-07-19 16:02:12.088800 - Added NI-DAQ to the experiment
+2017-07-19 16:02:12.088800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:02:12.088800 - Added dummy daq to the experiment
+2017-07-19 16:03:07.225800 - Added Santec Laser to the experiment
+2017-07-19 16:03:07.225800 - Added Photodiode 1 to the experiment
+2017-07-19 16:03:07.225800 - Added Photodiode 2 to the experiment
+2017-07-19 16:03:07.225800 - Added Stage 1 to the experiment
+2017-07-19 16:03:07.225800 - Added NI-DAQ to the experiment
+2017-07-19 16:03:07.225800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:03:07.225800 - Added dummy daq to the experiment
+2017-07-19 16:03:17.601800 - Added Santec Laser to the experiment
+2017-07-19 16:03:17.601800 - Added Photodiode 1 to the experiment
+2017-07-19 16:03:17.601800 - Added Photodiode 2 to the experiment
+2017-07-19 16:03:17.601800 - Added Stage 1 to the experiment
+2017-07-19 16:03:17.601800 - Added NI-DAQ to the experiment
+2017-07-19 16:03:17.601800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:03:17.601800 - Added dummy daq to the experiment
+2017-07-19 16:03:36.421800 - Added Santec Laser to the experiment
+2017-07-19 16:03:36.421800 - Added Photodiode 1 to the experiment
+2017-07-19 16:03:36.421800 - Added Photodiode 2 to the experiment
+2017-07-19 16:03:36.421800 - Added Stage 1 to the experiment
+2017-07-19 16:03:36.421800 - Added NI-DAQ to the experiment
+2017-07-19 16:03:36.421800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:03:36.421800 - Added dummy daq to the experiment
+2017-07-19 16:03:59.054800 - Added Santec Laser to the experiment
+2017-07-19 16:03:59.054800 - Added Photodiode 1 to the experiment
+2017-07-19 16:03:59.054800 - Added Photodiode 2 to the experiment
+2017-07-19 16:03:59.054800 - Added Stage 1 to the experiment
+2017-07-19 16:03:59.054800 - Added NI-DAQ to the experiment
+2017-07-19 16:03:59.054800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:03:59.054800 - Added dummy daq to the experiment
+2017-07-19 16:06:06.208800 - Added Santec Laser to the experiment
+2017-07-19 16:06:06.208800 - Added Photodiode 1 to the experiment
+2017-07-19 16:06:06.208800 - Added Photodiode 2 to the experiment
+2017-07-19 16:06:06.208800 - Added Stage 1 to the experiment
+2017-07-19 16:06:06.208800 - Added NI-DAQ to the experiment
+2017-07-19 16:06:06.208800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:06:06.208800 - Added dummy daq to the experiment
+2017-07-19 16:06:20.008800 - Added Santec Laser to the experiment
+2017-07-19 16:06:20.008800 - Added Photodiode 1 to the experiment
+2017-07-19 16:06:20.008800 - Added Photodiode 2 to the experiment
+2017-07-19 16:06:20.008800 - Added Stage 1 to the experiment
+2017-07-19 16:06:20.008800 - Added NI-DAQ to the experiment
+2017-07-19 16:06:20.008800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:06:20.008800 - Added dummy daq to the experiment
+2017-07-19 16:06:45.408800 - Added Santec Laser to the experiment
+2017-07-19 16:06:45.408800 - Added Photodiode 1 to the experiment
+2017-07-19 16:06:45.408800 - Added Photodiode 2 to the experiment
+2017-07-19 16:06:45.408800 - Added Stage 1 to the experiment
+2017-07-19 16:06:45.408800 - Added NI-DAQ to the experiment
+2017-07-19 16:06:45.408800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:06:45.408800 - Added dummy daq to the experiment
+2017-07-19 16:06:58.714800 - Added Santec Laser to the experiment
+2017-07-19 16:06:58.714800 - Added Photodiode 1 to the experiment
+2017-07-19 16:06:58.714800 - Added Photodiode 2 to the experiment
+2017-07-19 16:06:58.714800 - Added Stage 1 to the experiment
+2017-07-19 16:06:58.714800 - Added NI-DAQ to the experiment
+2017-07-19 16:06:58.714800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:06:58.714800 - Added dummy daq to the experiment
+2017-07-19 16:07:08.482800 - Added Santec Laser to the experiment
+2017-07-19 16:07:08.482800 - Added Photodiode 1 to the experiment
+2017-07-19 16:07:08.482800 - Added Photodiode 2 to the experiment
+2017-07-19 16:07:08.482800 - Added Stage 1 to the experiment
+2017-07-19 16:07:08.482800 - Added NI-DAQ to the experiment
+2017-07-19 16:07:08.482800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:07:08.482800 - Added dummy daq to the experiment
+2017-07-19 16:08:49.244800 - Added Santec Laser to the experiment
+2017-07-19 16:08:49.244800 - Added Photodiode 1 to the experiment
+2017-07-19 16:08:49.244800 - Added Photodiode 2 to the experiment
+2017-07-19 16:08:49.244800 - Added Stage 1 to the experiment
+2017-07-19 16:08:49.244800 - Added NI-DAQ to the experiment
+2017-07-19 16:08:49.244800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:08:49.244800 - Added dummy daq to the experiment
+2017-07-19 16:13:47.944800 - Added Santec Laser to the experiment
+2017-07-19 16:13:47.944800 - Added Photodiode 1 to the experiment
+2017-07-19 16:13:47.944800 - Added Photodiode 2 to the experiment
+2017-07-19 16:13:47.944800 - Added Stage 1 to the experiment
+2017-07-19 16:13:47.944800 - Added NI-DAQ to the experiment
+2017-07-19 16:13:47.944800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:13:47.944800 - Added dummy daq to the experiment
+2017-07-19 16:14:05.639800 - Added Santec Laser to the experiment
+2017-07-19 16:14:05.639800 - Added Photodiode 1 to the experiment
+2017-07-19 16:14:05.639800 - Added Photodiode 2 to the experiment
+2017-07-19 16:14:05.639800 - Added Stage 1 to the experiment
+2017-07-19 16:14:05.639800 - Added NI-DAQ to the experiment
+2017-07-19 16:14:05.639800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:14:05.639800 - Added dummy daq to the experiment
+2017-07-19 16:15:31.636800 - Added Santec Laser to the experiment
+2017-07-19 16:15:31.636800 - Added Photodiode 1 to the experiment
+2017-07-19 16:15:31.636800 - Added Photodiode 2 to the experiment
+2017-07-19 16:15:31.636800 - Added Stage 1 to the experiment
+2017-07-19 16:15:31.636800 - Added NI-DAQ to the experiment
+2017-07-19 16:15:31.636800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:15:31.636800 - Added dummy daq to the experiment
+2017-07-19 16:19:28.461800 - Added Santec Laser to the experiment
+2017-07-19 16:19:28.461800 - Added Photodiode 1 to the experiment
+2017-07-19 16:19:28.461800 - Added Photodiode 2 to the experiment
+2017-07-19 16:19:28.461800 - Added Stage 1 to the experiment
+2017-07-19 16:19:28.461800 - Added NI-DAQ to the experiment
+2017-07-19 16:19:28.461800 - Added Keysight oscilloscope to the experiment
+2017-07-19 16:19:28.461800 - Added dummy daq to the experiment
+2017-07-19 17:13:18.593800 - Added Santec Laser to the experiment
+2017-07-19 17:13:18.593800 - Added Photodiode 1 to the experiment
+2017-07-19 17:13:18.593800 - Added Photodiode 2 to the experiment
+2017-07-19 17:13:18.593800 - Added Stage 1 to the experiment
+2017-07-19 17:13:18.593800 - Added NI-DAQ to the experiment
+2017-07-19 17:13:18.593800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:13:18.593800 - Added dummy daq to the experiment
+2017-07-19 17:13:57.403800 - Added Santec Laser to the experiment
+2017-07-19 17:13:57.403800 - Added Photodiode 1 to the experiment
+2017-07-19 17:13:57.403800 - Added Photodiode 2 to the experiment
+2017-07-19 17:13:57.403800 - Added Stage 1 to the experiment
+2017-07-19 17:13:57.403800 - Added NI-DAQ to the experiment
+2017-07-19 17:13:57.403800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:13:57.403800 - Added dummy daq to the experiment
+2017-07-19 17:23:15.878800 - Added Santec Laser to the experiment
+2017-07-19 17:23:15.878800 - Added Photodiode 1 to the experiment
+2017-07-19 17:23:15.878800 - Added Photodiode 2 to the experiment
+2017-07-19 17:23:15.878800 - Added Stage 1 to the experiment
+2017-07-19 17:23:15.878800 - Added NI-DAQ to the experiment
+2017-07-19 17:23:15.878800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:23:15.878800 - Added dummy daq to the experiment
+2017-07-19 17:23:46.628800 - Added Santec Laser to the experiment
+2017-07-19 17:23:46.628800 - Added Photodiode 1 to the experiment
+2017-07-19 17:23:46.628800 - Added Photodiode 2 to the experiment
+2017-07-19 17:23:46.628800 - Added Stage 1 to the experiment
+2017-07-19 17:23:46.628800 - Added NI-DAQ to the experiment
+2017-07-19 17:23:46.628800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:23:46.628800 - Added dummy daq to the experiment
+2017-07-19 17:25:07.008800 - Added Santec Laser to the experiment
+2017-07-19 17:25:07.018800 - Added Photodiode 1 to the experiment
+2017-07-19 17:25:07.018800 - Added Photodiode 2 to the experiment
+2017-07-19 17:25:07.018800 - Added Stage 1 to the experiment
+2017-07-19 17:25:07.018800 - Added NI-DAQ to the experiment
+2017-07-19 17:25:07.018800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:25:07.018800 - Added dummy daq to the experiment
+2017-07-19 17:26:08.922800 - Added Santec Laser to the experiment
+2017-07-19 17:26:08.922800 - Added Photodiode 1 to the experiment
+2017-07-19 17:26:08.922800 - Added Photodiode 2 to the experiment
+2017-07-19 17:26:08.922800 - Added Stage 1 to the experiment
+2017-07-19 17:26:08.922800 - Added NI-DAQ to the experiment
+2017-07-19 17:26:08.922800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:26:08.922800 - Added dummy daq to the experiment
+2017-07-19 17:27:29.342800 - Added Santec Laser to the experiment
+2017-07-19 17:27:29.342800 - Added Photodiode 1 to the experiment
+2017-07-19 17:27:29.342800 - Added Photodiode 2 to the experiment
+2017-07-19 17:27:29.342800 - Added Stage 1 to the experiment
+2017-07-19 17:27:29.342800 - Added NI-DAQ to the experiment
+2017-07-19 17:27:29.342800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:27:29.342800 - Added dummy daq to the experiment
+2017-07-19 17:27:50.534800 - Added Santec Laser to the experiment
+2017-07-19 17:27:50.534800 - Added Photodiode 1 to the experiment
+2017-07-19 17:27:50.534800 - Added Photodiode 2 to the experiment
+2017-07-19 17:27:50.534800 - Added Stage 1 to the experiment
+2017-07-19 17:27:50.534800 - Added NI-DAQ to the experiment
+2017-07-19 17:27:50.534800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:27:50.534800 - Added dummy daq to the experiment
+2017-07-19 17:32:47.489800 - Added Santec Laser to the experiment
+2017-07-19 17:32:47.489800 - Added Photodiode 1 to the experiment
+2017-07-19 17:32:47.489800 - Added Photodiode 2 to the experiment
+2017-07-19 17:32:47.489800 - Added Stage 1 to the experiment
+2017-07-19 17:32:47.489800 - Added NI-DAQ to the experiment
+2017-07-19 17:32:47.489800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:32:47.489800 - Added dummy daq to the experiment
+2017-07-19 17:32:57.974800 - Added Santec Laser to the experiment
+2017-07-19 17:32:57.974800 - Added Photodiode 1 to the experiment
+2017-07-19 17:32:57.974800 - Added Photodiode 2 to the experiment
+2017-07-19 17:32:57.974800 - Added Stage 1 to the experiment
+2017-07-19 17:32:57.974800 - Added NI-DAQ to the experiment
+2017-07-19 17:32:57.974800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:32:57.974800 - Added dummy daq to the experiment
+2017-07-19 17:33:40.619800 - Added Santec Laser to the experiment
+2017-07-19 17:33:40.619800 - Added Photodiode 1 to the experiment
+2017-07-19 17:33:40.619800 - Added Photodiode 2 to the experiment
+2017-07-19 17:33:40.619800 - Added Stage 1 to the experiment
+2017-07-19 17:33:40.619800 - Added NI-DAQ to the experiment
+2017-07-19 17:33:40.619800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:33:40.619800 - Added dummy daq to the experiment
+2017-07-19 17:33:51.364800 - Added Santec Laser to the experiment
+2017-07-19 17:33:51.364800 - Added Photodiode 1 to the experiment
+2017-07-19 17:33:51.364800 - Added Photodiode 2 to the experiment
+2017-07-19 17:33:51.364800 - Added Stage 1 to the experiment
+2017-07-19 17:33:51.364800 - Added NI-DAQ to the experiment
+2017-07-19 17:33:51.364800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:33:51.364800 - Added dummy daq to the experiment
+2017-07-19 17:34:10.204800 - Added Santec Laser to the experiment
+2017-07-19 17:34:10.204800 - Added Photodiode 1 to the experiment
+2017-07-19 17:34:10.204800 - Added Photodiode 2 to the experiment
+2017-07-19 17:34:10.204800 - Added Stage 1 to the experiment
+2017-07-19 17:34:10.204800 - Added NI-DAQ to the experiment
+2017-07-19 17:34:10.204800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:34:10.204800 - Added dummy daq to the experiment
+2017-07-19 17:34:16.684800 - Added Santec Laser to the experiment
+2017-07-19 17:34:16.684800 - Added Photodiode 1 to the experiment
+2017-07-19 17:34:16.684800 - Added Photodiode 2 to the experiment
+2017-07-19 17:34:16.684800 - Added Stage 1 to the experiment
+2017-07-19 17:34:16.684800 - Added NI-DAQ to the experiment
+2017-07-19 17:34:16.684800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:34:16.684800 - Added dummy daq to the experiment
+2017-07-19 17:34:23.834800 - Added Santec Laser to the experiment
+2017-07-19 17:34:23.834800 - Added Photodiode 1 to the experiment
+2017-07-19 17:34:23.834800 - Added Photodiode 2 to the experiment
+2017-07-19 17:34:23.834800 - Added Stage 1 to the experiment
+2017-07-19 17:34:23.834800 - Added NI-DAQ to the experiment
+2017-07-19 17:34:23.834800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:34:23.834800 - Added dummy daq to the experiment
+2017-07-19 17:34:28.374800 - Added Santec Laser to the experiment
+2017-07-19 17:34:28.374800 - Added Photodiode 1 to the experiment
+2017-07-19 17:34:28.374800 - Added Photodiode 2 to the experiment
+2017-07-19 17:34:28.374800 - Added Stage 1 to the experiment
+2017-07-19 17:34:28.374800 - Added NI-DAQ to the experiment
+2017-07-19 17:34:28.374800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:34:28.374800 - Added dummy daq to the experiment
+2017-07-19 17:34:54.445800 - Added Santec Laser to the experiment
+2017-07-19 17:34:54.445800 - Added Photodiode 1 to the experiment
+2017-07-19 17:34:54.445800 - Added Photodiode 2 to the experiment
+2017-07-19 17:34:54.445800 - Added Stage 1 to the experiment
+2017-07-19 17:34:54.445800 - Added NI-DAQ to the experiment
+2017-07-19 17:34:54.445800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:34:54.445800 - Added dummy daq to the experiment
+2017-07-19 17:35:16.125800 - Added Santec Laser to the experiment
+2017-07-19 17:35:16.125800 - Added Photodiode 1 to the experiment
+2017-07-19 17:35:16.125800 - Added Photodiode 2 to the experiment
+2017-07-19 17:35:16.125800 - Added Stage 1 to the experiment
+2017-07-19 17:35:16.125800 - Added NI-DAQ to the experiment
+2017-07-19 17:35:16.125800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:35:16.125800 - Added dummy daq to the experiment
+2017-07-19 17:36:20.730800 - Added Santec Laser to the experiment
+2017-07-19 17:36:20.730800 - Added Photodiode 1 to the experiment
+2017-07-19 17:36:20.730800 - Added Photodiode 2 to the experiment
+2017-07-19 17:36:20.730800 - Added Stage 1 to the experiment
+2017-07-19 17:36:20.730800 - Added NI-DAQ to the experiment
+2017-07-19 17:36:20.730800 - Added Keysight oscilloscope to the experiment
+2017-07-19 17:36:20.730800 - Added dummy daq to the experiment

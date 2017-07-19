@@ -1,3 +1,6 @@
+import importlib
+from lantz import Q_
+
 class device(object):
     def __init__(self, properties):
         self.properties = properties
@@ -11,6 +14,26 @@ class device(object):
         """
         self.driver = driver
 
+    def initialize_driver(self):
+        if 'driver' in self.properties:
+            d = self.properties['driver'].split('/')
+            driver_class = getattr(importlib.import_module(d[0]), d[1])
+            if 'connection' in self.properties:
+                connection_type = self.properties['connection']['type']
+                if connection_type == 'GPIB':
+                    # Assume it is a lantz driver
+                    self.driver = driver_class.via_gpib(self.properties['connection']['port'])
+                elif connection_type == 'USB':
+                    # Assume it is a lantz driver
+                    self.driver = driver_class.via_usb()
+                    raise Warning('This was never tested!')
+                elif connection_type == 'serial':
+                    # Assume it is a lantz driver
+                    self.driver = driver_class.via_serial(self.properties['connection']['port'])
+                elif connection_type == 'daq':
+                    self.driver = driver_class(self.properties['connection']['port'])
+
+
     def apply_values(self, values):
         """ Iterates over all values of a dictionary and sets the values of the driver to it.
         :param values: a dictionary
@@ -18,9 +41,14 @@ class device(object):
         """
         if isinstance(values, dict):
             for k in values:
-                print('Setting %s to %s'%(k, values[k]))
+                try:
+                    # Tries to convert to proper units, if it fails it uses the value as is
+                    value = Q_(values[k])
+                except:
+                    value = values[k]
+                print('Setting %s to %s'%(k, value))
                 setattr(self.driver, k, values[k])
-            self.params[k] = values[k]
+            self.params[k] = value
         else:
             raise Exception('Drivers can only update dictionaries')
 
@@ -36,5 +64,6 @@ class device(object):
 if __name__ == "__main__":
     from pharos.model.lib.general_functions import from_yaml_to_devices
 
-    d = from_yaml_to_devices('../../config/devices.yml', name='NI-DAQ')[0]
+    d = from_yaml_to_devices('../../config/devices.yml', name='dummy daq')[0]
+    d.initialize_driver()
     print(d)

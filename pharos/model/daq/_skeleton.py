@@ -11,6 +11,9 @@
 
 
 class DaqBase():
+    def __init__(self, dev_number):
+        self.dev_number = dev_number
+
     def analog_input_setup(self, conditions):
         """
         conditions -- a dictionary with the needed parameters for an analog acquisition.

@@ -1,12 +1,18 @@
-import yaml
-from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_experiment
 
-config_devices = "config/devices.yml"
+from pharos.model.lib.general_functions import from_yaml_to_dict, start_logger, stop_logger
+from pharos.model.experiment.measurement import measurement
+
+
+
+
 config_experiment = "config/measurement.yml"
 
-devices = from_yaml_to_devices(config_devices)
-experiment = from_yaml_to_experiment(config_experiment)
+experiment_dict = from_yaml_to_dict(config_experiment)
+print(experiment_dict['scan']['axis'])
+experiment = measurement(experiment_dict)
 
-for e in experiment:
-    print(e)
-    print(experiment[e])
+start_logger('test')
+experiment.load_devices()  # Uses the file specified in the YAML
+stop_logger()
+experiment.initialize_devices()
+experiment.do_scan()

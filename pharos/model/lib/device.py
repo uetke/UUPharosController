@@ -47,8 +47,11 @@ class device(object):
                 except:
                     value = values[k]
                 print('Setting %s to %s'%(k, value))
-                setattr(self.driver, k, values[k])
-            self.params[k] = value
+                try:
+                    setattr(self.driver, k, values[k])
+                except:
+                    print('Problem setting %s in %s' % (k, self))
+                self.params[k] = value
         else:
             raise Exception('Drivers can only update dictionaries')
 

@@ -11,8 +11,8 @@ experiment_dict = from_yaml_to_dict(config_experiment)
 print(experiment_dict['scan']['axis'])
 experiment = measurement(experiment_dict)
 
-start_logger('test')
+# start_logger('test.log')
 experiment.load_devices()  # Uses the file specified in the YAML
-stop_logger()
 experiment.initialize_devices()
 experiment.do_scan()
+# stop_logger()

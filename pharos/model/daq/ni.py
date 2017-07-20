@@ -79,20 +79,25 @@ class ni(DaqBase):
         self.tasks.append(t)
         return len(self.tasks)-1
 
-    def trigger_analog(self, task):
+    def trigger_analog(self, task=None):
         """
         :param task: Task number to be triggered.
         :return:
         """
-        t = self.tasks[task]
+        if task is None:
+            t = self.tasks[-1]
+        else:
+            t = self.tasks[task]
         t.StartTask()  # Starts the measurement.
 
     def read_analog(self, task, conditions):
         """Gets the analog values acquired with the triggerAnalog function.
         conditions -- dictionary with the number of points ot be read
         """
-
-        t = self.tasks[task]
+        if task is None:
+            t = self.tasks[-1]
+        else:
+            t = self.tasks[task]
 
         read = nidaq.int32()
         points = int(conditions['points'])

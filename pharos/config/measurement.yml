@@ -18,7 +18,7 @@ scan:
   axis:  # The laser doesn't need to appear here, it is always considered the first axis of the scan
     Stage 1:
       default: 10 um
-      range: [10, 20, .1]
+      range: [10um, 20um, 100nm]
     time:
       repetitions: 20
   detectors:

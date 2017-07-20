@@ -1,5 +1,6 @@
+import sys
 import numpy as np
-
+from time import sleep
 from lantz import Q_
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
 
@@ -59,21 +60,25 @@ class measurement(object):
         except:
             print('Problem changing values of the laser')
 
-        # num_points = int((laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['trigger_step'] )
-        # accuracy = laser.params['trigger_step']/laser.params['speed']
-        # conditions = {
-        #     'accuracy': accuracy,
-        #     'points': num_points
-        # }
-        # for d in daqs:
-        #     daq = self.devices[d]  # Get the DAQ from the devices list
-        #     devs = daqs[d]
-        #     conditions['devices'] = devs
-        #     conditions['trigger'] = daq.properties['trigger']
-        #     conditions['trigger_source'] = daq.properties['trigger_source']
+        num_points = int((laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['trigger_step'] )
+        accuracy = laser.params['trigger_step']/laser.params['speed']
+        conditions = {
+            'accuracy': accuracy,
+            'points': num_points
+        }
+
+        for d in daqs:
+            daq = self.devices[d]  # Get the DAQ from the devices list
+            devs = daqs[d]  # daqs dictionary groups the channels by daq to which they are plugged
+            conditions['devices'] = devs
+            conditions['trigger'] = daq.properties['trigger']
+            conditions['trigger_source'] = daq.properties['trigger_source']
         #     daq.driver.analog_input_setup(conditions)
 
         axis = scan['axis']
+        approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['speed']
+        print('Total number of devices to scan: %s' % len(axis))
+        data_scan = {}
         for dev_to_scan in axis:
             # Set all the devices to their default value
             for dev_name in axis:
@@ -84,10 +89,33 @@ class measurement(object):
             # Scan the laser and the values of the given device
             if dev_to_scan != 'time':
                 dev_range = axis[dev_to_scan]['range']
-                num_points = int((dev_range[1]-dev_range[0])/dev_range[2])
-                print(num_points)
-                for value in np.linspace(dev_range[0], dev_range[1], num_points):
-                    print(value)
+                start = Q_(dev_range[0])
+                stop = Q_(dev_range[1])
+                step = Q_(dev_range[2])
+                num_points_dev = ((stop-start)/step).to('')
+            else:
+                start = 1
+                stop = axis['time']['repetitions']
+                num_points_dev = stop
+            data_scan[dev_to_scan] = {}
+            for value in np.linspace(start, stop, num_points_dev):
+                self.set_value_to_device(dev_to_scan, value)
+                for d in daqs:
+                    # self.devices[d].driver.trigger_analog()
+                    pass
+                #laser.driver.execute_sweep()
+                # while laser.driver.sweep_condition != 'Stop':
+                #     sleep(approx_time_to_scan/10)
+                conditions = {
+                    'points': -1,
+                }
+                for d in daqs:
+                    data_scan[dev_to_scan][d] = self.devices[d].driver.read_analog(None, conditions)
+
+
+
+
+
 
     def set_value_to_device(self, dev_name, value):
         """ Sets the value of the device. If it is an analog output, it takes just one value.

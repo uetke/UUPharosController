@@ -14,5 +14,8 @@ experiment = measurement(experiment_dict)
 # start_logger('test.log')
 experiment.load_devices()  # Uses the file specified in the YAML
 experiment.initialize_devices()
+experiment.connect_all_devices_to_daq()
+experiment.connect_monitor_devices_to_daq()
+experiment.setup_scan()
 data_scan = experiment.do_scan()
 # stop_logger()

@@ -87,7 +87,7 @@ class measurement(object):
 
         num_points = int(
             (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])
-        accuracy = laser.params['trigger_step'] / laser.params['speed']
+        accuracy = laser.params['trigger_step'] / laser.params['wavelength_speed']
 
         conditions = {
             'accuracy': accuracy,
@@ -99,7 +99,10 @@ class measurement(object):
             daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
             daq_driver = self.devices[d]  # Gets the link to the DAQ
             if len(daq['monitor']) > 0:
+                print('DAQ: %s' % d) 
                 devs_to_monitor = daq['monitor']  # daqs dictionary groups the channels by daq to which they are plugged
+                print('Devs to monitor:')
+                print(devs_to_monitor)
                 conditions['devices'] = devs_to_monitor
                 conditions['trigger'] = daq_driver.properties['trigger']
                 conditions['trigger_source'] = daq_driver.properties['trigger_source']
@@ -112,7 +115,7 @@ class measurement(object):
         scan = self.measure['scan']
         laser = self.devices[scan['laser']['name']]
         axis = scan['axis']
-        approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['speed']
+        approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['wavelength_speed']
         print('Total number of devices to scan: %s' % len(axis))
         print('Approximate time to do a laser scan: %s' % approx_time_to_scan)
         data_scan = {} # To store all the data
@@ -136,7 +139,7 @@ class measurement(object):
                 stop = axis['time']['repetitions']
                 num_points_dev = stop
 
-            data_scan[dev_to_scan] = {}
+            data_scan[dev_to_scan] = []
             for value in np.linspace(start, stop, num_points_dev):
                 if dev_to_scan != 'time':
                     self.set_value_to_device(dev_to_scan, value * units)
@@ -144,22 +147,24 @@ class measurement(object):
                     daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
                     daq_driver = self.devices[d]  # Gets the link to the DAQ
                     if len(daq['monitor']) > 0:
-                        daq_driver.driver.trigger_analog(daq['monitor_task'])
-                        data_scan[dev_to_scan][d] = []
+                        if daq_driver.driver.is_task_complete(daq['monitor_task']):
+                            daq_driver.driver.trigger_analog(daq['monitor_task'])
                 laser.driver.execute_sweep()
                 sleep(0.1)
                 while laser.driver.sweep_condition != 'Stop':
-                    sleep(approx_time_to_scan/10) # It checks 10 times, maybe overkill?
+                    sleep(approx_time_to_scan.m/10) # It checks 10 times, maybe overkill?
                 conditions = {
                     'points': 0,
                 }
                 for d in self.daqs:
                     daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
                     if len(daq['monitor']) > 0:
-                        v, dd = self.devices[d].driver.read_analog(None, conditions)
-                        data_scan[dev_to_scan][d].append(dd)
+                        v, dd = self.devices[d].driver.read_analog(daq['monitor_task'], conditions)
+                        sleep(1)
+                        #self.devices[d].driver.stop_task(daq['monitor_task'])
+                        data_scan[dev_to_scan].append(dd)
                         print('Acquired data!')
-                        print('Total data points: %s' % len(data_scan[dev_to_scan][d]))
+                        print('Total data points: %s' % len(data_scan[dev_to_scan][-1]))
         return data_scan
 
     def set_value_to_device(self, dev_name, value):

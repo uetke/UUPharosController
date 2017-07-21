@@ -23,13 +23,17 @@ class device(object):
                 if connection_type == 'GPIB':
                     # Assume it is a lantz driver
                     self.driver = driver_class.via_gpib(self.properties['connection']['port'])
+                    self.driver.initialize()
                 elif connection_type == 'USB':
                     # Assume it is a lantz driver
                     self.driver = driver_class.via_usb()
+                    self.driver.initialize()
                     raise Warning('This was never tested!')
                 elif connection_type == 'serial':
                     # Assume it is a lantz driver
                     self.driver = driver_class.via_serial(self.properties['connection']['port'])
+                    self.driver.initialize()
+                    raise Warning('This was never tested!')
                 elif connection_type == 'daq':
                     self.driver = driver_class(self.properties['connection']['port'])
 

@@ -35,10 +35,10 @@ class LaserWidgetGUI(QtGui.QWidget):
         self.power_line.setText(values['stop_wavelength'])
         self.speed_line.setText(values['speed'])
         self.step_line.setText(values['step'])
-        self.trigger_step_line.setText(values['trigger_step'])
-        self.wait_line.setText(values['wait'])
+        self.trigger_step_line.setText(values['interval_trigger'])
+        self.wait_line.setText(values['wait_time'])
         self.step_time_line.setText(values['step_time'])
-        self.sweeps_line.setText(str(values['sweeps']))
+        self.sweeps_line.setText(str(values['number_sweeps']))
         self.power_line.setText(values['power'])
         p = int(values['power'].split(' ')[0]) * 100
 

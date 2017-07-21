@@ -11,7 +11,7 @@ scan:
     name: Santec Laser
     start_wavelength: 1490 nm
     stop_wavelength:  1510 nm
-    speed:  10 nm/s
+    speed:  50 nm/s
     trigger_step: 0.001 nm
     sweep_mode: ContOne
 

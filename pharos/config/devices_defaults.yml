@@ -14,6 +14,8 @@ Santec Laser:
   step_time: 0.1 s
   number_sweeps: 1
   sweep_mode: ContOne
+  sweep: continuous
+  mode: one
   trigger: False
   LD_current: True
   auto_power: False

@@ -21,7 +21,9 @@ with LaserController.via_gpib(1) as inst:
         inst.wavelength_speed = 2
         inst.trigger_timing = 'Step'
         inst.interval_trigger = 0.002 * Q_('nm')
+        print(inst.sweep_condition)
         inst.execute_sweep()
+        print(inst.sweep_condition)
     else:
         if sys.argv[1] == '-c':
             inst.close_shutter()

@@ -64,7 +64,7 @@ class measurement(object):
         accuracy = laser.params['trigger_step']/laser.params['speed']
         conditions = {
             'accuracy': accuracy,
-            'points': num_points
+            'points': -1
         }
 
         for d in daqs:
@@ -74,6 +74,7 @@ class measurement(object):
             conditions['trigger'] = daq.properties['trigger']
             conditions['trigger_source'] = daq.properties['trigger_source']
             daq.driver.analog_input_setup(conditions)
+            self.devices[d].driver.trigger_analog()
 
         axis = scan['axis']
         approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['speed']
@@ -99,18 +100,22 @@ class measurement(object):
                 num_points_dev = stop
             data_scan[dev_to_scan] = {}
             for value in np.linspace(start, stop, num_points_dev):
-                self.set_value_to_device(dev_to_scan, value)
+                self.set_value_to_device(dev_to_scan, value*Q_('um')) ### ATTENTION HERE!!!!
                 for d in daqs:
-                    self.devices[d].driver.trigger_analog()
+                    
                     pass
                 laser.driver.execute_sweep()
+                sleep(10)
                 while laser.driver.sweep_condition != 'Stop':
                     sleep(approx_time_to_scan/10)
                 conditions = {
-                    'points': -1,
+                    'points': 0,
                 }
                 for d in daqs:
-                    data_scan[dev_to_scan][d] = self.devices[d].driver.read_analog(None, conditions)
+                    v, dd = self.devices[d].driver.read_analog(None, conditions)
+                    data_scan[dev_to_scan][d] = dd
+                    print('Acquired data!')
+                    print('Total data points: %s' % len(data_scan[dev_to_scan][d]))
 
 
 

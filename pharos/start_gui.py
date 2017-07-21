@@ -1,3 +1,5 @@
+import yaml
+import sys
 from pharos.model.lib.session import session
 from pharos.model.lib.device import device
 from pharos.model.lib.general_functions import from_yaml_to_devices
@@ -14,18 +16,19 @@ session.devs_to_monitor = []
 
 
 for dev in devs:
-    if dev['connection']['type'] == 'daq':
+    if dev.properties['connection']['type'] == 'daq' and dev.properties['type'] != 'daq':
         session.daq_devices.append(dev)
-        if dev['mode'] == 'input':
+        if dev.properties['mode'] == 'input':
             session.devs_to_monitor.append(dev)
 
 s = open('config/devices_defaults.yml')
 defaults = yaml.load(s)
 s.close()
-session.laser_defaults = defaults['tsl-710']
+session.laser_defaults = defaults['Santec Laser']
 ap = QApplication(sys.argv)
-with LaserClass.via_gpib(1) as session.laser:
-
-    m = MainWindow(session)
-    m.show()
-    ap.exit(ap.exec_())
+devs[0].initialize_driver()
+session.laser = devs[0].driver
+session.daq = devs[4].driver
+m = MainWindow(session)
+m.show()
+ap.exit(ap.exec_())

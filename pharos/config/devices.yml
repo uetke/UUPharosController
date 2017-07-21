@@ -53,8 +53,8 @@ Stage1:
   port: 1
   calibration: # Convert Volts into device units
     units: um
-    slope: 0.2134
-    offset: 50
+    slope: 10
+    offset: 0
   limits:
     min: 0
     max: 100
@@ -78,6 +78,9 @@ oscilloscope:
   type: daq
   driver: model.daq.keysight
   name: Keysight oscilloscope
+  connection:
+    type: USB
+    port: 1
 
 DummyDaq:
   type: daq

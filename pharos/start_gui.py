@@ -27,7 +27,7 @@ s.close()
 session.laser_defaults = defaults['Santec Laser']
 ap = QApplication(sys.argv)
 devs[0].initialize_driver()
-session.laser = devs[0].driver
+session.laser = devs[0]
 session.daq = devs[4].driver
 m = MainWindow(session)
 m.show()

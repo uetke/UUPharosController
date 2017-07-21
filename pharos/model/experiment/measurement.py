@@ -4,15 +4,21 @@ from time import sleep
 from lantz import Q_
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
 
+
 class measurement(object):
     def __init__(self, measure):
         """Measurement class that will hold all the information regardin the experiment being performed.
         :param measure: a dictionary with the necessary steps
         """
-        self.measure = measure
-        self.devices = {}
+        self.measure = measure  # Dictionary of the measurement steps
+        self.devices = {}  # Dictionary holding all the devices
+        self.daqs = {}  # Dictionary that holds for each daq the inputs and outputs.
 
     def load_devices(self, source=None):
+        """ Loads the devices from the files defined in the INIT part of the yml.
+        :param source: Not implemented yet.
+        :return:
+        """
         if source is not None:
             return
         init = self.measure['init']
@@ -23,6 +29,10 @@ class measurement(object):
             print('Added %s to the experiment' % dev)
 
     def initialize_devices(self):
+        """ Initializes the devices first by loading the driver,
+        then by applying the default values if they are present.
+        :return:
+        """
         for k in self.devices:
             dev = self.devices[k]
             print('Starting %s' % dev.properties['name'])
@@ -30,29 +40,44 @@ class measurement(object):
                 dev.initialize_driver()
             except:
                 print('Error initializing %s' % dev.properties['name'])
-                #pass
             if 'defaults' in dev.properties:
                 defaults_file = dev.properties['defaults']
                 defaults = from_yaml_to_dict(defaults_file)[dev.properties['name']]
                 dev.apply_values(defaults)
+            if dev.properties['type'] == 'daq':
+                self.daqs[dev.properties['name']] = {'input': [],
+                                                     'output': [],
+                                                     'monitor': [], }  # Creates an entry for every different DAQ.
 
-    def do_scan(self):
-        daqs = {}
+    def connect_all_devices_to_daq(self):
+        """ Iterates through the devices and appends the outputs and inputs to each daq.
+        :return: None
+        """
+        for d in self.devices:
+            dev = self.devices[d]  # Get the device from the devices list
+            if 'device' in dev.properties['connection']:
+                connected_to = dev.properties['connection']['device']
+                mode = dev.properties['mode']
+                self.daqs[connected_to][mode].append(dev)
+                print('Appended %s to %s' % (dev, connected_to))
+
+    def connect_monitor_devices_to_daq(self):
+        """ Connects only the devices to be monitored to the appropriate daq
+        :return:
+        """
         scan = self.measure['scan']
         devices_to_monitor = scan['detectors']
-        # Check the devices
-        print('Going to monitor:')
-        for dev in devices_to_monitor:
-            dev = self.devices[dev]  # Get the input device from the devices list
-            print('\t- %s' % dev)
-            connection = dev.properties['connection']
-            if connection['type'] == 'daq':
-                if not connection['device'] in daqs:
-                    daqs[connection['device']] = [dev]
-                else:
-                    daqs[connection['device']].append(dev)
+        for d in devices_to_monitor:
+            dev = self.devices[d]
+            self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
 
-        # Sets up the laser
+    def setup_scan(self):
+        """ Prepares the scan by setting all the parameters to the DAQs and laser.
+        ALL THIS IS WORK IN PROGRESS, THAT WORKS WITH VERY SPECIFIC SETUP CONDITIONS!
+        :return:
+        """
+        scan = self.measure['scan']
+        # First setup the laser
         laser_params = scan['laser']
         laser = self.devices[laser_params['name']]
         try:
@@ -60,26 +85,37 @@ class measurement(object):
         except:
             print('Problem changing values of the laser')
 
-        num_points = int((laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['trigger_step'] )
-        accuracy = laser.params['trigger_step']/laser.params['speed']
+        num_points = int(
+            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])
+        accuracy = laser.params['trigger_step'] / laser.params['speed']
+
         conditions = {
             'accuracy': accuracy,
-            'points': -1
+            'points': num_points
         }
 
-        for d in daqs:
-            daq = self.devices[d]  # Get the DAQ from the devices list
-            devs = daqs[d]  # daqs dictionary groups the channels by daq to which they are plugged
-            conditions['devices'] = devs
-            conditions['trigger'] = daq.properties['trigger']
-            conditions['trigger_source'] = daq.properties['trigger_source']
-            daq.driver.analog_input_setup(conditions)
-            self.devices[d].driver.trigger_analog()
+        # Then setup the ADQs
+        for d in self.daqs:
+            daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
+            daq_driver = self.devices[d]  # Gets the link to the DAQ
+            if len(daq['monitor']) > 0:
+                devs_to_monitor = daq['monitor']  # daqs dictionary groups the channels by daq to which they are plugged
+                conditions['devices'] = devs_to_monitor
+                conditions['trigger'] = daq_driver.properties['trigger']
+                conditions['trigger_source'] = daq_driver.properties['trigger_source']
+                daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
+                self.daqs[d] = daq # Store it back to the class variable
 
+    def do_scan(self):
+        """ Does the scan considering that everything else was already set up.
+        """
+        scan = self.measure['scan']
+        laser = self.devices[scan['laser']['name']]
         axis = scan['axis']
         approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['speed']
         print('Total number of devices to scan: %s' % len(axis))
-        data_scan = {}
+        print('Approximate time to do a laser scan: %s' % approx_time_to_scan)
+        data_scan = {} # To store all the data
         for dev_to_scan in axis:
             # Set all the devices to their default value
             for dev_name in axis:
@@ -93,34 +129,38 @@ class measurement(object):
                 start = Q_(dev_range[0])
                 stop = Q_(dev_range[1])
                 step = Q_(dev_range[2])
+                units = start.u
                 num_points_dev = ((stop-start)/step).to('')
             else:
                 start = 1
                 stop = axis['time']['repetitions']
                 num_points_dev = stop
+
             data_scan[dev_to_scan] = {}
             for value in np.linspace(start, stop, num_points_dev):
-                self.set_value_to_device(dev_to_scan, value*Q_('um')) ### ATTENTION HERE!!!!
-                for d in daqs:
-                    
-                    pass
+                if dev_to_scan != 'time':
+                    self.set_value_to_device(dev_to_scan, value * units)
+                for d in self.daqs:
+                    daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
+                    daq_driver = self.devices[d]  # Gets the link to the DAQ
+                    if len(daq['monitor']) > 0:
+                        daq_driver.driver.trigger_analog(daq['monitor_task'])
+                        data_scan[dev_to_scan][d] = []
                 laser.driver.execute_sweep()
-                sleep(10)
+                sleep(0.1)
                 while laser.driver.sweep_condition != 'Stop':
-                    sleep(approx_time_to_scan/10)
+                    sleep(approx_time_to_scan/10) # It checks 10 times, maybe overkill?
                 conditions = {
                     'points': 0,
                 }
-                for d in daqs:
-                    v, dd = self.devices[d].driver.read_analog(None, conditions)
-                    data_scan[dev_to_scan][d] = dd
-                    print('Acquired data!')
-                    print('Total data points: %s' % len(data_scan[dev_to_scan][d]))
-
-
-
-
-
+                for d in self.daqs:
+                    daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
+                    if len(daq['monitor']) > 0:
+                        v, dd = self.devices[d].driver.read_analog(None, conditions)
+                        data_scan[dev_to_scan][d].append(dd)
+                        print('Acquired data!')
+                        print('Total data points: %s' % len(data_scan[dev_to_scan][d]))
+        return data_scan
 
     def set_value_to_device(self, dev_name, value):
         """ Sets the value of the device. If it is an analog output, it takes just one value.
@@ -138,11 +178,7 @@ class measurement(object):
             }
             daq.driver.analog_output(conditions)
         else:
-            self.devices[dev.dev.properties['name']].apply_values(values)
-
-
-
-
+            self.devices[dev.dev.properties['name']].apply_values(value)
 
 
 if __name__ == "__main__":

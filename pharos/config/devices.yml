@@ -9,7 +9,7 @@ TSL-710:
   connection:
     type: GPIB
     port: 1
-  #defaults: config/devices_defaults.yml
+  defaults: config/devices_defaults.yml
 
 PhotoDiode1:
   name: Photodiode 1

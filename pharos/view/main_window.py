@@ -16,14 +16,15 @@ class MainWindow(QtGui.QMainWindow):
         self.session = session
 
         # Load Widgets
-        self.laser_widget = LaserWidget(self.session.laser)
+        # self.laser_widget = LaserWidget(self.session.laser)
         self.monitor_widget = MonitorConfigWidget()
-        widget_test = WidgetMixin.from_feat(self.session.laser.driver.wavelength)
-        self.Bottom_Layout.addwidget(widget_test)
+        # widget_test = WidgetMixin.from_feat(self.session.laser.driver.wavelength)
+        # self.Bottom_Layout.addwidget(widget_test)
         # Make connections
-        QtCore.QObject.connect(self.laser_apply, QtCore.SIGNAL('clicked()'), self.update_laser)
-        QtCore.QObject.connect(self.laser_button, QtCore.SIGNAL('clicked()'), self.laser_widget.show)
+        QtCore.QObject.connect(self.apply_laser, QtCore.SIGNAL('clicked()'), self.update_laser)
+        #QtCore.QObject.connect(self.laser_button, QtCore.SIGNAL('clicked()'), self.laser_widget.show)
         QtCore.QObject.connect(self.monitor_button, QtCore.SIGNAL('clicked()'), self.monitor_widget.show)
+        self.wavelength_slider.valueChanged.connect(self.update_wavelength)
 
     def update_laser(self):
         wavelength = Q_(self.wavelength.text())
@@ -32,4 +33,9 @@ class MainWindow(QtGui.QMainWindow):
             'wavelength': wavelength,
             'power': power,
         }
-        self.session.laser.apply_values(values)
+        print(values)
+        # self.session.laser.apply_values(values)
+
+    def update_wavelength(self, value):
+        print(value)
+        print(self.wavelength_slider.value())

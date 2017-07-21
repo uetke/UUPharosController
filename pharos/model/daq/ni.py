@@ -112,6 +112,32 @@ class ni(DaqBase):
         values = read.value
         return values, data
 
+    def from_volt_to_units(self, value, dev):
+        pass
+
+    def from_units_to_volts(self, value, dev):
+        return (value - dev.properties['calibration']['offset']) / dev.properties['calibration']['slope']
+
+    def analog_output(self, conditions):
+        """ Sets the analog output of the NI card. For the time being is thought as a DC constant value.
+
+        :param dict conditions: specifies DEV and Value
+        :return:
+        """
+        dev = conditions['dev']
+        port = "Dev%s/ai%s" % (self.daq_num, dev.properties['port'])
+        units = Q_(dev.properties['calibration']['units'])
+        min_value = dev.properties['limits']['min']
+        max_value = dev.properties['limits']['max']
+        # Convert values to volts:
+        value = conditions['value'].to(units)
+        V = self.from_units_to_volts(value, dev)
+        min_V = self.from_units_to_volts(min_value, dev)
+        max_V = self.from_units_to_volts(max_value, dev)
+        t = nidaq.Task()
+        t.CreateAOVoltageChan(port, None, min_V, max_V, nidaq.DAQmx_Val_Volts, None)
+        t.WriteAnalogScalarF64(nidaq.bool32(True), 0, V)
+
     def is_task_complete(self, task):
         t = self.tasks[task]
         d = nidaq.bool32()

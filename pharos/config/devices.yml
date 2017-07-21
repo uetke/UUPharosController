@@ -51,7 +51,7 @@ Stage1:
   mode: output
   description: X Direction
   port: 1
-  calibration:
+  calibration: # Convert Volts into device units
     units: um
     slope: 0.2134
     offset: 50

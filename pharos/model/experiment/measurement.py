@@ -73,7 +73,7 @@ class measurement(object):
             conditions['devices'] = devs
             conditions['trigger'] = daq.properties['trigger']
             conditions['trigger_source'] = daq.properties['trigger_source']
-        #     daq.driver.analog_input_setup(conditions)
+            daq.driver.analog_input_setup(conditions)
 
         axis = scan['axis']
         approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['speed']
@@ -101,11 +101,11 @@ class measurement(object):
             for value in np.linspace(start, stop, num_points_dev):
                 self.set_value_to_device(dev_to_scan, value)
                 for d in daqs:
-                    # self.devices[d].driver.trigger_analog()
+                    self.devices[d].driver.trigger_analog()
                     pass
-                #laser.driver.execute_sweep()
-                # while laser.driver.sweep_condition != 'Stop':
-                #     sleep(approx_time_to_scan/10)
+                laser.driver.execute_sweep()
+                while laser.driver.sweep_condition != 'Stop':
+                    sleep(approx_time_to_scan/10)
                 conditions = {
                     'points': -1,
                 }
@@ -131,7 +131,7 @@ class measurement(object):
                 'dev': dev,
                 'value': value
             }
-            daq.driver.analog_output_setup(conditions)
+            daq.driver.analog_output(conditions)
         else:
             self.devices[dev.dev.properties['name']].apply_values(values)
 

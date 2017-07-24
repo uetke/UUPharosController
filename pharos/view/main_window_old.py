@@ -82,7 +82,7 @@ class MainWindow(MainWindowGUI):
 if __name__ == '__main__':
     from PyQt4.Qt import QApplication
     import sys
-    from model.lib.session import session
+    from pharos.model.lib.session import session
     session.laser = None
     session.daq = None
 

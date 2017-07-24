@@ -1,9 +1,5 @@
-
 from pharos.model.lib.general_functions import from_yaml_to_dict, start_logger, stop_logger
 from pharos.model.experiment.measurement import measurement
-
-
-
 
 config_experiment = "config/measurement.yml"
 

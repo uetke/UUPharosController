@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="Icons">
+    <file>button_red.svg</file>
+    <file>button_green.svg</file>
+  </qresource>
+</RCC>

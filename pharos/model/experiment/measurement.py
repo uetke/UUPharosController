@@ -1,4 +1,3 @@
-import sys
 import numpy as np
 from time import sleep
 from lantz import Q_
@@ -67,6 +66,11 @@ class measurement(object):
         """
         scan = self.measure['scan']
         devices_to_monitor = scan['detectors']
+
+        # Clear the DAQS just in case is a second scan running
+        for d in self.daqs:
+            self.daqs[d]['monitor'] = []
+
         for d in devices_to_monitor:
             dev = self.devices[d]
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
@@ -93,6 +97,8 @@ class measurement(object):
             'accuracy': accuracy,
             'points': num_points
         }
+
+
 
         # Then setup the ADQs
         for d in self.daqs:
@@ -184,6 +190,88 @@ class measurement(object):
             daq.driver.analog_output(conditions)
         else:
             self.devices[dev.dev.properties['name']].apply_values(value)
+
+    def setup_continuous_scans(self, monitor=None):
+        """ Sets up scans that continuously start. This is useful for monitoring a signal over time.
+        In principle it is similar to
+        :return:
+        """
+        if monitor is None:
+            monitor = self.measure['monitor']
+        else:
+            self.measure['monitor'] = monitor
+
+        # Lets grab the laser
+        laser = self.devices[monitor['laser']['name']]
+        laser.apply_values(self.devices['laser'])
+
+        # Clear the array to start afresh
+        for d in self.daqs:
+            self.daqs[d]['monitor'] = []
+
+        # Lets see what happens with the devices to monitor
+        devices_to_monitor = monitor['detectors']
+
+        for d in devices_to_monitor:
+            dev = self.devices[d]
+            self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
+
+        # Lets calculate the conditions of the scan
+        num_points = int(
+            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])
+        accuracy = laser.params['trigger_step'] / laser.params['wavelength_speed']
+
+        approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params[
+            'wavelength_speed']
+
+        self.monitor['approx_time_to_scan'] = approx_time_to_scan
+
+        conditions = {
+            'accuracy': accuracy,
+            'points': num_points
+        }
+
+        # Then setup the ADQs
+        for d in self.daqs:
+            daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
+            daq_driver = self.devices[d]  # Gets the link to the DAQ
+            if len(daq['monitor']) > 0:
+                print('DAQ: %s' % d)
+                devs_to_monitor = daq['monitor']  # daqs dictionary groups the channels by daq to which they are plugged
+                print('Devs to monitor:')
+                print(devs_to_monitor)
+                conditions['devices'] = devs_to_monitor
+                conditions['trigger'] = daq_driver.properties['trigger']
+                conditions['trigger_source'] = daq_driver.properties['trigger_source']
+                conditions['sampling'] = 'continuous'
+                daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
+                self.daqs[d] = daq  # Store it back to the class variable
+
+    def start_continuous_scans(self):
+        """Starts the laser, and triggers the daqs. It assumes setup_continuous_scans was already called."""
+        monitor = self.measure['monitor']
+        laser = self.devices[monitor['laser']['name']]
+
+        for d in self.daqs:
+            daq = self.daqs[d]
+            daq_driver = self.devices[d]
+            if len(daq['monitor']>0):
+                daq_driver.driver.trigger_analog(daq['monitor_task'])
+
+        laser.driver.execute_sweep()
+
+    def read_continuous_scans(self):
+        conditions = {'points': 0}
+        data = {}
+        for d in self.daqs:
+            daq = self.daqs[d]
+            daq_driver = self.devices[d]
+            if len(daq['monitor'] > 0):
+                vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
+                dd = np.reshape(dd,(len(daq['monitor']),int(vv)/len(daq['monitor'])))
+            data[d] = dd
+        return data
+
 
 
 if __name__ == "__main__":

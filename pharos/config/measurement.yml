@@ -4,7 +4,7 @@
 
 
 init:
-  devices: 'config/devices.yml'
+  devices: '../../config/devices.yml'
 
 scan:
   laser:
@@ -25,6 +25,17 @@ scan:
     - Photodiode 1
     - Photodiode 2
 
+monitor:
+  laser:
+    name: Santec Laser
+    start_wavelength: 1490 nm
+    stop_wavelength:  1510 nm
+    wavelength_speed:  50 nm/s
+    trigger_step: 0.001 nm
+    sweep_mode: ContOne
+  detectors:
+    - Photodiode 1
+    - Photodiode 2
 
 finish:
   TSL-10:

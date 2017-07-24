@@ -1,32 +1,39 @@
 import os
 from PyQt4 import QtCore, QtGui, uic
 from lantz import Q_
-from .signal_monitor import SignalMonitorWidget
+from pharos.view.GUI.signal_monitor import SignalMonitorWidget
 
 
 class MonitorConfigWidget(QtGui.QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, daqs, parent=None):
         QtGui.QWidget.__init__(self, parent=parent)
         p = os.path.dirname(__file__)
         uic.loadUi(os.path.join(p, 'QtCreator/monitor_config.ui'), self)
         self.ticks = []
+        self.groupbox = []
         self.devices = []
         self.all_checked = False
         self.monitors = {}
 
-        QtCore.QObject.connect(self.select_all, QtCore.SIGNAL('clicked()'), self.check_all )
+        self.populate_devices(daqs)
 
-    def populate_devices(self, devices):
-        self.devices = []
-        for dev in devices:
-            if dev.properties['mode'] == 'input':
+        QtCore.QObject.connect(self.select_all, QtCore.SIGNAL('clicked()'), self.check_all)
+
+    def populate_devices(self, daqs):
+        for d in daqs:
+            self.groupbox.append(QtGui.QGroupBox())
+            self.groupbox[-1].setTitle(d)
+            layout = QtGui.QFormLayout()
+            for dev in daqs[d]['input']:
                 self.ticks.append(QtGui.QCheckBox())
                 device_name = dev.properties['name']
                 device_description = dev.properties['description']
                 label = QtGui.QLabel(device_name)
                 label.setToolTip(device_description)
-                self.layout_widgets.addRow(label, self.ticks[-1])
+                layout.addRow(label, self.ticks[-1])
                 self.devices.append(dev)
+            self.groupbox[-1].setLayout(layout)
+            self.layout_widgets.addRow(self.groupbox[-1])
         self.configure_monitors(self.devices)
 
     def check_all(self):
@@ -68,19 +75,18 @@ class MonitorConfigWidget(QtGui.QWidget):
 
 if __name__ == '__main__':
     import sys
-    class test_device:
-        def __init__(self):
-            self.properties = {}
-    dev1 = test_device()
-    dev2 = test_device()
-    dev1.properties = {'name': 'Photodiode 1',
-            'description': 'Forward Intensity'}
-    dev2.properties = {'name': 'Photodiode 2',
-            'description': 'Backward Intensity'}
+    from pharos.model.experiment.measurement import measurement
+    from pharos.model.lib.general_functions import from_yaml_to_dict
 
-    devs = [dev1, dev2]
+    config_experiment = "../../config/measurement.yml"
+    experiment_dict = from_yaml_to_dict(config_experiment)
+    experiment = measurement(experiment_dict)
+    experiment.load_devices()
+    experiment.initialize_devices()
+    experiment.connect_all_devices_to_daq()
+    experiment.connect_monitor_devices_to_daq()
+
     app = QtGui.QApplication(sys.argv)
-    window = MonitorConfigWidget()
-    window.populate_devices(devs)
+    window = MonitorConfigWidget(experiment.daqs)
     window.show()
     sys.exit(app.exec_())

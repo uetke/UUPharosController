@@ -69,7 +69,15 @@ class ni(DaqBase):
                               max(limit_max), nidaq.DAQmx_Val_Volts, None)
 
         if conditions['points'] > 0:
-            cont_finite = nidaq.DAQmx_Val_FiniteSamps
+            if 'sampling' in conditions:
+                if conditions['sampling'] == 'finite':
+                    cont_finite = nidaq.DAQmx_Val_FiniteSamps
+                elif conditions['sampling'] == 'continuous':
+                    cont_finite = nidaq.DAQmx_Val_ContSamps
+                else:
+                    raise Exception('Sampling mode not understood')
+            else:
+                cont_finite = nidaq.DAQmx_Val_FiniteSamps
             num_points = conditions['points']
         else:
             cont_finite = nidaq.DAQmx_Val_ContSamps

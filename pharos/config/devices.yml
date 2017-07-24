@@ -9,7 +9,7 @@ TSL-710:
   connection:
     type: GPIB
     port: 1
-  defaults: config/devices_defaults.yml
+  defaults: ../../config/devices_defaults.yml
 
 PhotoDiode1:
   name: Photodiode 1
@@ -62,6 +62,58 @@ Stage1:
     type: daq
     device: NI-DAQ
 
+StageDummy:
+  name: Stage Dummy
+  type: analog
+  mode: input
+  description: X Direction
+  port: 1
+  calibration: # Convert Volts into device units
+    units: um
+    slope: 10
+    offset: 0
+  limits:
+    min: 0
+    max: 100
+  connection:
+    type: daq
+    device: dummy daq
+
+StageDummy2:
+  name: Stage Dummy 2
+  type: analog
+  mode: input
+  description: X Direction
+  port: 1
+  calibration: # Convert Volts into device units
+    units: um
+    slope: 10
+    offset: 0
+  limits:
+    min: 0
+    max: 100
+  connection:
+    type: daq
+    device: dummy daq
+
+StageDummy3:
+  name: Stage Dummy 3
+  type: analog
+  mode: input
+  description: X Direction
+  port: 1
+  calibration: # Convert Volts into device units
+    units: um
+    slope: 10
+    offset: 0
+  limits:
+    min: 0
+    max: 100
+  connection:
+    type: daq
+    device: dummy daq
+
+
 NI-DAQ:
   name: NI-DAQ
   type: daq
@@ -89,7 +141,7 @@ DummyDaq:
   connection:
     type: daq
     port: 1
-  defaults: config/devices_defaults.yml
+  defaults: ../../config/devices_defaults.yml
   trigger: external
   trigger_source: PFI0
 

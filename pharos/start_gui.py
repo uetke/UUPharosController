@@ -5,7 +5,8 @@ from pharos.model.lib.device import device
 from pharos.model.lib.general_functions import from_yaml_to_devices
 from pharos.view.main_window import MainWindow
 from PyQt4.Qt import QApplication
-
+from pharos.model.lib.general_functions import from_yaml_to_dict, start_logger, stop_logger
+from pharos.model.experiment.measurement import measurement
 
 config_devices = "config/devices.yml"
 
@@ -26,9 +27,18 @@ defaults = yaml.load(s)
 s.close()
 session.laser_defaults = defaults['Santec Laser']
 ap = QApplication(sys.argv)
-# devs[0].initialize_driver()
-# session.laser = devs[0]
+devs[0].initialize_driver()
+session.laser = devs[0]
 # session.daq = devs[4].driver
-m = MainWindow(session)
+
+config_experiment = "config/measurement.yml"
+experiment_dict = from_yaml_to_dict(config_experiment)
+experiment = measurement(experiment_dict)
+experiment.load_devices()  # Uses the file specified in the YAML
+experiment.initialize_devices()
+experiment.connect_all_devices_to_daq()
+experiment.connect_monitor_devices_to_daq()
+
+m = MainWindow(experiment)
 m.show()
 ap.exit(ap.exec_())

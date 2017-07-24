@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>438</width>
-    <height>445</height>
+    <width>692</width>
+    <height>772</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,11 +18,11 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QCheckBox::indicator:unchecked {
-image: url(:/Icons/icons/button_red.svg);
+image: url(:/icons/icons/button_red.svg);
 }
 
 QCheckBox::indicator:checked {
-image: url(:/Icons/icons/button_green.svg);
+image: url(:/icons/icons/button_green.svg);
 }
 
 QCheckBox::indicator{
@@ -400,6 +400,9 @@ QCheckBox::indicator{
       </layout>
      </widget>
     </item>
+    <item row="3" column="0">
+     <widget class="QLineEdit" name="laser_status"/>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -407,8 +410,8 @@ QCheckBox::indicator{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>438</width>
-     <height>21</height>
+     <width>692</width>
+     <height>46</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

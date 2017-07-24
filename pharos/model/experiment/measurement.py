@@ -12,6 +12,8 @@ class measurement(object):
         self.measure = measure  # Dictionary of the measurement steps
         self.devices = {}  # Dictionary holding all the devices
         self.daqs = {}  # Dictionary that holds for each daq the inputs and outputs.
+
+        # This short block is going to become useful in the future, when interfacing with a GUI
         for d in self.measure:
             setattr(self, d, self.measure[d])
 
@@ -200,9 +202,9 @@ class measurement(object):
         :return:
         """
         if monitor is None:
-            monitor = self.measure['monitor']
+            monitor = self.monitor
         else:
-            self.measure['monitor'] = monitor
+            self.monitor = monitor
 
         # Lets grab the laser
         laser = self.devices[monitor['laser']['name']]
@@ -252,19 +254,20 @@ class measurement(object):
 
     def start_continuous_scans(self):
         """Starts the laser, and triggers the daqs. It assumes setup_continuous_scans was already called."""
-        monitor = self.measure['monitor']
+        monitor = self.monitor
         laser = self.devices[monitor['laser']['name']]
 
         for d in self.daqs:
             daq = self.daqs[d]
-            daq_driver = self.devices[d]
+            daq_driver = self.devices[d].driver
             if len(daq['monitor'])>0:
-                daq_driver.driver.trigger_analog(daq['monitor_task'])
+                if daq_driver.is_task_complete(daq['monitor_task']):
+                    daq_driver.trigger_analog(daq['monitor_task'])
 
         laser.driver.execute_sweep()
 
     def read_continuous_scans(self):
-        conditions = {'points': 0}
+        conditions = {'points': 0} # To read all the points available
         data = {}
         for d in self.daqs:
             daq = self.daqs[d]
@@ -272,7 +275,7 @@ class measurement(object):
             if len(daq['monitor']) > 0:
                 vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
                 dd = dd[:vv*len(daq['monitor'])]
-                dd = np.reshape(dd,(len(daq['monitor']),int(vv/len(daq['monitor']))))
+                dd = np.reshape(dd, (len(daq['monitor']), int(vv/len(daq['monitor']))))
             data[d] = dd
         return data
 

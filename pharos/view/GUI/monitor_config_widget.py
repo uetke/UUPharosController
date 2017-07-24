@@ -46,6 +46,13 @@ class MonitorConfigWidget(QtGui.QWidget):
                 t.setChecked(True)
             self.all_checked = True
 
+    def get_devices_checked(self):
+        devices_checked = []
+        for i in range(len(self.ticks)):
+            if self.ticks[i].isChekced():
+                devices_checked.append(self.devices[i])
+        return devices_checked
+
     def configure_monitors(self, devs_to_monitor):
         for dev in devs_to_monitor:
             if dev.properties['name'] not in self.monitors:
@@ -69,6 +76,11 @@ class MonitorConfigWidget(QtGui.QWidget):
             raise Exception('That trigger mode is not supported.')
 
         self.emit(QtCore.SIGNAL('conditions_ready'), conditions)
+
+    def open_monitor(self, devs):
+        """Opens the signal monitor window for the given devices."""
+        for dev in devs:
+            self.monitors[dev.dev.properties['name']]['widget'].show()
 
 
 

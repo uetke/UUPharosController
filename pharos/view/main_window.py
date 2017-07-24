@@ -33,6 +33,7 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.auto_power, QtCore.SIGNAL('stateChanged(int)'), self.update_auto_power)
         QtCore.QObject.connect(self.monitor_timer, QtCore.SIGNAL('timeout()'), self.update_monitors)
         QtCore.QObject.connect(self.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
+
         self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.power.setText('{:~}'.format(self.laser.driver.powermW))
         self.wavelength_slider.setValue((self.laser.driver.wavelength.m_as('nm')-1480)/0.0001)
@@ -40,6 +41,7 @@ class MainWindow(QtGui.QMainWindow):
         self.shutter_value = False
         
         self.laser_widget.populate_values(self.experiment.measure['monitor']['laser'])
+
     def update_laser(self):
         wavelength = Q_(self.wavelength.text())
         power = Q_(self.power.text())
@@ -75,12 +77,20 @@ class MainWindow(QtGui.QMainWindow):
         self.laser.driver.powermW = new_value
 
     def start_monitor(self):
-        self.experiment.setup_continuous_scans()
-        self.experiment.start_continuous_scans()
-        time_to_scan = self.experiment.measure['monitor']['approx_time_to_scan'].m_as(Q_('s'))
-        self.monitor_timer.start(time_to_scan/10)
+        devs_to_monitor = self.monitor_widget.get_devices_checked()
+        if len(devs_to_monitor) > 0:
+            self.experiment.monitor['detectors'] = devs_to_monitor
+            self.experiment.setup_continuous_scans()
+            self.experiment.start_continuous_scans()
+            time_to_scan = self.experiment.measure['monitor']['approx_time_to_scan'].m_as(Q_('s'))
+            self.monitor_timer.start(time_to_scan/10)
+        else:
+            self.laser.driver.execute_sweep()
 
     def update_monitors(self):
         print(self.experiment.read_continuous_scans())
+
+        self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
+        self.laser_status.setText(self.laser.driver.sweep_condition)
         if self.laser.driver.sweep_condition == 'Stop':
-            self.start_monitor()
+            self.laser.driver.execute_sweep()

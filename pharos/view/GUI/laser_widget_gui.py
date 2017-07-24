@@ -26,25 +26,24 @@ class LaserWidgetGUI(QtGui.QWidget):
         """
         self.start_wavelength_line.setText(values['start_wavelength'])
         self.stop_wavelength_line.setText(values['stop_wavelength'])
-        self.speed_line.setText(values['speed'])
-        self.step_line.setText(values['step'])
-        self.trigger_step_line.setText(values['interval_trigger'])
-        self.wait_line.setText(values['wait_time'])
-        self.step_time_line.setText(values['step_time'])
-        self.sweeps_line.setText(str(values['number_sweeps']))
-        self.power_line.setText(values['power'])
+        self.speed_line.setText(values['wavelength_speed'])
+        #self.step_line.setText(values['step'])
+        self.trigger_step_line.setText(values['trigger_step'])
+        #self.wait_line.setText(values['wait_time'])
+        #self.step_time_line.setText(values['step_time'])
+        #self.sweeps_line.setText(str(values['number_sweeps']))
 
-        if values['sweep'] == 'continuous':
-            self.continuous_button.toggle()
-        elif values['sweep'] == 'step':
-            self.step_button.toggle()
-
-        if values['mode'] == 'one':
-            self.one_button.toggle()
-        elif values['mode'] == 'two':
-            self.two_button.toggle()
-
-        self.trigger_check.setChecked(values['trigger'])
+        #if values['sweep'] == 'continuous':
+        #    self.continuous_button.toggle()
+        #elif values['sweep'] == 'step':
+        #    self.step_button.toggle()
+        #
+        #if values['mode'] == 'one':
+        #    self.one_button.toggle()
+        #elif values['mode'] == 'two':
+        #    self.two_button.toggle()
+        #
+        #self.trigger_check.setChecked(values['trigger'])
 
     def update_laser_values(self):
         values = {

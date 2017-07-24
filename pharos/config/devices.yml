@@ -9,7 +9,7 @@ TSL-710:
   connection:
     type: GPIB
     port: 1
-  defaults: ../../config/devices_defaults.yml
+  defaults: config/devices_defaults.yml
 
 PhotoDiode1:
   name: Photodiode 1
@@ -141,7 +141,7 @@ DummyDaq:
   connection:
     type: daq
     port: 1
-  defaults: ../../config/devices_defaults.yml
+  defaults: config/devices_defaults.yml
   trigger: external
   trigger_source: PFI0
 

@@ -12,6 +12,9 @@ class measurement(object):
         self.measure = measure  # Dictionary of the measurement steps
         self.devices = {}  # Dictionary holding all the devices
         self.daqs = {}  # Dictionary that holds for each daq the inputs and outputs.
+        for d in self.measure:
+            setattr(self, d, self.measure[d])
+
 
     def load_devices(self, source=None):
         """ Loads the devices from the files defined in the INIT part of the yml.
@@ -203,7 +206,7 @@ class measurement(object):
 
         # Lets grab the laser
         laser = self.devices[monitor['laser']['name']]
-        laser.apply_values(self.devices['laser'])
+        laser.apply_values(monitor['laser'])
 
         # Clear the array to start afresh
         for d in self.daqs:
@@ -224,7 +227,7 @@ class measurement(object):
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params[
             'wavelength_speed']
 
-        self.monitor['approx_time_to_scan'] = approx_time_to_scan
+        self.measure['monitor']['approx_time_to_scan'] = approx_time_to_scan
 
         conditions = {
             'accuracy': accuracy,
@@ -255,7 +258,7 @@ class measurement(object):
         for d in self.daqs:
             daq = self.daqs[d]
             daq_driver = self.devices[d]
-            if len(daq['monitor']>0):
+            if len(daq['monitor'])>0:
                 daq_driver.driver.trigger_analog(daq['monitor_task'])
 
         laser.driver.execute_sweep()
@@ -266,9 +269,10 @@ class measurement(object):
         for d in self.daqs:
             daq = self.daqs[d]
             daq_driver = self.devices[d]
-            if len(daq['monitor'] > 0):
+            if len(daq['monitor']) > 0:
                 vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
-                dd = np.reshape(dd,(len(daq['monitor']),int(vv)/len(daq['monitor'])))
+                dd = dd[:vv*len(daq['monitor'])]
+                dd = np.reshape(dd,(len(daq['monitor']),int(vv/len(daq['monitor']))))
             data[d] = dd
         return data
 
@@ -278,4 +282,3 @@ if __name__ == "__main__":
     config_experiment = "config/measurement.yml"
     experiment_dict = from_yaml_to_dict(config_experiment)
     experiment = measurement(experiment_dict)
-    experiment.initialize_devices()

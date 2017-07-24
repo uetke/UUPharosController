@@ -14,7 +14,7 @@ class MainWindow(QtGui.QMainWindow):
         p = os.path.dirname(__file__)
         uic.loadUi(os.path.join(p, 'GUI/QtCreator/main_window.ui'), self)
         self.experiment = experiment
-        self.laser = self.experiment.devices[self.measure['scan']['laser']['name']]
+        self.laser = self.experiment.devices[experiment.measure['scan']['laser']['name']]
         self.daqs = self.experiment.daqs
         self.monitor_timer = QtCore.QTimer()
 
@@ -29,15 +29,17 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.wavelength_slider, QtCore.SIGNAL('valueChanged(int)'), self.update_wavelength)
         QtCore.QObject.connect(self.power_slider, QtCore.SIGNAL('valueChanged(int)'), self.update_power)
         QtCore.QObject.connect(self.shutter, QtCore.SIGNAL('stateChanged(int)'), self.update_shutter)
-        QtCore.QObject.connect(self.LD_current, QtCore.SIGNAL('stateChanged(int)'), self.update_ld)
+        QtCore.QObject.connect(self.LD_current, QtCore.SIGNAL('stateChanged(int)'), self.update_ld_current)
         QtCore.QObject.connect(self.auto_power, QtCore.SIGNAL('stateChanged(int)'), self.update_auto_power)
         QtCore.QObject.connect(self.monitor_timer, QtCore.SIGNAL('timeout()'), self.update_monitors)
+        QtCore.QObject.connect(self.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
         self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.power.setText('{:~}'.format(self.laser.driver.powermW))
         self.wavelength_slider.setValue((self.laser.driver.wavelength.m_as('nm')-1480)/0.0001)
         self.power_slider.setValue((self.laser.driver.powermW.m_as('mW')-0.01)/0.01)
         self.shutter_value = False
-
+        
+        self.laser_widget.populate_values(self.experiment.measure['monitor']['laser'])
     def update_laser(self):
         wavelength = Q_(self.wavelength.text())
         power = Q_(self.power.text())
@@ -75,10 +77,10 @@ class MainWindow(QtGui.QMainWindow):
     def start_monitor(self):
         self.experiment.setup_continuous_scans()
         self.experiment.start_continuous_scans()
-        time_to_scan = self.experiment.monitor['approx_time_to_scan'].m_as(Q_('s'))
+        time_to_scan = self.experiment.measure['monitor']['approx_time_to_scan'].m_as(Q_('s'))
         self.monitor_timer.start(time_to_scan/10)
 
     def update_monitors(self):
-        print(self.experiment.read_continuous_scans)
+        print(self.experiment.read_continuous_scans())
         if self.laser.driver.sweep_condition == 'Stop':
             self.start_monitor()

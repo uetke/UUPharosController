@@ -7,6 +7,7 @@
 """
 import PyDAQmx as nidaq
 import numpy as np
+from pharos.config import config
 from ._skeleton import DaqBase
 from lantz import Q_
 
@@ -59,12 +60,12 @@ class ni(DaqBase):
             elif conditions['trigger_edge'] == 'falling':
                 trigger_edge = nidaq.DAQmx_Val_Falling
         else:
-            trigger_edge = nidaq.DAQmx_Val_Rising
+            trigger_edge = config.ni_trigger_edge
 
         if 'measure_mode' in conditions:
             measure_mode = conditions['measure_mode']
         else:
-            measure_mode = nidaq.DAQmx_Val_Diff
+            measure_mode = config.ni_measure_mode
 
         t.CreateAIVoltageChan(channels, None, measure_mode, min(limit_min),
                               max(limit_max), nidaq.DAQmx_Val_Volts, None)
@@ -82,7 +83,7 @@ class ni(DaqBase):
             num_points = conditions['points']
         else:
             cont_finite = nidaq.DAQmx_Val_ContSamps
-            num_points = 10000
+            num_points = config.ni_buffer
 
         t.CfgSampClkTiming(trigger, freq, trigger_edge, cont_finite, num_points)
         self.tasks.append(t)
@@ -112,11 +113,11 @@ class ni(DaqBase):
         points = int(conditions['points'])
         if points > 0:
             data = np.zeros((points,), dtype=np.float64)
-            t.ReadAnalogF64(points, .2, nidaq.DAQmx_Val_GroupByChannel,
+            t.ReadAnalogF64(points, config.ni_read_timeout, nidaq.DAQmx_Val_GroupByChannel,
                             data, points, nidaq.byref(read), None)
         else:
-            data = np.zeros((10000,), dtype=np.float64)
-            t.ReadAnalogF64(points, .2, nidaq.DAQmx_Val_GroupByChannel,
+            data = np.zeros((config.ni_buffer,), dtype=np.float64)
+            t.ReadAnalogF64(points, config.ni_read_timeout, nidaq.DAQmx_Val_GroupByChannel,
                             data, points, nidaq.byref(read), None)
         values = read.value
         return values, data

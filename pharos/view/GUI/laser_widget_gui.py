@@ -4,8 +4,6 @@ from PyQt4 import QtCore, QtGui
 from lantz import Q_
 
 class LaserWidgetGUI(QtGui.QWidget):
-    button_pressed_signal = QtCore.pyqtSignal([bool], ['QString'], name='button_pressed')
-
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
         p = os.path.dirname(__file__)
@@ -24,14 +22,20 @@ class LaserWidgetGUI(QtGui.QWidget):
         :param values: needs to have all the attributes to populate the values displayed
         :return:
         """
+
+        if values['sweep_mode'] in ('StepOne', 'StepTwo', 'StepOneTrig', 'StepTwoTrig'):
+            self.step_line.setText(values['step'])
+            self.step_time_line.setText(values['step_time'])
+
         self.start_wavelength_line.setText(values['start_wavelength'])
         self.stop_wavelength_line.setText(values['stop_wavelength'])
         self.speed_line.setText(values['wavelength_speed'])
-        #self.step_line.setText(values['step'])
         self.trigger_step_line.setText(values['trigger_step'])
-        #self.wait_line.setText(values['wait_time'])
-        #self.step_time_line.setText(values['step_time'])
-        #self.sweeps_line.setText(str(values['number_sweeps']))
+
+        if 'wait_time' in values:
+            self.wait_line.setText(values['wait_time'])
+        if 'number_sweeps' in values:
+            self.sweeps_line.setText(str(values['number_sweeps']))
 
         if values['sweep_mode'] == 'ContOne':
             self.continuous_button.toggle()
@@ -52,10 +56,6 @@ class LaserWidgetGUI(QtGui.QWidget):
             'stop_wavelength': Q_(self.stop_wavelength_line.text()),
             'wavelength_speed': Q_(self.speed_line.text()),
             'trigger_step': Q_(self.trigger_step_line.text()),
-            #'step ': Q_(self.step_line.text()),
-            #'wait': Q_(self.wait_line.text()),
-            #'step_time': Q_(self.step_time_line.text()),
-            #'sweeps': Q_(self.sweeps_line.text()),
           }
         
         if self.continuous_button.isChecked():
@@ -70,6 +70,10 @@ class LaserWidgetGUI(QtGui.QWidget):
                 else:
                     sweep_mode = 'ContTwo'
         else:
+            values.update({
+                'step ': Q_(self.step_line.text()),
+                'step_time': Q_(self.step_time_line.text()),
+            })
             if self.one_button.isChecked():
                 if self.trigger_check.isChecked():
                     sweep_mode = 'StepOneTrig'
@@ -81,6 +85,11 @@ class LaserWidgetGUI(QtGui.QWidget):
                 else:
                     sweep_mode = 'StepTwo'
         values['sweep_mode'] = sweep_mode
+
+        if self.wait_line.text() != "":
+            values.update({'wait': Q_(self.wait_line.text()), })
+        if self.sweeps_line.text() != "":
+            values.update({'sweeps': Q_(self.sweeps_line.text()), })
 
         return values
 

@@ -16,6 +16,7 @@ class MainWindow(QtGui.QMainWindow):
         self.experiment = experiment
         self.laser = self.experiment.devices[experiment.measure['scan']['laser']['name']]
         self.daqs = self.experiment.daqs
+
         self.monitor_timer = QtCore.QTimer()
 
         # Load Widgets
@@ -31,6 +32,7 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.shutter, QtCore.SIGNAL('stateChanged(int)'), self.update_shutter)
         QtCore.QObject.connect(self.LD_current, QtCore.SIGNAL('stateChanged(int)'), self.update_ld_current)
         QtCore.QObject.connect(self.auto_power, QtCore.SIGNAL('stateChanged(int)'), self.update_auto_power)
+        QtCore.QObject.connect(self.coherent_control, QtCore.SIGNAL('stateChanged(int)'), self.update_coherent_control)
         QtCore.QObject.connect(self.monitor_timer, QtCore.SIGNAL('timeout()'), self.update_monitors)
         QtCore.QObject.connect(self.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
         QtCore.QObject.connect(self.stop_button, QtCore.SIGNAL('clicked()'), self.stop_monitor)
@@ -41,6 +43,7 @@ class MainWindow(QtGui.QMainWindow):
         self.power_slider.setValue((self.laser.driver.powermW.m_as('mW')-0.01)/0.01)
         self.shutter_value = False
         self.monitor_paused = False
+        self.monitor_running = False
 
         self.laser_widget.populate_values(self.experiment.monitor['laser']['params'])
 
@@ -72,6 +75,10 @@ class MainWindow(QtGui.QMainWindow):
         state = bool(state)
         self.laser.driver.auto_power = state
 
+    def update_coherent_control(self, state):
+        state = bool(state)
+        self.laser.driver.coherent_control = state
+
     def update_power(self, value):
         new_value = 0.01+value*0.01
         new_value = new_value*Q_('mW')
@@ -83,6 +90,7 @@ class MainWindow(QtGui.QMainWindow):
             self.experiment.resume_continuous_scans()
             self.start_button.setText('Pause')
             self.monitor_paused = False
+            self.monitor_running = True
             return
 
         devs_to_monitor = self.monitor_widget.get_devices_checked()
@@ -109,10 +117,10 @@ class MainWindow(QtGui.QMainWindow):
         else:
             self.laser.driver.execute_sweep()
         self.start_button.setText('Pause')
+        self.monitor_running = True
 
     def update_monitors(self):
         data = self.experiment.read_continuous_scans()
-
         self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.laser_status.setText(self.laser.driver.sweep_condition)
         if self.laser.driver.sweep_condition == 'Stop':
@@ -128,9 +136,23 @@ class MainWindow(QtGui.QMainWindow):
         self.update_monitors()
         self.start_button.setText('Start')
         self.monitor_paused = False
+        self.monitor_running = False
 
     def pause_monitor(self):
         self.monitor_timer.stop()
         self.experiment.pause_continuous_scans()
         self.start_button.setText('Resume')
         self.monitor_paused = True
+        self.monitor_running = False
+
+    def closeEvent(self, event):
+        quit_msg = "Are you sure you want to exit the program?"
+        reply = QtGui.QMessageBox.question(self, 'Message',
+                                           quit_msg, QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+
+        if reply == QtGui.QMessageBox.Yes:
+            if self.monitor_running:
+                self.stop_monitor()
+            event.accept()
+        else:
+            event.ignore()

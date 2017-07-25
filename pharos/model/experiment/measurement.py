@@ -208,6 +208,8 @@ class measurement(object):
 
         # Lets grab the laser
         laser = self.devices[monitor['laser']['name']]
+        monitor['laser']['params']['wavelength_sweeps'] = 0  # This will generate the laser to sweep always.
+                                                             # CAUTION!: It will have to be stopped when the program finished.
         laser.apply_values(monitor['laser']['params'])
 
         # Clear the array to start afresh
@@ -296,6 +298,7 @@ class measurement(object):
             if len(daq['monitor']) > 0:
                 daq_driver = self.devices[d].driver
                 daq_driver.stop_task(daq['monitor_task'])
+                daq_driver.clear_task(daq['monitor_task'])
 
     def pause_continuous_scans(self):
         monitor = self.monitor

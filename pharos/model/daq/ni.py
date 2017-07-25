@@ -161,6 +161,10 @@ class ni(DaqBase):
         t = self.tasks[task]
         t.StopTask()
 
+    def clear_task(self, task):
+        t = self.tasks[task]
+        t.ClearTask()
+
 if __name__ == '__main__':
     a = ni()
     b = 10*Q_('ms')

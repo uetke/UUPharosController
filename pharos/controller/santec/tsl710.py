@@ -162,7 +162,7 @@ class tsl710(MessageBasedDriver):
     def step_time(self, value):
         self.query('SB%.1f' % value)
 
-    @Feat(limits=(1, 999, 1))
+    @Feat(limits=(0, 999, 1))
     def wavelength_sweeps(self):
         """Number of wavelengths sweeps."""
         return self.query('SZ')

@@ -34,8 +34,15 @@ class SignalMonitorWidget(QtGui.QWidget):
 
     def set_wavelength(self, wavelength):
         self.wavelength = wavelength
-        self.ydata = np.zeros((len(self.wavelength)))
-        self.main_plot.plot(self.wavelength, self.ydata)
+        if self.two_way:
+            self.ydata = np.zeros(2*(len(self.wavelength)))
+            d1 = self.ydata[:len(self.ydata)/2]
+            d2 = self.ydata[len(self.ydata)/2:]
+            self.p1 = self.main_plot.plot(self.wavelength, d1, pen={'color': "#b6dbff", 'width': 2})
+            self.p2 = self.main_plot.plot(self.wavelength, d2, pen={'color': "#ffff6d", 'width': 2})
+        else:
+            self.ydata = np.zeros((len(self.wavelength)))
+            self.main_plot.plot(self.wavelength, self.ydata)
 
     def set_ydata(self, values):
         if len(values) + self.starting_point <= len(self.ydata):
@@ -50,4 +57,10 @@ class SignalMonitorWidget(QtGui.QWidget):
         
 
     def update_monitor(self):
-        self.main_plot.setData(self.wavelength, self.ydata)
+        if self.two_way:
+            d1 = self.ydata[:len(self.ydata)/2]
+            d2 = self.ydata[len(self.ydata)/2:]
+            self.p1.setData(self.wavelength, d1)
+            self.p2.setData(self.wavelength, d2)
+        else:
+            self.main_plot.setData(self.wavelength, self.ydata)

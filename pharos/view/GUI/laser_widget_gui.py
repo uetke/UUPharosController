@@ -11,13 +11,13 @@ class LaserWidgetGUI(QtGui.QWidget):
         p = os.path.dirname(__file__)
         uic.loadUi(os.path.join(p,'QtCreator/laserwidget.ui'), self)
 
-        self.status = {'LD_current': False,
-                       'auto_power': False,
-                       'coherent_control': False,
-                       'shutter': False,
-                       'trigger': False,
-        }
-
+        self.status = {
+            'LD_current': False,
+            'auto_power': False,
+            'coherent_control': False,
+            'shutter': False,
+            'trigger': False,
+            }
 
     def populate_values(self, values):
         """
@@ -33,17 +33,18 @@ class LaserWidgetGUI(QtGui.QWidget):
         #self.step_time_line.setText(values['step_time'])
         #self.sweeps_line.setText(str(values['number_sweeps']))
 
-        #if values['sweep'] == 'continuous':
-        #    self.continuous_button.toggle()
-        #elif values['sweep'] == 'step':
-        #    self.step_button.toggle()
-        #
-        #if values['mode'] == 'one':
-        #    self.one_button.toggle()
-        #elif values['mode'] == 'two':
-        #    self.two_button.toggle()
-        #
-        #self.trigger_check.setChecked(values['trigger'])
+        if values['sweep_mode'] == 'ContOne':
+            self.continuous_button.toggle()
+            self.one_button.toggle()
+        elif values['sweep_mode'] == 'ContTwo':
+            self.continuous_button.toggle()
+            self.two_button.toggle()
+        elif values['sweep_mode'] == 'StepOne':
+            self.step_button.toggle()
+            self.one_button.toggle()
+        elif values['sweep_mode'] == 'StepTwo':
+            self.step_button.toggle()
+            self.two_button.toggle()
 
     def update_laser_values(self):
         values = {
@@ -56,6 +57,7 @@ class LaserWidgetGUI(QtGui.QWidget):
             'step_time': Q_(self.step_time_line.text()),
             'sweeps': Q_(self.sweeps_line.text()),
           }
+        
         if self.continuous_button.isChecked():
             if self.one_button.isChecked():
                 if self.trigger_check.isChecked():

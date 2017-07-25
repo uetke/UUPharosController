@@ -4,7 +4,7 @@ from PyQt4 import QtCore, QtGui, uic
 from lantz import Q_
 from lantz.ui.widgets import WidgetMixin
 
-from pharos.view.GUI.laser_widget import LaserWidget
+from pharos.view.GUI.laser_widget_gui import LaserWidgetGUI
 from pharos.view.GUI.monitor_config_widget import MonitorConfigWidget
 import pharos.view.GUI.QtCreator.resources_rc
 
@@ -19,7 +19,7 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_timer = QtCore.QTimer()
 
         # Load Widgets
-        self.laser_widget = LaserWidget(self.laser)
+        self.laser_widget = LaserWidgetGUI(parent = self)
         self.monitor_widget = MonitorConfigWidget(self.daqs)
 
         # Make connections
@@ -89,7 +89,7 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_widget.open_monitor(devs_to_monitor)
         if len(devs_to_monitor) > 0:
             self.experiment.monitor['detectors'] = devs_to_monitor
-            self.experiment.monitor['laser']['params'] = self.laser_widget.get_parameters_monitor()
+            self.experiment.monitor['laser']['params'] = self.laser_widget.update_laser_values()
             self.experiment.setup_continuous_scans()
             self.experiment.start_continuous_scans()
             time_to_scan = self.experiment.measure['monitor']['approx_time_to_scan'].m_as(Q_('s'))

@@ -50,12 +50,12 @@ class LaserWidgetGUI(QtGui.QWidget):
         values = {
             'start_wavelength': Q_(self.start_wavelength_line.text()),
             'stop_wavelength': Q_(self.stop_wavelength_line.text()),
-            'speed': Q_(self.speed_line.text()),
+            'wavelength_speed': Q_(self.speed_line.text()),
             'trigger_step': Q_(self.trigger_step_line.text()),
-            'step ': Q_(self.step_line.text()),
-            'wait': Q_(self.wait_line.text()),
-            'step_time': Q_(self.step_time_line.text()),
-            'sweeps': Q_(self.sweeps_line.text()),
+            #'step ': Q_(self.step_line.text()),
+            #'wait': Q_(self.wait_line.text()),
+            #'step_time': Q_(self.step_time_line.text()),
+            #'sweeps': Q_(self.sweeps_line.text()),
           }
         
         if self.continuous_button.isChecked():

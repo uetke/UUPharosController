@@ -101,8 +101,10 @@ class MainWindow(QtGui.QMainWindow):
             step = self.experiment.monitor['laser']['params']['trigger_step'].m_as(units)
             num_points = (stop_wl - start_wl) / step
             xdata = np.linspace(start_wl, stop_wl, num_points)
+            
+            if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
+                self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
-
             self.monitor_timer.start(time_to_scan/10)
         else:
             self.laser.driver.execute_sweep()
@@ -124,9 +126,8 @@ class MainWindow(QtGui.QMainWindow):
         self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.laser_status.setText(self.laser.driver.sweep_condition)
         self.update_monitors()
-        if self.monitor_paused:
-            self.start_button.setText('Start')
-            self.monitor_paused = False
+        self.start_button.setText('Start')
+        self.monitor_paused = False
 
     def pause_monitor(self):
         self.monitor_timer.stop()

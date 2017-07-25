@@ -95,6 +95,10 @@ class MonitorConfigWidget(QtGui.QWidget):
 
         for dev in data:
             self.monitors[dev]['widget'].set_ydata(data[dev])
+            
+    def set_two_way_monitors(self, two_way=True):
+        for m in self.monitors:
+            self.monitors[m]['widget'].two_way = two_way
 
 
 

@@ -28,7 +28,8 @@ class LaserWidget(LaserWidgetGUI):
         params = {
             'start_wavelength': Q_(self.start_wavelength_line.text()),
             'stop_wavelength': Q_(self.stop_wavelength_line.text()),
-            'interval_trigger': Q_(self.trigger_step_line.text()),
+            'trigger_step': Q_(self.trigger_step_line.text()),
+            'wavelength_speed': Q_(self.speed_line.text()),
         }
         return params
 

@@ -6,6 +6,7 @@ from lantz.ui.widgets import WidgetMixin
 
 from pharos.view.GUI.laser_widget import LaserWidget
 from pharos.view.GUI.monitor_config_widget import MonitorConfigWidget
+from pharos.view.GUI.QtCreator.resources_rc import *
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -33,6 +34,7 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.auto_power, QtCore.SIGNAL('stateChanged(int)'), self.update_auto_power)
         QtCore.QObject.connect(self.monitor_timer, QtCore.SIGNAL('timeout()'), self.update_monitors)
         QtCore.QObject.connect(self.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
+        QtCore.QObject.connect(self.stop_button, QtCore.SIGNAL('clicked()'), self.stop_monitor)
 
         self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.power.setText('{:~}'.format(self.laser.driver.powermW))
@@ -40,7 +42,7 @@ class MainWindow(QtGui.QMainWindow):
         self.power_slider.setValue((self.laser.driver.powermW.m_as('mW')-0.01)/0.01)
         self.shutter_value = False
         
-        self.laser_widget.populate_values(self.experiment.measure['monitor']['laser'])
+        self.laser_widget.populate_values(self.experiment.monitor['laser']['params'])
 
     def update_laser(self):
         wavelength = Q_(self.wavelength.text())
@@ -81,16 +83,16 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_widget.open_monitor(devs_to_monitor)
         if len(devs_to_monitor) > 0:
             self.experiment.monitor['detectors'] = devs_to_monitor
-            self.experiment.monitor['laser'] = self.laser_widget.get_parameters_monitor()
+            self.experiment.monitor['laser']['params'] = self.laser_widget.get_parameters_monitor()
             self.experiment.setup_continuous_scans()
             self.experiment.start_continuous_scans()
             time_to_scan = self.experiment.measure['monitor']['approx_time_to_scan'].m_as(Q_('s'))
-            start_wl = self.experiment.monitor['laser']['start_wavelength']
+            start_wl = self.experiment.monitor['laser']['params']['start_wavelength']
             units = start_wl.u
             # Convert everything to the units of the start_wl
-            start_wl.m
-            stop_wl = self.experiment.monitor['laser']['stop_wavelength'].m_as(units)
-            step = self.experiment.monitor['laser']['trigger_step'].m_as(units)
+            start_wl = start_wl.m
+            stop_wl = self.experiment.monitor['laser']['params']['stop_wavelength'].m_as(units)
+            step = self.experiment.monitor['laser']['params']['trigger_step'].m_as(units)
             num_points = (stop_wl - start_wl) / step
             xdata = np.linspace(start_wl, stop_wl, num_points)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
@@ -108,3 +110,10 @@ class MainWindow(QtGui.QMainWindow):
             self.laser.driver.execute_sweep()
 
         self.monitor_widget.update_signal_values(data)
+        
+    def stop_monitor(self):
+        self.monitor_timer.stop()
+        self.experiment.stop_continuous_scans()
+        self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
+        self.laser_status.setText(self.laser.driver.sweep_condition)
+        self.update_monitors()

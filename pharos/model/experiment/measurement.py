@@ -208,7 +208,7 @@ class measurement(object):
 
         # Lets grab the laser
         laser = self.devices[monitor['laser']['name']]
-        laser.apply_values(monitor['laser'])
+        laser.apply_values(monitor['laser']['params'])
 
         # Clear the array to start afresh
         for d in self.daqs:
@@ -217,11 +217,12 @@ class measurement(object):
         # Lets see what happens with the devices to monitor
         devices_to_monitor = monitor['detectors']
 
-        for d in devices_to_monitor:
-            dev = self.devices[d]
+        for dev in devices_to_monitor:
+            #dev = self.devices[d]
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
 
         # Lets calculate the conditions of the scan
+        print(laser.params)
         num_points = int(
             (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])
         accuracy = laser.params['trigger_step'] / laser.params['wavelength_speed']
@@ -247,10 +248,13 @@ class measurement(object):
                 print(devs_to_monitor)
                 conditions['devices'] = devs_to_monitor
                 conditions['trigger'] = daq_driver.properties['trigger']
+                print('Trigger: %s' % conditions['trigger'])
                 conditions['trigger_source'] = daq_driver.properties['trigger_source']
+                print('Trigger source: %s' % conditions['trigger_source'])
                 conditions['sampling'] = 'continuous'
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable
+                print('Task number: %s' % self.daqs[d]['monitor_task'])
 
     def start_continuous_scans(self):
         """Starts the laser, and triggers the daqs. It assumes setup_continuous_scans was already called."""
@@ -261,13 +265,14 @@ class measurement(object):
             daq = self.daqs[d]
             daq_driver = self.devices[d].driver
             if len(daq['monitor'])>0:
+                devs_to_monitor = daq['monitor']  # daqs dictionary groups the channels by daq to which they are plugged             
                 if daq_driver.is_task_complete(daq['monitor_task']):
                     daq_driver.trigger_analog(daq['monitor_task'])
 
         laser.driver.execute_sweep()
 
     def read_continuous_scans(self):
-        conditions = {'points': 0} # To read all the points available
+        conditions = {'points': -1} # To read all the points available
         data = {}
         for d in self.daqs:
             daq = self.daqs[d]
@@ -275,10 +280,22 @@ class measurement(object):
             if len(daq['monitor']) > 0:
                 vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
                 dd = dd[:vv*len(daq['monitor'])]
-                dd = np.reshape(dd, (len(daq['monitor']), int(vv/len(daq['monitor']))))
-            data[d] = dd
+                dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
+                for i in range(len(daq['monitor'])):
+                    dev = daq['monitor'][i]
+                    data[dev.properties['name']] = dd[i,:]
         return data
-
+    
+    def stop_continuous_scans(self):
+        monitor = self.monitor
+        laser = self.devices[monitor['laser']['name']].driver
+        laser.pause_sweep()
+        laser.stop_sweep()
+        for d in self.daqs:
+            daq = self.daqs[d]
+            if len(daq['monitor']) > 0:
+                daq_driver = self.devices[d].driver
+                daq_driver.stop_task(daq['monitor_task'])
 
 
 if __name__ == "__main__":

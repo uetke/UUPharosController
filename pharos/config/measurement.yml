@@ -28,11 +28,12 @@ scan:
 monitor:
   laser:
     name: Santec Laser
-    start_wavelength: 1490 nm
-    stop_wavelength:  1510 nm
-    wavelength_speed:  10 nm/s
-    trigger_step: 0.001 nm
-    sweep_mode: ContOne
+    params:
+      start_wavelength: 1490 nm
+      stop_wavelength:  1510 nm
+      wavelength_speed:  10 nm/s
+      trigger_step: 0.001 nm
+      sweep_mode: ContOne
   detectors:
     - Photodiode 1
     - Photodiode 2

@@ -49,7 +49,7 @@ class MonitorConfigWidget(QtGui.QWidget):
     def get_devices_checked(self):
         devices_checked = []
         for i in range(len(self.ticks)):
-            if self.ticks[i].isChekced():
+            if self.ticks[i].isChecked():
                 devices_checked.append(self.devices[i])
         return devices_checked
 
@@ -82,7 +82,7 @@ class MonitorConfigWidget(QtGui.QWidget):
     def open_monitor(self, devs):
         """Opens the signal monitor window for the given devices."""
         for dev in devs:
-            self.monitors[dev.dev.properties['name']]['widget'].show()
+            self.monitors[dev.properties['name']]['widget'].show()
 
     def set_wavelength_to_monitor(self, wavelength):
         devs_to_monitor = self.get_devices_checked()
@@ -93,7 +93,8 @@ class MonitorConfigWidget(QtGui.QWidget):
         """ Updates the data to the different monitors.
         It is an intermadiate step that may not be needed."""
 
-        devs_to_monitor = self.get_devices_checked()
+        for dev in data:
+            self.monitors[dev]['widget'].set_ydata(data[dev])
 
 
 

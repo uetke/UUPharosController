@@ -50,6 +50,7 @@ class ni(DaqBase):
         print('SAMPLES PER SECOND: %s' % freq)
         if conditions['trigger'] == 'external':
             trigger = "/Dev%s/%s" % (self.daq_num, conditions['trigger_source'])
+            print('NI: external trigger: %s' % trigger)
         else:
             trigger = ""
         if 'trigger_edge' in conditions:

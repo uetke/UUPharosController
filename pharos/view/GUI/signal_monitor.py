@@ -10,9 +10,9 @@ class SignalMonitorWidget(QtGui.QWidget):
         self.id = None
         self.wavelength = None
         self.ydata = None
-
+        self.starting_point = 0
         self.main_plot = pg.PlotWidget()
-        self.main_plot.setLabel('bottom', 'Time', units='s')
+        self.main_plot.setLabel('bottom', 'Wavelength', units='nm')
 
         self.layout = QtGui.QVBoxLayout(self)
         self.layout.addWidget(self.main_plot)
@@ -32,15 +32,20 @@ class SignalMonitorWidget(QtGui.QWidget):
 
     def set_wavelength(self, wavelength):
         self.wavelength = wavelength
-        self.ydata = self.wavelength
-        self.ydata.fill(np.nan)
+        self.ydata = np.zeros((len(self.wavelength)))
+        self.update_monitor()
 
     def set_ydata(self, values):
-        #if self.ydata == None:
-        #    raise Exception('wavelength not initialized')
-
-        start = np.where(np.isnan(self.ydata))[0][0]
-        self.ydata[start:len(values)] = values
+        if len(values) + self.starting_point <= len(self.ydata):
+            self.ydata[self.starting_point:self.starting_point+len(values)] = values
+            self.starting_point += len(values)
+            self.update_monitor()
+        else:
+            # Have to split the data
+            self.set_ydata(values[0:len(self.ydata)-self.starting_point])
+            self.starting_point = 0
+            self.set_ydata(values[len(self.ydata)-self.starting_point:])
+        
 
     def update_monitor(self):
         self.main_plot.plot(self.wavelength, self.ydata)

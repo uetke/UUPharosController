@@ -63,9 +63,10 @@ class MonitorConfigWidget(QtGui.QWidget):
         conditions['devices'] = []
         for i in range(len(self.ticks)):
             if self.ticks[i].isChecked():
-                conditions['devices'].append(self.devices[i])
                 self.monitors[self.devices[i].properties['name']]['widget'].show()
-        
+            """THIS PART OF THE CODE IS FOR FUTURE IDEAS, WHERE THE MONITOR CAN BE MORE FLEXIBLE
+                conditions['devices'].append(self.devices[i])
+                
         if self.trigger.currentIndex() == 0:
             conditions['trigger'] = 'external'
             conditions['trigger_source'] = self.trigger_info.text()
@@ -76,12 +77,23 @@ class MonitorConfigWidget(QtGui.QWidget):
             raise Exception('That trigger mode is not supported.')
 
         self.emit(QtCore.SIGNAL('conditions_ready'), conditions)
+        """
 
     def open_monitor(self, devs):
         """Opens the signal monitor window for the given devices."""
         for dev in devs:
             self.monitors[dev.dev.properties['name']]['widget'].show()
 
+    def set_wavelength_to_monitor(self, wavelength):
+        devs_to_monitor = self.get_devices_checked()
+        for dev in devs_to_monitor:
+            self.monitors[dev.properties['name']]['widget'].set_wavelength(wavelength)
+
+    def update_signal_values(self, data):
+        """ Updates the data to the different monitors.
+        It is an intermadiate step that may not be needed."""
+
+        devs_to_monitor = self.get_devices_checked()
 
 
 

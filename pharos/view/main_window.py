@@ -78,19 +78,33 @@ class MainWindow(QtGui.QMainWindow):
 
     def start_monitor(self):
         devs_to_monitor = self.monitor_widget.get_devices_checked()
+        self.monitor_widget.open_monitor(devs_to_monitor)
         if len(devs_to_monitor) > 0:
             self.experiment.monitor['detectors'] = devs_to_monitor
+            self.experiment.monitor['laser'] = self.laser_widget.get_parameters_monitor()
             self.experiment.setup_continuous_scans()
             self.experiment.start_continuous_scans()
             time_to_scan = self.experiment.measure['monitor']['approx_time_to_scan'].m_as(Q_('s'))
+            start_wl = self.experiment.monitor['laser']['start_wavelength']
+            units = start_wl.u
+            # Convert everything to the units of the start_wl
+            start_wl.m
+            stop_wl = self.experiment.monitor['laser']['stop_wavelength'].m_as(units)
+            step = self.experiment.monitor['laser']['trigger_step'].m_as(units)
+            num_points = (stop_wl - start_wl) / step
+            xdata = np.linspace(start_wl, stop_wl, num_points)
+            self.monitor_widget.set_wavelength_to_monitor(xdata)
+
             self.monitor_timer.start(time_to_scan/10)
         else:
             self.laser.driver.execute_sweep()
 
     def update_monitors(self):
-        print(self.experiment.read_continuous_scans())
+        data = self.experiment.read_continuous_scans()
 
         self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.laser_status.setText(self.laser.driver.sweep_condition)
         if self.laser.driver.sweep_condition == 'Stop':
             self.laser.driver.execute_sweep()
+
+        self.monitor_widget.update_signal_values(data)

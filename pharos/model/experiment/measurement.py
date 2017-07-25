@@ -297,6 +297,16 @@ class measurement(object):
                 daq_driver = self.devices[d].driver
                 daq_driver.stop_task(daq['monitor_task'])
 
+    def pause_continuous_scans(self):
+        monitor = self.monitor
+        laser = self.devices[monitor['laser']['name']].driver
+        laser.pause_sweep()
+
+    def resume_continuous_scans(self):
+        monitor = self.monitor
+        laser = self.devices[monitor['laser']['name']].driver
+        laser.execute_sweep()
+
 
 if __name__ == "__main__":
     config_experiment = "config/measurement.yml"

@@ -17,6 +17,8 @@ class SignalMonitorWidget(QtGui.QWidget):
         self.layout = QtGui.QVBoxLayout(self)
         self.layout.addWidget(self.main_plot)
 
+        self.two_way = False # If the laser scan is two-ways
+
     def set_name(self, name):
         if self.name is not None:
             raise Exception('Cannot change the name of a running window.')
@@ -33,7 +35,7 @@ class SignalMonitorWidget(QtGui.QWidget):
     def set_wavelength(self, wavelength):
         self.wavelength = wavelength
         self.ydata = np.zeros((len(self.wavelength)))
-        self.update_monitor()
+        self.main_plot.plot(self.wavelength, self.ydata)
 
     def set_ydata(self, values):
         if len(values) + self.starting_point <= len(self.ydata):
@@ -48,4 +50,4 @@ class SignalMonitorWidget(QtGui.QWidget):
         
 
     def update_monitor(self):
-        self.main_plot.plot(self.wavelength, self.ydata)
+        self.main_plot.setData(self.wavelength, self.ydata)

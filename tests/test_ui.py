@@ -3,7 +3,7 @@ import sys
 from PyQt4 import QtCore, QtGui, uic
 from lantz import Q_
 from PyQt4.Qt import QApplication
-from pharos.view.GUI.QtCreator import resources_rc
+import pharos.view.GUI.QtCreator.resources_rc
 from pharos.view.GUI.laser_widget import LaserWidget
 from pharos.view.GUI.monitor_config_widget import MonitorConfigWidget
 

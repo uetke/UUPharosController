@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>692</width>
-    <height>772</height>
+    <width>438</width>
+    <height>471</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -410,8 +410,8 @@ QCheckBox::indicator{
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>692</width>
-     <height>46</height>
+     <width>438</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

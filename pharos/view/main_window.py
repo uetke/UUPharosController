@@ -2,9 +2,9 @@ import numpy as np
 import os
 from PyQt4 import QtCore, QtGui, uic
 from lantz import Q_
-from lantz.ui.widgets import WidgetMixin
 
 from pharos.view.GUI.laser_widget_gui import LaserWidgetGUI
+from pharos.view.GUI.scan_config_widget import ScanConfigWidget
 from pharos.view.GUI.monitor_config_widget import MonitorConfigWidget
 import pharos.view.GUI.QtCreator.resources_rc
 
@@ -21,7 +21,8 @@ class MainWindow(QtGui.QMainWindow):
 
         # Load Widgets
         self.laser_widget = LaserWidgetGUI(parent = self)
-        self.monitor_widget = MonitorConfigWidget(self.daqs)
+        self.monitor_widget = MonitorConfigWidget()
+        self.scan_widget = ScanConfigWidget()
 
         # Make connections
         QtCore.QObject.connect(self.apply_laser, QtCore.SIGNAL('clicked()'), self.update_laser)
@@ -38,6 +39,8 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
         QtCore.QObject.connect(self.stop_button, QtCore.SIGNAL('clicked()'), self.stop_monitor)
         QtCore.QObject.connect(self.pause_button, QtCore.SIGNAL('clicked()'), self.pause_monitor)
+        QtCore.QObject.connect(self.scan_button, QtCore.SIGNAL('clicked()'), self.scan_widget.show)
+
         self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.power.setText('{:~}'.format(self.laser.driver.powermW))
         self.wavelength_slider.setValue((self.laser.driver.wavelength.m_as('nm')-1480)/0.0001)
@@ -45,8 +48,11 @@ class MainWindow(QtGui.QMainWindow):
         self.shutter_value = False
         self.monitor_paused = False
         self.monitor_running = False
+        self.scan_running = False
 
         self.laser_widget.populate_values(self.experiment.monitor['laser']['params'])
+        self.scan_widget.populate_daq_devices(self.experiment.daqs)
+        self.monitor_widget.populate_devices(self.experiment.daqs)
 
     def update_laser(self):
         wavelength = Q_(self.wavelength.text())
@@ -130,12 +136,12 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_widget.update_signal_values(data)
         
     def stop_monitor(self):
+        self.start_button.setText('Start')
         self.monitor_timer.stop()
+        self.update_monitors()
         self.experiment.stop_continuous_scans()
         self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.laser_status.setText(self.laser.driver.sweep_condition)
-        self.update_monitors()
-        self.start_button.setText('Start')
         self.monitor_paused = False
         self.monitor_running = False
 

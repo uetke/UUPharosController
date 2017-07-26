@@ -38,7 +38,7 @@ class ScanConfigWidget(QtGui.QWidget):
                     'min': dev.properties['limits']['min'],
                 }
 
-                min.editingFinished.connect(lambda: self.check_limits(min.text()))
+                min.editingFinished.connect(self.check_limits)
                 max.editingFinished.connect(self.check_limits)
                 step.editingFinished.connect(self.check_limits)
 
@@ -60,7 +60,6 @@ class ScanConfigWidget(QtGui.QWidget):
         """ Adds group boxes for every device and includes the parameters that can be tuned in every case. """
 
     def check_limits(self, dev_name):
-        print(dev_name)
         red_background =  "QLineEdit { background: rgb(255, 20, 20); selection-background-color: rgb(233, 99, 0); }"
         white_background = "QLineEdit { background: rgb(255, 255, 255); selection-background-color: rgb(233, 99, 0); }"
         for dev in self.devices:
@@ -73,6 +72,13 @@ class ScanConfigWidget(QtGui.QWidget):
                 dev['max_line'].setStyleSheet(white_background)
             else:
                 dev['max_line'].setStyleSheet(red_background)
+
+    def get_checked_devices(self):
+        devices = []
+        for dev in self.devices:
+            if self.devices[dev]['tick'].isChecked():
+                devices.append(dev)
+        return devices
 
 
 

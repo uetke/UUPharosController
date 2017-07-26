@@ -8,7 +8,7 @@
 import PyDAQmx as nidaq
 import numpy as np
 from pharos.config import config
-from ._skeleton import DaqBase
+from pharos.model.daq._skeleton import DaqBase
 from lantz import Q_
 
 class ni(DaqBase):
@@ -129,9 +129,11 @@ class ni(DaqBase):
         units = Q_(dev.properties['calibration']['units'])
         slope = dev.properties['calibration']['slope'] * units
         offset = dev.properties['calibration']['offset'] * units
-        return (value - offset) / slope 
+        slope = slope.m
+        offset = offset.m
+        return (value - offset) / slope
         
-    def analog_output(self, conditions):
+    def analog_output_dc(self, conditions):
         """ Sets the analog output of the NI card. For the time being is thought as a DC constant value.
 
         :param dict conditions: specifies DEV and Value
@@ -150,6 +152,37 @@ class ni(DaqBase):
         t = nidaq.Task()
         t.CreateAOVoltageChan(port, None, min_V, max_V, nidaq.DAQmx_Val_Volts, None)
         t.WriteAnalogScalarF64(nidaq.bool32(True), 0, V, None)
+        t.StopTask()
+        t.ClearTask()
+
+    def analog_output_samples(self, conditions):
+        """ Prepares an anlog output from an array of values.
+        :param conditions: dictionary of conditions.
+        :return:
+        """
+        t = nidaq.Task()
+        dev = conditions['dev'][0]
+        port = dev.properties['port']
+
+        min_val = self.from_units_to_volts(dev.properties['limits']['min'], dev)
+        max_val = self.from_units_to_volts(dev.properties['limits']['max'], dev)
+
+        t.CreateAOVoltageChan('Dev%s/ao%s' % (self.daq_num, port), None, min_val, max_val, nidaq.DAQmx_Val_Volts, None, )
+
+        freq = int(1 / conditions['accuracy'].to('s').magnitude)
+        num_points = len(conditions['data'])
+
+        t.CfgSampClkTiming('', freq, config.ni_trigger_edge, nidaq.DAQmx_Val_FiniteSamps, num_points)
+
+        auto_trigger = nidaq.bool32(0)
+        timeout = -1
+        dataLayout = nidaq.DAQmx_Val_GroupByChannel
+        read = nidaq.int32()
+
+        t.WriteAnalogF64(num_points, auto_trigger, timeout, dataLayout, conditions['data'], read, None)
+
+        self.tasks.append(t)
+        return len(self.tasks)-1
 
     def is_task_complete(self, task):
         t = self.tasks[task]
@@ -165,8 +198,11 @@ class ni(DaqBase):
         t = self.tasks[task]
         t.ClearTask()
 
+    def reset_device(self):
+        nidaq.DAQmxResetDevice('Dev%s' % self.daq_num)
+
 if __name__ == '__main__':
-    a = ni()
+    a = ni(3)
     b = 10*Q_('ms')
     print(type(b))
     # b = Q_(b, 'seconds')

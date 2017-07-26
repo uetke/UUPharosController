@@ -10,7 +10,11 @@ GenWaveDetect:
     WaveGen:
       default: 0 V
       range: [-1 V, 1 V, 1 mV] # here the units can be set according to Q_ package standards
-  detectors:
-    - Photodiode 1
-    - Photodiode 2
-
+      timestep: 1 ms
+  inputs:
+    detectors:
+      - Photodiode1
+      - Photodiode2
+    conditions:
+      timestep: 2 ms
+      points: 1000

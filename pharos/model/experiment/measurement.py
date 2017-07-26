@@ -194,7 +194,7 @@ class measurement(object):
                 'dev': dev,
                 'value': value
             }
-            daq.driver.analog_output(conditions)
+            daq.driver.analog_output_dc(conditions)
         else:
             self.devices[dev.dev.properties['name']].apply_values(value)
 

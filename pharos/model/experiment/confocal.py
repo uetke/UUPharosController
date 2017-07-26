@@ -6,7 +6,8 @@ Section authors: Sanli Faez, Aquiles Carattino
 
 import numpy as np
 from time import sleep
-#from lantz import Q_
+from lantz import Q_
+import matplotlib.pyplot as plt
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
 
 
@@ -72,4 +73,58 @@ class measurement(object):
 
     def gen_wave(self):
         """Created by Sanli on 26/7/17 to practice"""
+
+
+
         genwave = self.measure['GenWaveDetect']
+        sensors = genwave['inputs']['detectors'] # prepares a list of names of detectors as mentioned in congig/example_confocal.yml
+        devices = []
+        for s in sensors:
+            devices.append(self.devices[s])
+        conditions = {}
+        conditions['devices'] = devices #sets the necessary properties for analog inputs according to model/daq/ni.py standard
+        conditions['accuracy'] = Q_(genwave['inputs']['conditions']['timestep'])
+        daqused = devices[-1].properties['connection']['device']
+        conditions['trigger'] = self.devices[daqused].properties['trigger'] #this only works becaues trigger is set to internal, in case of external trigger, prior checks are essential
+        if conditions['trigger'] == 'external':
+            conditions['trigger_source'] = self.devices[daqused].properties['trigger_source'] #external source condition needed by ni.py class
+        conditions['points'] = int(genwave['inputs']['conditions']['points'])
+
+        self.devices[daqused].driver.reset_device()
+
+        task = self.devices[daqused].driver.analog_input_setup(conditions)
+
+        out_dev = genwave['axis']
+        output_devices = []
+        for d in out_dev:
+            output_devices.append(self.devices[d])
+
+        # This is assuming there is only one output
+        min_output = Q_(genwave['axis'][d]['range'][0])
+        max_output = Q_(genwave['axis'][d]['range'][1])
+        step = Q_(genwave['axis'][d]['range'][2])
+        units = min_output.u
+        step.to(units)
+        num_points = (max_output-min_output)/step
+        output_data = np.sin(np.linspace(min_output.m, max_output.m, num_points))
+        accuracy = Q_(genwave['axis'][d]['timestep'])
+        output_conditions = {
+            'dev': output_devices,
+            'accuracy': accuracy,
+            'data': output_data,
+        }
+        out_task = self.devices[daqused].driver.analog_output_samples(output_conditions)
+        self.devices[daqused].driver.trigger_analog(task)
+        self.devices[daqused].driver.trigger_analog(out_task)
+        conditions['points'] = -1#len(devices)*conditions['points']
+
+        while not self.devices[daqused].driver.is_task_complete(task) or \
+            not self.devices[daqused].driver.is_task_complete(out_task):
+            sleep(0.1)
+
+        v, data = self.devices[daqused].driver.read_analog(task, conditions)
+        data = data[:len(devices)*v]
+        organized_data = np.reshape(data,(len(devices), v))
+        plt.plot(organized_data[0, :])
+        plt.plot(organized_data[1, :])
+        plt.show()

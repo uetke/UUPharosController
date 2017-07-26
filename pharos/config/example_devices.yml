@@ -5,7 +5,7 @@
 
 
 PhotoDiode1: #example of an input voltage device connected to the DAQ card, this is called auxillary connection
-  name: Photodiode 1
+  name: Photodiode1
   port: 1
   type: analog
   mode: input
@@ -22,8 +22,8 @@ PhotoDiode1: #example of an input voltage device connected to the DAQ card, this
     device: NI-DAQ
 
 PhotoDiode2:
-  name: Photodiode 2
-  port: 2
+  name: Photodiode2
+  port: 0
   type: analog
   mode: input
   description: Forward Intensity
@@ -43,7 +43,7 @@ WaveGen:
   type: analog
   mode: output
   description: X Direction
-  port: 1
+  port: 0
   calibration: # Convert Volts into device units
     units: V
     slope: 1
@@ -59,11 +59,11 @@ NI-DAQ: #This is example for a directly connected device. They need explicit dri
   name: NI-DAQ #must be the same as the connection device for auxillary devices in this file
   type: daq
   model: ni
-  number: 2
+  number: 3
   driver: pharos.model.daq.ni/ni
   connection:
     type: daq
-    port: 2
+    port: 3
   trigger: internal
   trigger_source: PFI0
 #

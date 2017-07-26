@@ -40,7 +40,7 @@ class device(object):
 
     def apply_values(self, values):
         """ Iterates over all values of a dictionary and sets the values of the driver to it.
-        :param values: a dictionary
+        :param values: a dictionary of parameters and desired values for those parameters
         :return:
         """
         if isinstance(values, dict):

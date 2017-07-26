@@ -1,3 +1,5 @@
+
+
 import numpy as np
 from time import sleep
 from lantz import Q_
@@ -6,7 +8,7 @@ from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_t
 
 class measurement(object):
     def __init__(self, measure):
-        """Measurement class that will hold all the information regardin the experiment being performed.
+        """Measurement class that will hold all the information regarding the experiment being performed.
         :param measure: a dictionary with the necessary steps
         """
         self.measure = measure  # Dictionary of the measurement steps

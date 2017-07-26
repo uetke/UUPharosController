@@ -1,6 +1,6 @@
 %YAML 1.2
 ---
-# Configure the devices relevant to the experiment
+# Define and Configure the devices relevant to the experiment
 
 TSL-710:
   type: scan laser
@@ -9,7 +9,7 @@ TSL-710:
   connection:
     type: GPIB
     port: 1
-  defaults: config/devices_defaults.yml
+  defaults: config/devices_defaults.yml #setting defaults will trigger an action after initializing each device with model/lib/device.py class
 
 PhotoDiode1:
   name: Photodiode 1
@@ -79,39 +79,6 @@ StageDummy:
     type: daq
     device: dummy daq
 
-StageDummy2:
-  name: Stage Dummy 2
-  type: analog
-  mode: input
-  description: X Direction
-  port: 1
-  calibration: # Convert Volts into device units
-    units: um
-    slope: 10
-    offset: 0
-  limits:
-    min: 0
-    max: 100
-  connection:
-    type: daq
-    device: dummy daq
-
-StageDummy3:
-  name: Stage Dummy 3
-  type: analog
-  mode: input
-  description: X Direction
-  port: 1
-  calibration: # Convert Volts into device units
-    units: um
-    slope: 10
-    offset: 0
-  limits:
-    min: 0
-    max: 100
-  connection:
-    type: daq
-    device: dummy daq
 
 
 NI-DAQ:

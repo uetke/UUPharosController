@@ -8,6 +8,9 @@
     
     .. note:: Not all functions were implemented in the code as methods in the class. However a fair amount of the most
         useful ones was formatted according to Lantz standards.
+
+        IMPORTANT note added 26/7/17
+        This version is not tested, Bohdan and Dashka might have newer versions for the keysight oscilloscopes running, check before editing further
     
 """
 

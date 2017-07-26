@@ -1,3 +1,5 @@
+# please add comments to clarify!
+
 import PyDAQmx as nidaq
 
 ni_buffer = 50000  # When acquiring in continuous mode, how big is the buffer.

@@ -100,7 +100,9 @@ class MonitorConfigWidget(QtGui.QWidget):
         for m in self.monitors:
             self.monitors[m]['widget'].two_way = two_way
 
-
+    def close_all_monitors(self):
+        for m in self.monitors:
+            self.monitors[m]['widget'].close()
 
 if __name__ == '__main__':
     import sys

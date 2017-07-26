@@ -19,6 +19,12 @@ class SignalMonitorWidget(QtGui.QWidget):
 
         self.two_way = False # If the laser scan is two-ways
 
+        self.menu = self.menuBar()
+        self.file_menu = self.menu.addMenu("&File")
+        self.save_action = QtGui.QAction("&Save", self)
+        self.save_action.triggered.connect(self.save)
+        self.file_menu.addAction(self.save_action)
+
     def set_name(self, name):
         if self.name is not None:
             raise Exception('Cannot change the name of a running window.')
@@ -65,3 +71,6 @@ class SignalMonitorWidget(QtGui.QWidget):
             self.p2.setData(self.wavelength, d2[::-1])
         else:
             self.p.setData(self.wavelength, self.ydata)
+
+    def save(self):
+        print('Saving data...')

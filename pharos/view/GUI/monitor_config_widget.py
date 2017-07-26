@@ -1,6 +1,5 @@
 import os
 from PyQt4 import QtCore, QtGui, uic
-from lantz import Q_
 from pharos.view.GUI.signal_monitor import SignalMonitorWidget
 
 

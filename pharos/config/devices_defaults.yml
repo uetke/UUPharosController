@@ -10,7 +10,7 @@ Santec Laser:
   steps: 100
   step: 1 nm
   interval_trigger: 0.001 nm
-  wait_time: 500 ms
+  wait_time: 0 ms
   step_time: 0.1 s
   number_sweeps: 1
   sweep_mode: ContOne
@@ -19,7 +19,7 @@ Santec Laser:
   trigger: False
   LD_current: True
   auto_power: False
-  coherent_control: True
+  coherent_control: False
   fine_tune: False
   shutter: True
   trigger: False

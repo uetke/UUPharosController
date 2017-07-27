@@ -287,10 +287,8 @@ class tsl710(MessageBasedDriver):
     def coherent_control(self, value):
        if value:
            self.coherent_control_on()
-           print('Coherent ON')
        else:
            self.coherent_control_off
-           print('Coherent off')
        self.coherent = value
 
     @Feat(values={True: True, False: False})

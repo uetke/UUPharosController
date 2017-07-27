@@ -2,7 +2,7 @@ import numpy as np
 from time import sleep
 from lantz import Q_
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
-
+from pharos.config import config
 
 class Measurement(object):
     def __init__(self, measure):
@@ -84,6 +84,7 @@ class Measurement(object):
         ALL THIS IS WORK IN PROGRESS, THAT WORKS WITH VERY SPECIFIC SETUP CONDITIONS!
         :return:
         """
+
         scan = self.measure['scan']
         # First setup the laser
         laser_params = scan['laser']
@@ -207,8 +208,9 @@ class Measurement(object):
 
         # Lets grab the laser
         laser = self.devices[monitor['laser']['name']]
-        monitor['laser']['params']['wavelength_sweeps'] = 0  # This will generate the laser to sweep always.
-                                                             # CAUTION!: It will have to be stopped when the program finished.
+        if not 'wavelength_sweeps' in monitor['laser']['params']:
+            monitor['laser']['params']['wavelength_sweeps'] = 0  # This will generate the laser to sweep always.
+                                                                 # CAUTION!: It will have to be stopped when the program finished.
         laser.apply_values(monitor['laser']['params'])
 
         # Clear the array to start afresh
@@ -261,7 +263,7 @@ class Measurement(object):
         """Starts the laser, and triggers the daqs. It assumes setup_continuous_scans was already called."""
         monitor = self.monitor
         laser = self.devices[monitor['laser']['name']]
-
+        
         for d in self.daqs:
             daq = self.daqs[d]
             daq_driver = self.devices[d].driver
@@ -269,9 +271,9 @@ class Measurement(object):
                 devs_to_monitor = daq['monitor']  # daqs dictionary groups the channels by daq to which they are plugged             
                 if daq_driver.is_task_complete(daq['monitor_task']):
                     daq_driver.trigger_analog(daq['monitor_task'])
-
         laser.driver.execute_sweep()
-
+        sleep(1)
+        
     def read_continuous_scans(self):
         conditions = {'points': -1} # To read all the points available
         data = {}
@@ -292,12 +294,14 @@ class Measurement(object):
         laser = self.devices[monitor['laser']['name']].driver
         laser.pause_sweep()
         laser.stop_sweep()
+        last_data = self.read_continuous_scans()
         for d in self.daqs:
             daq = self.daqs[d]
             if len(daq['monitor']) > 0:
                 daq_driver = self.devices[d].driver
                 daq_driver.stop_task(daq['monitor_task'])
                 daq_driver.clear_task(daq['monitor_task'])
+        return last_data
 
     def pause_continuous_scans(self):
         monitor = self.monitor

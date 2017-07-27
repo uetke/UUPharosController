@@ -80,6 +80,7 @@ class MonitorConfigWidget(QtGui.QWidget):
         """Opens the signal monitor window for the given devices."""
         for dev in devs:
             self.monitors[dev.properties['name']]['widget'].show()
+            self.monitors[dev.properties['name']]['widget'].clear_data()
 
     def set_wavelength_to_monitor(self, wavelength):
         devs_to_monitor = self.get_devices_checked()

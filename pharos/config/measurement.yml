@@ -9,7 +9,7 @@ init:
 scan:
   laser:
     name: Santec Laser
-    start_wavelength: 1490 nm
+    start_wavelength: 1491 nm
     stop_wavelength:  1510 nm
     wavelength_speed:  50 nm/s
     trigger_step: 0.001 nm
@@ -29,7 +29,7 @@ monitor:
   laser:
     name: Santec Laser
     params:
-      start_wavelength: 1490 nm
+      start_wavelength: 1491 nm
       stop_wavelength:  1510 nm
       wavelength_speed:  10 nm/s
       trigger_step: 0.001 nm

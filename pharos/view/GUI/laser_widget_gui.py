@@ -89,7 +89,7 @@ class LaserWidgetGUI(QtGui.QWidget):
         if self.wait_line.text() != "":
             values.update({'wait': Q_(self.wait_line.text()), })
         if self.sweeps_line.text() != "":
-            values.update({'sweeps': Q_(self.sweeps_line.text()), })
+            values.update({'sweeps': self.sweeps_line.text(), })
 
         return values
 

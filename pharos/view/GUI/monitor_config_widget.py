@@ -105,12 +105,12 @@ class MonitorConfigWidget(QtGui.QWidget):
 
 if __name__ == '__main__':
     import sys
-    from pharos.model.experiment.measurement import measurement
+    from pharos.model.experiment.measurement import Measurement
     from pharos.model.lib.general_functions import from_yaml_to_dict
 
     config_experiment = "../../config/measurement.yml"
     experiment_dict = from_yaml_to_dict(config_experiment)
-    experiment = measurement(experiment_dict)
+    experiment = Measurement(experiment_dict)
     experiment.load_devices()
     experiment.initialize_devices()
     experiment.connect_all_devices_to_daq()

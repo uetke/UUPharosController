@@ -6,7 +6,7 @@ from pharos.model.lib.general_functions import from_yaml_to_devices
 from pharos.view.main_window import MainWindow
 from PyQt4.Qt import QApplication
 from pharos.model.lib.general_functions import from_yaml_to_dict, start_logger, stop_logger
-from pharos.model.experiment.measurement import measurement
+from pharos.model.experiment.measurement import Measurement
 
 config_devices = "config/devices.yml"
 
@@ -33,7 +33,7 @@ session.laser = devs[0]
 
 config_experiment = "config/measurement.yml"
 experiment_dict = from_yaml_to_dict(config_experiment)
-experiment = measurement(experiment_dict)
+experiment = Measurement(experiment_dict)
 experiment.load_devices()  # Uses the file specified in the YAML
 experiment.initialize_devices()
 experiment.connect_all_devices_to_daq()

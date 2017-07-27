@@ -11,7 +11,7 @@ class SignalMonitorWidget(QtGui.QWidget):
         self.wavelength = None
         self.ydata = None
         self.starting_point = 0
-        self.main_plot = pg.PlotWidget()
+        self.main_plot = pg.PlotWidget(enableAutoSIPrefix=False)
         self.main_plot.setLabel('bottom', 'Wavelength', units='nm')
 
         self.layout = QtGui.QVBoxLayout(self)

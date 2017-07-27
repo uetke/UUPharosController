@@ -1,12 +1,10 @@
-
-
 import numpy as np
 from time import sleep
 from lantz import Q_
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
 
 
-class measurement(object):
+class Measurement(object):
     def __init__(self, measure):
         """Measurement class that will hold all the information regarding the experiment being performed.
         :param measure: a dictionary with the necessary steps
@@ -18,7 +16,6 @@ class measurement(object):
         # This short block is going to become useful in the future, when interfacing with a GUI
         for d in self.measure:
             setattr(self, d, self.measure[d])
-
 
     def load_devices(self, source=None):
         """ Loads the devices from the files defined in the INIT part of the yml.
@@ -316,4 +313,4 @@ class measurement(object):
 if __name__ == "__main__":
     config_experiment = "config/measurement.yml"
     experiment_dict = from_yaml_to_dict(config_experiment)
-    experiment = measurement(experiment_dict)
+    experiment = Measurement(experiment_dict)

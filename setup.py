@@ -2,14 +2,14 @@ from distutils.core import setup
 
 setup(
     name='PharosController',
-    version='',
+    version='0.1',
     packages=['tests', 'pharos', 'pharos.view', 'pharos.view.GUI', 'pharos.view.GUI.QtCreator',
               'pharos.view.GUI.QtCreator.LaserWidget', 'pharos.model', 'pharos.model.daq', 'pharos.model.lib',
               'pharos.model.laser', 'pharos.model.stage', 'pharos.model.experiment', 'pharos.controller',
               'pharos.controller.santec', 'pharos.controller.keysight'],
-    url='',
-    license='',
+    url='https://uetke.com',
+    license='MIT',
     author='Aquiles',
-    author_email='',
-    description=''
+    author_email='aquiles@uetke.com',
+    description='Pharos Controller for Utrecht University',
 )

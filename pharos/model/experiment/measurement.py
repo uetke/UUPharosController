@@ -4,6 +4,7 @@ from lantz import Q_
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
 from pharos.config import config
 
+
 class Measurement(object):
     def __init__(self, measure):
         """Measurement class that will hold all the information regarding the experiment being performed.
@@ -102,8 +103,6 @@ class Measurement(object):
             'accuracy': accuracy,
             'points': num_points
         }
-
-
 
         # Then setup the ADQs
         for d in self.daqs:

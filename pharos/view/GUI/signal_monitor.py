@@ -97,10 +97,13 @@ class SignalMonitorWidget(QtGui.QWidget):
         if self.directory is not None:
             i = 0
             filename = 'data_'
-            while os.path.isfile(os.path.join(self.directory,'%s%i.dat' % (filename, i))):
-                i+=1
-            file = os.path.join(self.directory,'%s%i.dat' % (filename, i))
-            data = np.vstack((self.wavelength, self.ydata))
+            while os.path.isfile(os.path.join(self.directory, '%s%i.dat' % (filename, i))):
+                i += 1
+            file = os.path.join(self.directory, '%s%i.dat' % (filename, i))
+            if not self.two_way:
+                data = np.vstack((self.wavelength, self.ydata))
+            else:
+                data = np.vstack((self.wavelength, self.ydata[:len(self.ydata)/2], self.ydata[len(self.ydata)/2::-1]))
             np.savetxt(file, data)
             print('Data seved to %s' % file)
         else:

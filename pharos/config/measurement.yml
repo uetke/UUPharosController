@@ -6,13 +6,26 @@
 init:
   devices: 'config/devices.yml'
 
+monitor:
+  laser:
+    name: Santec Laser
+    params:
+      start_wavelength: 1491 nm
+      stop_wavelength:  1510 nm
+      wavelength_speed:  10 nm/s
+      trigger_step: 0.01 nm
+      sweep_mode: ContOne
+  detectors:
+  - Photodiode Test
+  - Photodiode 2
+    
 scan:
   laser:
     name: Santec Laser
-    start_wavelength: 1491 nm
-    stop_wavelength:  1510 nm
+    start_wavelength: 1492 nm
+    stop_wavelength:  1548 nm
     wavelength_speed:  50 nm/s
-    trigger_step: 0.001 nm
+    trigger_step: 0.01 nm
     sweep_mode: ContOne
 
   axis:  # The laser doesn't need to appear here, it is always considered the first axis of the scan
@@ -22,21 +35,10 @@ scan:
     time:
       repetitions: 20
   detectors:
-    - Photodiode 1
+    - Photodiode Test
     - Photodiode 2
 
-monitor:
-  laser:
-    name: Santec Laser
-    params:
-      start_wavelength: 1491 nm
-      stop_wavelength:  1510 nm
-      wavelength_speed:  10 nm/s
-      trigger_step: 0.001 nm
-      sweep_mode: ContOne
-  detectors:
-    - Photodiode 1
-    - Photodiode 2
+
 
 finish:
   TSL-10:

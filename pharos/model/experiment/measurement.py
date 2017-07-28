@@ -1,5 +1,6 @@
 import numpy as np
 from time import sleep
+import time
 from lantz import Q_
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
 from pharos.config import config
@@ -266,6 +267,7 @@ class Measurement(object):
         for d in self.daqs:
             daq = self.daqs[d]
             daq_driver = self.devices[d].driver
+            #daq_driver.reset_device()
             if len(daq['monitor'])>0:
                 devs_to_monitor = daq['monitor']  # daqs dictionary groups the channels by daq to which they are plugged             
                 if daq_driver.is_task_complete(daq['monitor_task']):
@@ -280,7 +282,9 @@ class Measurement(object):
             daq = self.daqs[d]
             daq_driver = self.devices[d]
             if len(daq['monitor']) > 0:
+                t0 = time.time()
                 vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
+                t1 = time.time()
                 dd = dd[:vv*len(daq['monitor'])]
                 dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
                 for i in range(len(daq['monitor'])):
@@ -293,14 +297,13 @@ class Measurement(object):
         laser = self.devices[monitor['laser']['name']].driver
         laser.pause_sweep()
         laser.stop_sweep()
-        last_data = self.read_continuous_scans()
         for d in self.daqs:
             daq = self.daqs[d]
             if len(daq['monitor']) > 0:
                 daq_driver = self.devices[d].driver
-                daq_driver.stop_task(daq['monitor_task'])
-                daq_driver.clear_task(daq['monitor_task'])
-        return last_data
+                if not daq_driver.is_task_complete(daq['monitor_task']):
+                    daq_driver.stop_task(daq['monitor_task'])
+                    daq_driver.clear_task(daq['monitor_task'])
 
     def pause_continuous_scans(self):
         monitor = self.monitor

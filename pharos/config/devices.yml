@@ -12,7 +12,7 @@ TSL-710:
   defaults: config/devices_defaults.yml #setting defaults will trigger an action after initializing each device with model/lib/device.py class
 
 PhotoDiode1:
-  name: Photodiode 1
+  name: Photodiode Test
   port: 1
   type: analog
   mode: input
@@ -22,8 +22,42 @@ PhotoDiode1:
     slope: 1
     offset: 0
   limits:
-    min: -2.5
-    max: 2.5
+    min: -10.0
+    max: 10
+  connection:
+    type: daq
+    device: NI-DAQ
+    
+PhotoDiode3:
+  name: Photodiode Test 2
+  port: 3
+  type: analog
+  mode: input
+  description: Forward Intensity
+  calibration:
+    units: V
+    slope: 1
+    offset: 0
+  limits:
+    min: -10.0
+    max: 10
+  connection:
+    type: daq
+    device: NI-DAQ
+    
+PhotoDiode4:
+  name: Photodiode Test 4
+  port: 4
+  type: analog
+  mode: input
+  description: Forward Intensity
+  calibration:
+    units: V
+    slope: 1
+    offset: 0
+  limits:
+    min: -10.0
+    max: 10
   connection:
     type: daq
     device: NI-DAQ
@@ -44,41 +78,6 @@ PhotoDiode2:
   connection:
     type: daq
     device: NI-DAQ
-
-Stage1:
-  name: Stage 1
-  type: analog
-  mode: output
-  description: X Direction
-  port: 1
-  calibration: # Convert Volts into device units
-    units: um
-    slope: 10
-    offset: 0
-  limits:
-    min: 0 um
-    max: 100 um
-  connection:
-    type: daq
-    device: NI-DAQ
-
-StageDummy:
-  name: Stage Dummy
-  type: analog
-  mode: input
-  description: X Direction
-  port: 1
-  calibration: # Convert Volts into device units
-    units: um
-    slope: 10
-    offset: 0
-  limits:
-    min: 0
-    max: 100
-  connection:
-    type: daq
-    device: dummy daq
-
 
 
 NI-DAQ:

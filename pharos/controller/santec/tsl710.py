@@ -14,13 +14,13 @@ from lantz.messagebased import MessageBasedDriver
 
 class tsl710(MessageBasedDriver):
     DEFAULTS = {'COMMON': {'encoding': 'ascii',
-                            'read_termination': '\r\n',
-                            'write_termination': '\r\n',
-                         },
+                           'read_termination': '\r\n',
+                           'write_termination': '\r\n',
+                           },
                 'ASRL': {'baud_rate': 1200,
                          'bytesize': 8,
                          'parity': constants.Parity.none,
-                         'stop_bits': constants.StopBits.one,}}
+                         'stop_bits': constants.StopBits.one, }}
 
     def initialize(self):
         super().initialize()
@@ -90,7 +90,6 @@ class tsl710(MessageBasedDriver):
     def powermW(self, value):
         self.query('LP%.2f' % value)
 
-
     @Action()
     def auto_power_on(self):
         """Sets the power control to auto."""
@@ -108,7 +107,6 @@ class tsl710(MessageBasedDriver):
     def attenuator(self, value):
         self.query('AT%.2f' % value)
 
-
     @Feat(units='nm', limits=(1480, 1640, 0.0001))
     def stop_wavelength(self):
         """Stop sweep wavelength."""
@@ -117,20 +115,20 @@ class tsl710(MessageBasedDriver):
     @stop_wavelength.setter
     def stop_wavelength(self, value):
         self.query('SE%.4f' % value)
-        
+
     @Feat(units='nm', limits=(1480, 1640, 0.0001))
     def start_wavelength(self):
         return self.query('SS')
 
     @start_wavelength.setter
     def start_wavelength(self, value):
-        self.query('SS%.4f'%value)
-        
+        self.query('SS%.4f' % value)
+
     @Feat(units='THz')
     def start_frequency(self):
         """Start sweep frequency."""
         return self.query('SS')
-    
+
     @start_frequency.setter
     def start_frequency(self, value):
         self.query('SS%.5f' % value)
@@ -256,7 +254,6 @@ class tsl710(MessageBasedDriver):
     def sweep_condition(self):
         return int(self.query('SK'))
 
-
     @Feat(values={
         'None': 0,
         'Stop': 1,
@@ -281,27 +278,27 @@ class tsl710(MessageBasedDriver):
 
     @Feat(values={True: True, False: False})
     def coherent_control(self):
-       return self.coherent
+        return self.coherent
 
     @coherent_control.setter
     def coherent_control(self, value):
-       if value:
-           self.coherent_control_on()
-       else:
-           self.coherent_control_off
-       self.coherent = value
+        if value:
+            self.coherent_control_on()
+        else:
+            self.coherent_control_off
+        self.coherent = value
 
     @Feat(values={True: True, False: False})
     def LD_current(self):
-       return self.LD
+        return self.LD
 
     @LD_current.setter
     def LD_current(self, value):
-       if value:
-           self.lo()
-       else:
-           self.lf()
-       self.LD = value
+        if value:
+            self.lo()
+        else:
+            self.lf()
+        self.LD = value
 
     @Feat(values={True: True, False: False})
     def auto_power(self):
@@ -378,6 +375,10 @@ class tsl710(MessageBasedDriver):
     @Action()
     def coherent_control_off(self):
         self.query('CF')
+
+
+
+
 if __name__ == '__main__':
     from lantz.ui.app import start_test_app
 

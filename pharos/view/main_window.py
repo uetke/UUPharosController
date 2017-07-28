@@ -23,7 +23,7 @@ class MainWindow(QtGui.QMainWindow):
         self.laser_timer.start(config.laser_update)
 
         # Load Widgets
-        self.laser_widget = LaserWidgetGUI(parent = self)
+        self.laser_widget = LaserWidgetGUI()
         self.monitor_widget = MonitorConfigWidget()
         self.scan_widget = ScanConfigWidget()
 
@@ -45,10 +45,6 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.scan_button, QtCore.SIGNAL('clicked()'), self.scan_widget.show)
         self.laser_timer.timeout.connect(self.update_values_from_laser)
 
-        self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
-        self.power.setText('{:~}'.format(self.laser.driver.powermW))
-        self.wavelength_slider.setValue((self.laser.driver.wavelength.m_as('nm')-1480)/0.0001)
-        self.power_slider.setValue((self.laser.driver.powermW.m_as('mW')-0.01)/0.01)
         self.shutter_value = False
         self.monitor_paused = False
         self.monitor_running = False
@@ -68,7 +64,6 @@ class MainWindow(QtGui.QMainWindow):
             'wavelength': wavelength,
             'powermW': power,
         }
-        self.wavelength_slider.setValue((wavelength.m_as(Q_('nm')) - 1480) / 0.0001)
         self.laser.driver.update(values)
 
     def update_wavelength(self, value):
@@ -100,11 +95,7 @@ class MainWindow(QtGui.QMainWindow):
         self.laser.driver.powermW = new_value
 
     def start_monitor(self):
-        if self.monitor_paused:
-            self.experiment.resume_continuous_scans()
-            self.start_button.setText('Pause')
-            self.monitor_paused = False
-            self.monitor_running = True
+        if self.monitor_running or self.monitor_paused:
             return
 
         devs_to_monitor = self.monitor_widget.get_devices_checked()
@@ -127,10 +118,9 @@ class MainWindow(QtGui.QMainWindow):
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
-            self.monitor_timer.start(time_to_scan/10)
+            self.monitor_timer.start(time_to_scan/config.monitor_read_scan)
         else:
             self.laser.driver.execute_sweep()
-        self.start_button.setText('Pause')
         self.monitor_running = True
 
     def update_values_from_laser(self):
@@ -139,8 +129,16 @@ class MainWindow(QtGui.QMainWindow):
         self.wavelength.setText('{:~}'.format(wl))
         self.power.setText('{:~}'.format(pw))
         self.laser_status.setText(self.laser.driver.sweep_condition)
+        self.wavelength_slider.blockSignals(True)
+        self.power_slider.blockSignals(True)
         self.wavelength_slider.setValue((wl.m_as('nm')-1480)/0.0001)
         self.power_slider.setValue((pw.m_as('mW')-0.01)/0.01)
+        self.wavelength_slider.blockSignals(False)
+        self.power_slider.blockSignals(False)
+        self.LD_current.setChecked(self.laser.driver.LD_current)
+        self.shutter.setChecked(self.laser.driver.shutter)
+        self.auto_power.setChecked(self.laser.driver.auto_power)
+        self.coherent_control.setChecked(self.laser.driver.coherent_control)
         
     def update_monitors(self):
         data = self.experiment.read_continuous_scans()
@@ -151,12 +149,15 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_timer.stop()
         self.update_monitors()
         self.experiment.stop_continuous_scans()
-        self.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
-        self.laser_status.setText(self.laser.driver.sweep_condition)
         self.monitor_paused = False
         self.monitor_running = False
 
     def pause_monitor(self):
+        if self.monitor_paused:
+            self.experiment.resume_continuous_scans()
+            self.monitor_paused = False
+            self.monitor_running = True 
+            return
         self.monitor_timer.stop()
         self.experiment.pause_continuous_scans()
         self.start_button.setText('Resume')
@@ -171,6 +172,13 @@ class MainWindow(QtGui.QMainWindow):
         if reply == QtGui.QMessageBox.Yes:
             if self.monitor_running:
                 self.stop_monitor()
+            self.monitor_widget.close_all_monitors()
+            self.laser_widget.close()
+            self.laser_widget.deleteLater()
+            self.monitor_widget.close()
+            self.monitor_widget.deleteLater()
+            self.scan_widget.close()
+            self.monitor_widget.deleteLater()
             self.laser.driver.finalize()
             event.accept()
         else:

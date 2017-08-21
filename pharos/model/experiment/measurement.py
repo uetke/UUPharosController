@@ -211,7 +211,9 @@ class Measurement(object):
         if not 'wavelength_sweeps' in monitor['laser']['params']:
             monitor['laser']['params']['wavelength_sweeps'] = 0  # This will generate the laser to sweep always.
                                                                  # CAUTION!: It will have to be stopped when the program finished.
+        print(monitor['laser']['params']['wavelength_sweeps'])
         laser.apply_values(monitor['laser']['params'])
+        
 
         # Clear the array to start afresh
         for d in self.daqs:
@@ -273,7 +275,7 @@ class Measurement(object):
                 if daq_driver.is_task_complete(daq['monitor_task']):
                     daq_driver.trigger_analog(daq['monitor_task'])
         laser.driver.execute_sweep()
-        sleep(1)
+        #sleep(1)
         
     def read_continuous_scans(self):
         conditions = {'points': -1} # To read all the points available

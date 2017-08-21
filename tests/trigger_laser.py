@@ -27,5 +27,7 @@ with LaserController.via_gpib(1) as inst:
     else:
         if sys.argv[1] == '-c':
             inst.close_shutter()
+        elif sys.argv[1] == '-r':
+            inst.query(':SPEC:REB')
         else:
             inst.open_shutter()

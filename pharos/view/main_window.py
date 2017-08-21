@@ -1,3 +1,5 @@
+from builtins import bool
+
 import numpy as np
 import os
 from PyQt4 import QtCore, QtGui, uic
@@ -6,6 +8,7 @@ from lantz import Q_
 from pharos.view.GUI.laser_widget_gui import LaserWidgetGUI
 from pharos.view.GUI.scan_config_widget import ScanConfigWidget
 from pharos.view.GUI.monitor_config_widget import MonitorConfigWidget
+from pharos.view.GUI.wavelength_scan_widget import LaserScanWidget
 from pharos.config import config
 import pharos.view.GUI.QtCreator.resources_rc
 
@@ -26,12 +29,18 @@ class MainWindow(QtGui.QMainWindow):
         self.laser_widget = LaserWidgetGUI()
         self.monitor_widget = MonitorConfigWidget()
         self.scan_widget = ScanConfigWidget()
+        self.laser_scan_widget = LaserScanWidget()
+        self.laser_scan_widget.LaserWidgetDock.setWidget(self.laser_widget)
+        self.laser_scan_widget.MonitorWidgetDock.setWidget(self.monitor_widget)
 
         # Make connections
-        QtCore.QObject.connect(self.apply_laser, QtCore.SIGNAL('clicked()'), self.update_laser)
-        QtCore.QObject.connect(self.laser_button, QtCore.SIGNAL('clicked()'), self.laser_widget.show)
-        QtCore.QObject.connect(self.monitor_button, QtCore.SIGNAL('clicked()'), self.monitor_widget.show)
-        QtCore.QObject.connect(self.close_monitors_button, QtCore.SIGNAL('clicked()'), self.monitor_widget.close_all_monitors)
+        QtCore.QObject.connect(self.wavelength_scan_button, QtCore.SIGNAL('clicked()'), self.laser_scan_widget.show)
+
+        QtCore.QObject.connect(self.wavelength_inc_button, QtCore.SIGNAL('clicked()'), self.increase_wavelength)
+        QtCore.QObject.connect(self.wavelength_dec_button, QtCore.SIGNAL('clicked()'), self.decrease_wavelength)
+        QtCore.QObject.connect(self.power_inc_button, QtCore.SIGNAL('clicked()'), self.increase_power)
+        QtCore.QObject.connect(self.power_dec_button, QtCore.SIGNAL('clicked()'), self.decrease_power)
+
         QtCore.QObject.connect(self.wavelength_slider, QtCore.SIGNAL('valueChanged(int)'), self.update_wavelength)
         QtCore.QObject.connect(self.power_slider, QtCore.SIGNAL('valueChanged(int)'), self.update_power)
         QtCore.QObject.connect(self.shutter, QtCore.SIGNAL('stateChanged(int)'), self.update_shutter)
@@ -39,10 +48,11 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.auto_power, QtCore.SIGNAL('stateChanged(int)'), self.update_auto_power)
         QtCore.QObject.connect(self.coherent_control, QtCore.SIGNAL('stateChanged(int)'), self.update_coherent_control)
         QtCore.QObject.connect(self.monitor_timer, QtCore.SIGNAL('timeout()'), self.update_monitors)
-        QtCore.QObject.connect(self.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
-        QtCore.QObject.connect(self.stop_button, QtCore.SIGNAL('clicked()'), self.stop_monitor)
-        QtCore.QObject.connect(self.pause_button, QtCore.SIGNAL('clicked()'), self.pause_monitor)
-        QtCore.QObject.connect(self.scan_button, QtCore.SIGNAL('clicked()'), self.scan_widget.show)
+
+        QtCore.QObject.connect(self.laser_scan_widget.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
+        QtCore.QObject.connect(self.laser_scan_widget.stop_button, QtCore.SIGNAL('clicked()'), self.stop_monitor)
+        QtCore.QObject.connect(self.laser_scan_widget.pause_button, QtCore.SIGNAL('clicked()'), self.pause_monitor)
+
         self.laser_timer.timeout.connect(self.update_values_from_laser)
 
         self.shutter_value = False
@@ -71,6 +81,22 @@ class MainWindow(QtGui.QMainWindow):
         new_value = new_value*Q_('nm')
         self.wavelength.setText('{:4.4f~}'.format(new_value))
         self.laser.driver.wavelength = new_value
+
+    def increase_wavelength(self):
+        increase = Q_(self.wavelength_increment.text())
+        self.laser.driver.wavelength = self.laser.driver.wavelength + increase
+
+    def decrease_wavelength(self):
+        increase = Q_(self.wavelength_increment.text())
+        self.laser.driver.wavelength-=increase
+
+    def increase_power(self):
+        increase = Q_(self.power_increment.text())
+        self.laser.driver.powermW += increase
+
+    def decrease_power(self):
+        increase = Q_(self.power_increment.text())
+        self.laser.driver.powermW -= increase
 
     def update_shutter(self, state):
         state = bool(state)
@@ -128,7 +154,10 @@ class MainWindow(QtGui.QMainWindow):
         pw = self.laser.driver.powermW
         self.wavelength.setText('{:~}'.format(wl))
         self.power.setText('{:~}'.format(pw))
-        self.laser_status.setText(self.laser.driver.sweep_condition)
+        condition = self.laser.driver.sweep_condition
+        self.laser_status.setText(condition)
+        if self.monitor_running and condition == 'Stop':
+            self.stop_monitor()
         self.wavelength_slider.blockSignals(True)
         self.power_slider.blockSignals(True)
         self.wavelength_slider.setValue((wl.m_as('nm')-1480)/0.0001)
@@ -145,9 +174,9 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_widget.update_signal_values(data)
         
     def stop_monitor(self):
-        self.start_button.setText('Start')
+        #self.start_button.setText('Start')
         self.monitor_timer.stop()
-        self.update_monitors()
+        #self.update_monitors()
         self.experiment.stop_continuous_scans()
         self.monitor_paused = False
         self.monitor_running = False
@@ -160,7 +189,7 @@ class MainWindow(QtGui.QMainWindow):
             return
         self.monitor_timer.stop()
         self.experiment.pause_continuous_scans()
-        self.start_button.setText('Resume')
+        #self.start_button.setText('Resume')
         self.monitor_paused = True
         self.monitor_running = False
 
@@ -178,6 +207,8 @@ class MainWindow(QtGui.QMainWindow):
             self.monitor_widget.close()
             self.monitor_widget.deleteLater()
             self.scan_widget.close()
+            self.laser_scan_widget.close()
+            self.laser_scan_widget.deleteLater()
             self.monitor_widget.deleteLater()
             self.laser.driver.finalize()
             event.accept()

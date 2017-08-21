@@ -71,7 +71,7 @@ class LaserWidgetGUI(QtGui.QWidget):
                     sweep_mode = 'ContTwo'
         else:
             values.update({
-                'step ': Q_(self.step_line.text()),
+                'step': Q_(self.step_line.text()),
                 'step_time': Q_(self.step_time_line.text()),
             })
             if self.one_button.isChecked():
@@ -89,7 +89,7 @@ class LaserWidgetGUI(QtGui.QWidget):
         if self.wait_line.text() != "":
             values.update({'wait': Q_(self.wait_line.text()), })
         if self.sweeps_line.text() != "":
-            values.update({'sweeps': self.sweeps_line.text(), })
+            values.update({'wavelength_sweeps': self.sweeps_line.text(), })
 
         return values
 

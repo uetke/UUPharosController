@@ -160,16 +160,16 @@ class tsl710(MessageBasedDriver):
     def step_time(self, value):
         self.query('SB%.1f' % value)
 
-    @Feat(limits=(0, 999, 1))
+    @Feat(limits=(0, 999, 1), units='dimensionless')
     def wavelength_sweeps(self):
         """Number of wavelengths sweeps."""
         return self.query('SZ')
 
     @wavelength_sweeps.setter
     def wavelength_sweeps(self, value):
-        self.query('SZ%i' % value)
+        self.write('SZ%i' % value)
 
-    @Feat(limits=(0.5, 100, 0.1))
+    @Feat(limits=(0.5, 100, 0.1), units='nm/s')
     def wavelength_speed(self):
         """Speed for continuous sweeps (in nm/s)"""
         return self.query('SN')

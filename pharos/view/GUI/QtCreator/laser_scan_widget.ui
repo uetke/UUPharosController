@@ -11,16 +11,31 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Wavelength Scan Config</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="3">
     <widget class="QDockWidget" name="LaserWidgetDock">
+     <property name="whatsThis">
+      <string>What is this?</string>
+     </property>
+     <property name="features">
+      <set>QDockWidget::DockWidgetMovable</set>
+     </property>
+     <property name="windowTitle">
+      <string>Laser parameters</string>
+     </property>
      <widget class="QWidget" name="dockWidgetContents"/>
     </widget>
    </item>
    <item row="1" column="0" colspan="3">
     <widget class="QDockWidget" name="MonitorWidgetDock">
+     <property name="features">
+      <set>QDockWidget::DockWidgetMovable</set>
+     </property>
+     <property name="windowTitle">
+      <string>Devices to monitor</string>
+     </property>
      <widget class="QWidget" name="dockWidgetContents_2"/>
     </widget>
    </item>

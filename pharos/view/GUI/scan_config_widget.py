@@ -1,7 +1,7 @@
 import os
 from PyQt4 import QtCore, QtGui, uic
 from lantz import Q_
-import pharos.view.GUI.QtCreator.resources_rc
+from pharos.view.GUI.scan_monitor import ScanMonitorWidget
 from PyQt4.QtCore import pyqtSlot
 
 
@@ -12,18 +12,56 @@ class ScanConfigWidget(QtGui.QWidget):
         uic.loadUi(os.path.join(p, 'QtCreator/scan_config.ui'), self)
 
         self.devices_widget = []
+        self.devices_input = []
         self.devices = {}
+        self.monitors = {}
 
         self.add_device_button.clicked[bool].connect(self.add_new_device)
         self.remove_device_button.clicked[bool].connect(self.remove_last_device)
         self.i = 0
 
     def populate_devices(self, daqs):
-        """ Adds group boxes for all the output devices connected to the daqs.
+        """ Adds group boxes for all the output devices connected to the daqs and Time at the end.
         :param daqs: Dictionary of daqs containing the devices connected Check the measurement class for the definition."""
         for d in daqs:
             for dev in daqs[d]['output']:
                 self.devices[dev.properties['name']] = dev
+            for dev in daqs[d]['input']:
+                self.devices_input.append(dev)
+
+        self.devices['time'] = 'time'
+        self.configure_monitors(self.devices_input)
+
+    def configure_monitors(self, devs_to_monitor):
+        for dev in devs_to_monitor:
+            if dev.properties['name'] not in self.monitors:
+                self.monitors[dev.properties['name']] = {'widget': ScanMonitorWidget()}
+                self.monitors[dev.properties['name']]['widget'].set_name(dev.properties['description'])
+
+    def open_monitor(self, devs):
+        """Opens the signal monitor window for the given devices."""
+        for dev in devs:
+            self.monitors[dev.properties['name']]['widget'].show()
+            self.monitors[dev.properties['name']]['widget'].clear_data()
+
+    def set_axis_to_monitor(self, axis):
+        """Sets the axis information to the monitors."""
+        for mon in self.monitors:
+            mon['widget'].set_axis(axis)
+
+    def update_signal_values(self, data):
+        """Updates the data to the different monitors."""
+        for dev in data:
+            self.monitors[dev]['widget'].set_data(data[dev])
+
+    def set_two_way_monitors(self, two_way=True):
+        for m in self.monitors:
+            self.monitors[m]['widget'].two_way = two_way
+
+    def close_all_monitors(self):
+        for m in self.monitors:
+            self.monitors[m]['widget'].close()
+            self.monitors[m]['widget'].deleteLater()
 
     def add_new_device(self):
         self.devices_widget.append(DeviceScan(self.devices, parent=self))
@@ -67,36 +105,51 @@ class DeviceScan(QtGui.QWidget):
         for dev in devices:
             self.dropdown.addItem(dev)
 
-
-
     def check_limits(self):
         red_background =  "QLineEdit { background: rgb(255, 20, 20); selection-background-color: rgb(233, 99, 0); }"
         white_background = "QLineEdit { background: rgb(255, 255, 255); selection-background-color: rgb(233, 99, 0); }"
         dev = self.devices[self.dropdown.currentText()]
+        if dev == 'time':
+            self.min_line.setStyleSheet(white_background)
+            self.max_line.setStyleSheet(white_background)
+            return
         dev_min = Q_(dev.properties['limits']['min'])
         dev_max = Q_(dev.properties['limits']['max'])
-        min_value = Q_(self.min_line.text())
-        max_value = Q_(self.max_line.text())
-        if dev_min <= min_value <= dev_max:
+
+        min_text = self.min_line.text()
+        max_text = self.max_line.text()
+        if min_text != "":
+            min_value = Q_(min_text)
+            if dev_min <= min_value <= dev_max:
+                self.min_line.setStyleSheet(white_background)
+            else:
+                self.min_line.setStyleSheet(red_background)
+        else:
             self.min_line.setStyleSheet(white_background)
+
+        if max_text != "":
+            max_value = Q_(max_text)
+            if dev_min <= max_value <= dev_max:
+                self.max_line.setStyleSheet(white_background)
+            else:
+                self.max_line.setStyleSheet(red_background)
         else:
-            self.min_line.setStyleSheet(red_background)
-        if dev_min <= max_value <= dev_max:
             self.max_line.setStyleSheet(white_background)
-        else:
-            self.max_line.setStyleSheet(red_background)
 
     def get_values(self):
         dev_name = self.dropdown.currentText()
-        min_value = Q_(self.min_line.text())
-        max_value = Q_(self.max_line.text())
-        step_value = Q_(self.step_line.text())
+        if dev_name == 'time':
+            min_value = self.min_line.text()
+            max_value = self.max_line.text()
+            step_value = 1
+        else:
+            min_value = Q_(self.min_line.text())
+            max_value = Q_(self.max_line.text())
+            step_value = Q_(self.step_line.text())
 
         values = {
-            'dev_name': dev_name,
-            'min_value': min_value,
-            'max_value': max_value,
-            'step_value': step_value,
+            'name': dev_name,
+            'range': [min_value, max_value, step_value,]
         }
 
         return values

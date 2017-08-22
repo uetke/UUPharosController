@@ -15,6 +15,7 @@ monitor:
       wavelength_speed:  10 nm/s
       trigger_step: 0.01 nm
       sweep_mode: ContOne
+      wavelength_sweeps: 1
   detectors:
   - Photodiode Test
   - Photodiode 2
@@ -22,18 +23,17 @@ monitor:
 scan:
   laser:
     name: Santec Laser
-    start_wavelength: 1492 nm
-    stop_wavelength:  1548 nm
-    wavelength_speed:  50 nm/s
-    trigger_step: 0.01 nm
-    sweep_mode: ContOne
-
+    params:
+      start_wavelength: 1492 nm
+      stop_wavelength:  1548 nm
+      wavelength_speed:  50 nm/s
+      trigger_step: 0.01 nm
+      sweep_mode: ContOne
+      wavelength_sweeps: 1
   axis:  # The laser doesn't need to appear here, it is always considered the first axis of the scan
-    Stage 1:
-      default: 10 um
+    device:
+      name: Stage 1
       range: [10um, 20um, 100nm]
-    time:
-      repetitions: 20
   detectors:
     - Photodiode Test
     - Photodiode 2

@@ -101,6 +101,7 @@ class MonitorConfigWidget(QtGui.QWidget):
     def close_all_monitors(self):
         for m in self.monitors:
             self.monitors[m]['widget'].close()
+            self.monitors[m]['widget'].deleteLater()
 
 if __name__ == '__main__':
     import sys

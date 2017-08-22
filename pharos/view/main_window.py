@@ -9,6 +9,8 @@ from pharos.view.GUI.laser_widget_gui import LaserWidgetGUI
 from pharos.view.GUI.scan_config_widget import ScanConfigWidget
 from pharos.view.GUI.monitor_config_widget import MonitorConfigWidget
 from pharos.view.GUI.wavelength_scan_widget import LaserScanWidget
+from pharos.view.generic_work_thread import WorkThread
+
 from pharos.config import config
 import pharos.view.GUI.QtCreator.resources_rc
 
@@ -22,6 +24,7 @@ class MainWindow(QtGui.QMainWindow):
         self.daqs = self.experiment.daqs
 
         self.monitor_timer = QtCore.QTimer()
+        self.scan_timer = QtCore.QTimer()
         self.laser_timer = QtCore.QTimer()
         self.laser_timer.start(config.laser_update)
 
@@ -32,6 +35,7 @@ class MainWindow(QtGui.QMainWindow):
         self.laser_scan_widget = LaserScanWidget()
         self.laser_scan_widget.LaserWidgetDock.setWidget(self.laser_widget)
         self.laser_scan_widget.MonitorWidgetDock.setWidget(self.monitor_widget)
+        self.laser_scan_widget.ScanWidgetDock.setWidget(self.scan_widget)
 
         # Make connections
         QtCore.QObject.connect(self.wavelength_scan_button, QtCore.SIGNAL('clicked()'), self.laser_scan_widget.show)
@@ -48,10 +52,14 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.auto_power, QtCore.SIGNAL('stateChanged(int)'), self.update_auto_power)
         QtCore.QObject.connect(self.coherent_control, QtCore.SIGNAL('stateChanged(int)'), self.update_coherent_control)
         QtCore.QObject.connect(self.monitor_timer, QtCore.SIGNAL('timeout()'), self.update_monitors)
+        QtCore.QObject.connect(self.scan_timer, QtCore.SIGNAL('timeout()'), self.update_scans)
 
         QtCore.QObject.connect(self.laser_scan_widget.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
         QtCore.QObject.connect(self.laser_scan_widget.stop_button, QtCore.SIGNAL('clicked()'), self.stop_monitor)
         QtCore.QObject.connect(self.laser_scan_widget.pause_button, QtCore.SIGNAL('clicked()'), self.pause_monitor)
+        QtCore.QObject.connect(self.laser_scan_widget.start_scan_button, QtCore.SIGNAL('clicked()'), self.start_scan)
+        QtCore.QObject.connect(self.laser_scan_widget.stop_scan_button, QtCore.SIGNAL('clicked()'), self.stop_scan)
+        QtCore.QObject.connect(self.laser_scan_widget.pause_scan_button, QtCore.SIGNAL('clicked()'), self.pause_scan)
 
         self.laser_timer.timeout.connect(self.update_values_from_laser)
 
@@ -121,12 +129,12 @@ class MainWindow(QtGui.QMainWindow):
         self.laser.driver.powermW = new_value
 
     def start_monitor(self):
-        if self.monitor_running or self.monitor_paused:
+        if self.monitor_running or self.monitor_paused or self.scan_running:
             return
 
         devs_to_monitor = self.monitor_widget.get_devices_checked()
-        self.monitor_widget.open_monitor(devs_to_monitor)
         if len(devs_to_monitor) > 0:
+            self.monitor_widget.open_monitor(devs_to_monitor)
             self.experiment.monitor['detectors'] = devs_to_monitor
             self.experiment.monitor['laser']['params'] = self.laser_widget.update_laser_values()
             self.experiment.setup_continuous_scans()
@@ -168,7 +176,61 @@ class MainWindow(QtGui.QMainWindow):
         self.shutter.setChecked(self.laser.driver.shutter)
         self.auto_power.setChecked(self.laser.driver.auto_power)
         self.coherent_control.setChecked(self.laser.driver.coherent_control)
-        
+
+    def start_scan(self):
+        if self.monitor_running or self.monitor_paused or self.scan_running:
+            return
+
+        devs_to_monitor = self.monitor_widget.get_devices_checked()
+        if len(devs_to_monitor) > 0:
+            self.scan_widget.open_monitor(devs_to_monitor)
+            self.experiment.scan['detectors'] = devs_to_monitor
+            self.experiment.scan['laser']['params'] = self.laser_widget.update_laser_values()
+            self.experiment.scan['axis']['device'] = self.scan_widget.get_devices_and_values()
+            self.experiment.setup_scan()
+
+            start_wl = self.experiment.scan['laser']['params']['start_wavelength']
+            stop_wl = self.experiment.scan['laser']['params']['stop_wavelength']
+            step = self.experiment.scan['laser']['params']['trigger_step']
+
+            start_dev = self.experiment.scan['axis']['device']['range'][0]
+            stop_dev = self.experiment.scan['axis']['device']['range'][1]
+            step_dev = self.experiment.scan['axis']['device']['range'][2]
+
+            axis = {'wavelength':
+                        {'start': start_wl,
+                         'stop': stop_wl,
+                         'step': step},
+                    'y_axis':
+                        {'start': start_dev,
+                         'stop': stop_dev,
+                         'step': step_dev}}
+
+            self.scan_widget.set_axis_to_monitor(axis)
+            if self.experiment.scan['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
+                self.scan_widget.set_two_way_monitors(True)
+
+            self.worker_thread = WorkThread(self.experiment.do_scan)
+            self.worker_thread.start()
+            time_to_scan = self.experiment.measure['scan']['approx_time_to_scan'].m_as(Q_('ms'))
+            self.scan_timer.start(time_to_scan/config.monitor_read_scan)
+            self.scan_running = True
+
+    def stop_scan(self):
+        if self.scan_running:
+            self.scan_timer.stop()
+            self.experiment.stop_scan()
+            self.worker_thread.terminate()
+            self.scan_running = False
+
+    def pause_scan(self):
+        """ Not yet implemented, it just stops the scan."""
+        self.stop_scan()
+
+    def update_scans(self):
+        data = self.experiment.read_continuous_scans()
+        self.scan_widget.update_signal_values(data)
+
     def update_monitors(self):
         data = self.experiment.read_continuous_scans()
         self.monitor_widget.update_signal_values(data)

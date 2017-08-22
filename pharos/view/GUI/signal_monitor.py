@@ -12,6 +12,8 @@ class SignalMonitorWidget(QtGui.QWidget):
         self.wavelength = None
         self.ydata = None
         self.starting_point = 0
+        self.menu = QtGui.QMenuBar(self)
+
         self.main_plot = pg.PlotWidget()
         self.main_plot.setLabel('bottom', 'Wavelength', units='nm')
 
@@ -20,7 +22,6 @@ class SignalMonitorWidget(QtGui.QWidget):
 
         self.two_way = False  # If the laser scan is two-ways
 
-        self.menu = QtGui.QMenuBar(self)
         self.file_menu = self.menu.addMenu("&File")
         self.save_action = QtGui.QAction("&Save", self)
         self.save_action.setShortcut('Ctrl+O')
@@ -96,7 +97,7 @@ class SignalMonitorWidget(QtGui.QWidget):
     def save(self):
         if self.directory is not None:
             i = 0
-            filename = 'data_'
+            filename = 'monitor_data_'
             while os.path.isfile(os.path.join(self.directory, '%s%i.dat' % (filename, i))):
                 i += 1
             file = os.path.join(self.directory, '%s%i.dat' % (filename, i))

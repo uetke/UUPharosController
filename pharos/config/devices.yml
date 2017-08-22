@@ -79,6 +79,24 @@ PhotoDiode2:
     type: daq
     device: NI-DAQ
 
+Stage 1:
+  name: Stage 1
+  port: 1
+  type: analog
+  mode: output
+  description: Example analog Out
+  calibration:
+    units: um
+    slope: 1
+    offset: 0
+  limits:
+    min: 0
+    max: 10
+  connection:
+    type: daq
+    device: NI-DAQ
+
+
 
 NI-DAQ:
   name: NI-DAQ

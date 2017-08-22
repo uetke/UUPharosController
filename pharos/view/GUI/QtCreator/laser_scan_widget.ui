@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>428</height>
+    <width>553</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,40 +39,126 @@
      <widget class="QWidget" name="dockWidgetContents_2"/>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="start_button">
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
+   <item row="2" column="0" colspan="2">
+    <widget class="QGroupBox" name="Monitor">
+     <property name="toolTip">
+      <string>Starts a 1-D signal monitor</string>
      </property>
-     <property name="text">
-      <string>Start</string>
+     <property name="title">
+      <string>1-D Monitor</string>
      </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="1">
+       <widget class="QPushButton" name="stop_button">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="start_button">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPushButton" name="pause_button">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Pause</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+     <zorder>stop_button</zorder>
+     <zorder>stop_button</zorder>
+     <zorder>start_button</zorder>
+     <zorder>pause_button</zorder>
     </widget>
    </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="stop_button">
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
+   <item row="2" column="3">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="toolTip">
+      <string>Starts a 2-D scan of the given device</string>
      </property>
-     <property name="text">
-      <string>Stop</string>
+     <property name="title">
+      <string>2-D scan</string>
      </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="stop_scan_button">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Stop</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QPushButton" name="start_scan_button">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Start</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="pause_scan_button">
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Pause</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item row="2" column="2">
-    <widget class="QPushButton" name="pause_button">
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
+   <item row="1" column="3">
+    <widget class="QDockWidget" name="ScanWidgetDock">
+     <property name="features">
+      <set>QDockWidget::NoDockWidgetFeatures</set>
      </property>
-     <property name="text">
-      <string>Pause</string>
+     <property name="windowTitle">
+      <string>Scan devices</string>
      </property>
+     <widget class="QWidget" name="dockWidgetContents_3"/>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="QDockWidget" name="ControlDevices">
+     <property name="features">
+      <set>QDockWidget::NoDockWidgetFeatures</set>
+     </property>
+     <property name="windowTitle">
+      <string>Control devices</string>
+     </property>
+     <widget class="QWidget" name="dockWidgetContents_4"/>
     </widget>
    </item>
   </layout>

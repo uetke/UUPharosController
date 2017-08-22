@@ -91,13 +91,20 @@ class Measurement(object):
         # First setup the laser
         laser_params = scan['laser']
         laser = self.devices[laser_params['name']]
+        if 'wavelength_sweeps' not in laser_params:
+            laser_params['wavelength_sweeps'] = 1  # This to avoid conflicts in downstream code.
+        elif laser_params['wavelength_sweeps'] == 0:
+            laser_params['wavelength_sweeps'] = 1  # This to avoid conflicts in downstream code.
+
         try:
             laser.apply_values(laser_params)
         except:
             print('Problem changing values of the laser')
 
         num_points = int(
-            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])
+            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])*laser.params['wavelength_sweeps']
+
+        # This is temporal accuracy for the DAQ.
         accuracy = laser.params['trigger_step'] / laser.params['wavelength_speed']
 
         conditions = {
@@ -117,66 +124,54 @@ class Measurement(object):
                 conditions['devices'] = devs_to_monitor
                 conditions['trigger'] = daq_driver.properties['trigger']
                 conditions['trigger_source'] = daq_driver.properties['trigger_source']
+                conditions['sampling'] = 'continuous'
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
-                self.daqs[d] = daq # Store it back to the class variable
+                self.daqs[d] = daq  # Store it back to the class variable
+
+        approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params[
+            'wavelength_speed']
+
+        self.measure['scan']['approx_time_to_scan'] = approx_time_to_scan
+
+    def do_line_scan(self):
+        """ Does the wavelength scan and gets the data from the DAQ.
+        After a line scan, the different devices should be increased by 1, etc."""
+        scan = self.measure['scan']
+        laser = self.devices[scan['laser']['name']]
+        laser.driver.execute_sweep()
+        approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']*laser.params['wavelength_sweeps']
+
+        while laser.driver.sweep_condition != 'Stop':
+            sleep(approx_time_to_scan.m / 10)  # It checks 10 times, maybe overkill?
+
+        return True
 
     def do_scan(self):
         """ Does the scan considering that everything else was already set up.
         """
         scan = self.measure['scan']
         laser = self.devices[scan['laser']['name']]
-        axis = scan['axis']
+        dev_to_scan = scan['axis']['device']['name']
         approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['wavelength_speed']
-        print('Total number of devices to scan: %s' % len(axis))
-        print('Approximate time to do a laser scan: %s' % approx_time_to_scan)
-        data_scan = {} # To store all the data
-        for dev_to_scan in axis:
-            # Set all the devices to their default value
-            for dev_name in axis:
-                if dev_name != 'time':
-                    value = Q_(axis[dev_name]['default'])
-                    self.set_value_to_device(dev_name, value)
+        # Scan the laser and the values of the given device
+        if dev_to_scan != 'time':
+            dev_range = scan['axis']['device']['range']
+            start = Q_(dev_range[0])
+            stop = Q_(dev_range[1])
+            step = Q_(dev_range[2])
+            units = start.u
+            num_points_dev = ((stop-start)/step).to('')
+        else:
+            dev_range = scan['axis']['device']['range']
+            start = 1
+            stop = dev_range[1]
+            num_points_dev = stop
 
-            # Scan the laser and the values of the given device
+        for value in np.linspace(start, stop, num_points_dev):
             if dev_to_scan != 'time':
-                dev_range = axis[dev_to_scan]['range']
-                start = Q_(dev_range[0])
-                stop = Q_(dev_range[1])
-                step = Q_(dev_range[2])
-                units = start.u
-                num_points_dev = ((stop-start)/step).to('')
-            else:
-                start = 1
-                stop = axis['time']['repetitions']
-                num_points_dev = stop
-
-            data_scan[dev_to_scan] = []
-            for value in np.linspace(start, stop, num_points_dev):
-                if dev_to_scan != 'time':
-                    self.set_value_to_device(dev_to_scan, value * units)
-                for d in self.daqs:
-                    daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
-                    daq_driver = self.devices[d]  # Gets the link to the DAQ
-                    if len(daq['monitor']) > 0:
-                        if daq_driver.driver.is_task_complete(daq['monitor_task']):
-                            daq_driver.driver.trigger_analog(daq['monitor_task'])
-                laser.driver.execute_sweep()
-                sleep(0.1)
-                while laser.driver.sweep_condition != 'Stop':
-                    sleep(approx_time_to_scan.m/10) # It checks 10 times, maybe overkill?
-                conditions = {
-                    'points': 0,
-                }
-                for d in self.daqs:
-                    daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
-                    if len(daq['monitor']) > 0:
-                        v, dd = self.devices[d].driver.read_analog(daq['monitor_task'], conditions)
-                        sleep(1)
-                        #self.devices[d].driver.stop_task(daq['monitor_task'])
-                        data_scan[dev_to_scan].append(dd)
-                        print('Acquired data!')
-                        print('Total data points: %s' % len(data_scan[dev_to_scan][-1]))
-        return data_scan
+                self.set_value_to_device(dev_to_scan, value * units)
+            self.do_line_scan()
+        return True
 
     def set_value_to_device(self, dev_name, value):
         """ Sets the value of the device. If it is an analog output, it takes just one value.
@@ -198,8 +193,7 @@ class Measurement(object):
 
     def setup_continuous_scans(self, monitor=None):
         """ Sets up scans that continuously start. This is useful for monitoring a signal over time.
-        In principle it is similar to
-        :return:
+        In principle it is similar to doing a 2D scan with time as a parameter.
         """
         if monitor is None:
             monitor = self.monitor
@@ -208,12 +202,10 @@ class Measurement(object):
 
         # Lets grab the laser
         laser = self.devices[monitor['laser']['name']]
-        if not 'wavelength_sweeps' in monitor['laser']['params']:
+        if 'wavelength_sweeps' not in monitor['laser']['params']:
             monitor['laser']['params']['wavelength_sweeps'] = 0  # This will generate the laser to sweep always.
-                                                                 # CAUTION!: It will have to be stopped when the program finished.
-        print(monitor['laser']['params']['wavelength_sweeps'])
+
         laser.apply_values(monitor['laser']['params'])
-        
 
         # Clear the array to start afresh
         for d in self.daqs:
@@ -293,7 +285,20 @@ class Measurement(object):
                     dev = daq['monitor'][i]
                     data[dev.properties['name']] = dd[i,:]
         return data
-    
+
+    def stop_scan(self):
+        scan = self.scan
+        laser = self.devices[scan['laser']['name']].driver
+        laser.pause_sweep()
+        laser.stop_sweep()
+        for d in self.daqs:
+            daq = self.daqs[d]
+            if len(daq['monitor']) > 0:
+                daq_driver = self.devices[d].driver
+                if not daq_driver.is_task_complete(daq['monitor_task']):
+                    daq_driver.stop_task(daq['monitor_task'])
+                    daq_driver.clear_task(daq['monitor_task'])
+
     def stop_continuous_scans(self):
         monitor = self.monitor
         laser = self.devices[monitor['laser']['name']].driver

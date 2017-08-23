@@ -100,18 +100,41 @@ class Measurement(object):
             laser.apply_values(laser_params)
         except:
             print('Problem changing values of the laser')
+            
+        # Clear the array to start afresh
+        for d in self.daqs:
+            self.daqs[d]['monitor'] = []
 
+        # Lets see what happens with the devices to monitor
+        devices_to_monitor = scan['detectors']
+
+        for dev in devices_to_monitor:
+            #dev = self.devices[d]
+            self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
+            
         num_points = int(
             (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])*laser.params['wavelength_sweeps']
-
+        
+        dev_to_scan = scan['axis']['device']['name']
+        if dev_to_scan != 'time':
+            dev_range = scan['axis']['device']['range']
+            start = Q_(dev_range[0])
+            stop = Q_(dev_range[1])
+            step = Q_(dev_range[2])
+            num_points_dev = ((stop-start)/step).to('')
+        else:
+            dev_range = scan['axis']['device']['range']
+            start = 1
+            stop = dev_range[1]
+            num_points_dev = stop
         # This is temporal accuracy for the DAQ.
         accuracy = laser.params['trigger_step'] / laser.params['wavelength_speed']
 
         conditions = {
             'accuracy': accuracy,
-            'points': num_points
+            'points': num_points*num_points_dev,
         }
-
+        
         # Then setup the ADQs
         for d in self.daqs:
             daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
@@ -142,7 +165,7 @@ class Measurement(object):
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']*laser.params['wavelength_sweeps']
 
         while laser.driver.sweep_condition != 'Stop':
-            sleep(approx_time_to_scan.m / 10)  # It checks 10 times, maybe overkill?
+            sleep(approx_time_to_scan.m*1.1)  # It checks 3 times, maybe overkill?
 
         return True
 
@@ -157,9 +180,10 @@ class Measurement(object):
         if dev_to_scan != 'time':
             dev_range = scan['axis']['device']['range']
             start = Q_(dev_range[0])
+            units = start.u
             stop = Q_(dev_range[1])
             step = Q_(dev_range[2])
-            units = start.u
+            
             num_points_dev = ((stop-start)/step).to('')
         else:
             dev_range = scan['axis']['device']['range']
@@ -167,7 +191,11 @@ class Measurement(object):
             stop = dev_range[1]
             num_points_dev = stop
 
+        print('Do scan total number of points: {}'.format(num_points_dev))
+        i = 0
         for value in np.linspace(start, stop, num_points_dev):
+            i+=1
+            print('Iteration {}'.format(i))
             if dev_to_scan != 'time':
                 self.set_value_to_device(dev_to_scan, value * units)
             self.do_line_scan()
@@ -219,7 +247,6 @@ class Measurement(object):
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
 
         # Lets calculate the conditions of the scan
-        print(laser.params)
         num_points = int(
             (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])
         accuracy = laser.params['trigger_step'] / laser.params['wavelength_speed']
@@ -268,6 +295,22 @@ class Measurement(object):
                     daq_driver.trigger_analog(daq['monitor_task'])
         laser.driver.execute_sweep()
         #sleep(1)
+
+    def read_scans(self):
+        conditions = {'points': -1} # To read all the points available
+        data = {}
+        for d in self.daqs:
+            daq = self.daqs[d]
+            daq_driver = self.devices[d]
+            if len(daq['monitor']) > 0:
+                vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
+                t1 = time.time()
+                dd = dd[:vv*len(daq['monitor'])]
+                dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
+                for i in range(len(daq['monitor'])):
+                    dev = daq['monitor'][i]
+                    data[dev.properties['name']] = dd[i,:]
+        return data
         
     def read_continuous_scans(self):
         conditions = {'points': -1} # To read all the points available
@@ -276,7 +319,6 @@ class Measurement(object):
             daq = self.daqs[d]
             daq_driver = self.devices[d]
             if len(daq['monitor']) > 0:
-                t0 = time.time()
                 vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
                 t1 = time.time()
                 dd = dd[:vv*len(daq['monitor'])]

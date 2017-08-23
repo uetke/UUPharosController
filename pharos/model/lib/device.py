@@ -52,7 +52,7 @@ class device(object):
                     value = values[k]
                 print('Setting %s to %s'%(k, value))
                 try:
-                    setattr(self.driver, k, values[k])
+                    setattr(self.driver, k, value)
                 except:
                     print('Problem setting %s in %s' % (k, self))
                 self.params[k] = value

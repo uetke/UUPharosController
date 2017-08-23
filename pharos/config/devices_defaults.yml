@@ -12,7 +12,7 @@ Santec Laser:
   interval_trigger: 0.01 nm
   wait_time: 0 ms
   step_time: 0.1 s
-  number_sweeps: 1
+  wavelength_sweeps: 1
   sweep_mode: ContOne
   sweep: continuous
   mode: one

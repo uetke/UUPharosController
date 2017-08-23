@@ -48,28 +48,38 @@ class ScanMonitorWidget(QtGui.QWidget):
         num_wl_points = ((self.wavelength['stop']-self.wavelength['start'])/self.wavelength['step']).to('')
        
         num_wl_points = int(num_wl_points.m)
+        self.num_wl_points = num_wl_points
         self.y_axis = axis['y_axis']
         units_y = self.y_axis['stop'].u
         num_y_points = ((self.y_axis['stop']-self.y_axis['start'])/self.y_axis['step']).to('')
         num_y_points = int(num_y_points.m)
-        print('Making empty data with dimensions {} X {}'.format(num_wl_points, num_y_points))
+        self.num_y_points = num_y_points
         plt = pg.PlotItem(labels={'bottom': ('Wavelength', units_wl), 'left': (self.y_axis['name'], units_y)})
-        plt.setAspectLocked(locked=False)
+        plt.setAspectLocked(False)
         self.pos = [self.wavelength['start'].m, self.y_axis['start'].m]
         self.accuracy = [self.wavelength['step'].m, self.y_axis['step'].m]
 
         if self.two_way:
-            self.data = np.zeros((2*num_wl_points, num_y_points))
+            self.data = np.zeros((2*num_wl_points*num_y_points))
 
             self.main_plot1 = pg.ImageView(view=plt)
             self.main_plot2 = pg.ImageView(view=plt)
 
             self.layout.addWidget(self.main_plot1)
             self.layout.addWidget(self.main_plot2)
+            d1 = self.data[:self.data.shape[0]/2]
+            d1 = np.reshape(d1,(num_wl_points, num_y_points))
+            d2 = self.data[self.data.shape[0]/2:]
+            d2 = np.reshape(d1,(num_wl_points, num_y_points))
+
+            self.main_plot1.setImage(d1, pos=self.pos, scale=self.accuracy)
+            self.main_plot2.setData(d2[::-1], pos=self.pos, scale=self.accuracy)
         else:
-            self.data = np.zeros((num_wl_points, num_y_points))
+            self.data = np.zeros((num_wl_points*num_y_points))
             self.main_plot = pg.ImageView(view=plt)
             self.layout.addWidget(self.main_plot)
+            d = np.reshape(self.data,(self.num_wl_points, self.num_y_points))
+            self.main_plot.setImage(d, pos=self.pos, scale=self.accuracy)
 
     def clear_data(self):
 
@@ -94,7 +104,10 @@ class ScanMonitorWidget(QtGui.QWidget):
         self.y_axis = None
         self.data = None
         self.starting_point = 0
+        self.y_pos = 0
         self.two_way = False
+        self.pos = [0, 0]
+        self.accuracy = [1, 1]
 
     def set_name(self, name):
         if self.name is not None:
@@ -110,26 +123,34 @@ class ScanMonitorWidget(QtGui.QWidget):
             self.id = id
 
     def set_data(self, values):
-        if len(values) + self.starting_point <= self.data.shape[0]:
-            self.data[self.starting_point:self.starting_point+len(values), self.y_pos] = values
+        if self.two_way:
+            pass
+        else:
+            self.data[self.starting_point:self.starting_point+len(values)] = values
             self.starting_point += len(values)
             self.update_image()
-        else:
-            # Have to split the data
-            self.set_data(values[0:self.data.shape[0]-self.starting_point])
-            self.starting_point = 0
-            self.y_pos += 1
-            self.set_data(values[self.data.shape[0]-self.starting_point:])
+        #print('Y-pos: {}'.format(self.y_pos))
+        #if len(values) + self.starting_point <= self.data.shape[0]:
+        #    self.data[self.starting_point:self.starting_point+len(values), self.y_pos] = values
+        #    self.starting_point += len(values)
+        #    self.update_image()
+        #else:
+        #    # Have to split the data
+        #    self.set_data(values[0:self.data.shape[0]-self.starting_point])
+        #    self.starting_point = 0
+        #    self.y_pos += 1
+        #    self.set_data(values[self.data.shape[0]-self.starting_point:])
 
     def update_image(self):
         if self.two_way:
             d1 = self.data[:self.data.shape[0], :]
             d2 = self.data[self.data.shape[0]:, :]
 
-            self.main_plot1.setImage(d1, pos=self.pos, scale=self.accuracy)
-            self.main_plot2.setData(d2[::-1], pos=self.pos, scale=self.accuracy)
+            self.main_plot1.setImage(d1)
+            self.main_plot2.setData(d2[::-1])
         else:
-            self.main_plot.setImage(self.data, pos=self.pos, scale=self.accuracy)
+            d = np.reshape(self.data,(self.num_wl_points, self.num_y_points))
+            self.main_plot.setImage(d)
 
     def save(self):
         """Save the data to disk.

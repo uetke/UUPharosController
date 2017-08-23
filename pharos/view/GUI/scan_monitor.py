@@ -41,6 +41,8 @@ class ScanMonitorWidget(QtGui.QWidget):
 
     def set_axis(self, axis):
         """Sets the axis names, limits and an initial empty dataset."""
+        self.clear_data()
+
         self.wavelength = axis['wavelength']
         units_wl = self.wavelength['stop'].u  # units
         num_wl_points = ((self.wavelength['stop']-self.wavelength['start'])/self.wavelength['step']).to('')
@@ -50,9 +52,9 @@ class ScanMonitorWidget(QtGui.QWidget):
         units_y = self.y_axis['stop'].u
         num_y_points = ((self.y_axis['stop']-self.y_axis['start'])/self.y_axis['step']).to('')
         num_y_points = int(num_y_points.m)
-        
+        print('Making empty data with dimensions {} X {}'.format(num_wl_points, num_y_points))
         plt = pg.PlotItem(labels={'bottom': ('Wavelength', units_wl), 'left': (self.y_axis['name'], units_y)})
-
+        plt.setAspectLocked(locked=False)
         self.pos = [self.wavelength['start'].m, self.y_axis['start'].m]
         self.accuracy = [self.wavelength['step'].m, self.y_axis['step'].m]
 
@@ -70,14 +72,24 @@ class ScanMonitorWidget(QtGui.QWidget):
             self.layout.addWidget(self.main_plot)
 
     def clear_data(self):
-        if self.two_way:
+
+        # Tries to clear all the plots. Avoids verifying if the window is running for second time.
+        try:
             self.layout.removeWidget(self.main_plot1)
-            #self.main_plot1.deleteLater()
+            self.main_plot1.deleteLater()
+        except:
+            pass
+        try:
             self.layout.removeWidget(self.main_plot2)
-            #self.main_plot2.deleteLater()
-        else:
+            self.main_plot2.deleteLater()
+        except:
+            pass
+        try:
             self.layout.removeWidget(self.main_plot)
-            #self.main_plot.deleteLater()
+            self.main_plot.deleteLater()
+        except:
+            pass
+
         self.wavelength = None
         self.y_axis = None
         self.data = None

@@ -3,6 +3,7 @@ from builtins import bool
 
 import pyqtgraph as pg
 import numpy as np
+from pyqtgraph import GraphicsLayoutWidget
 from pyqtgraph.Qt import QtGui
 
 
@@ -47,15 +48,20 @@ class ScanMonitorWidget(QtGui.QWidget):
         units_wl = self.wavelength['stop'].u  # units
         num_wl_points = ((self.wavelength['stop']-self.wavelength['start'])/self.wavelength['step']).to('')
        
-        num_wl_points = int(num_wl_points.m)
+        num_wl_points = int(num_wl_points.m)+1
         self.num_wl_points = num_wl_points
         self.y_axis = axis['y_axis']
         units_y = self.y_axis['stop'].u
         num_y_points = ((self.y_axis['stop']-self.y_axis['start'])/self.y_axis['step']).to('')
         num_y_points = int(num_y_points.m)
         self.num_y_points = num_y_points
-        plt = pg.PlotItem(labels={'bottom': ('Wavelength', units_wl), 'left': (self.y_axis['name'], units_y)})
-        plt.setAspectLocked(False)
+
+        self.viewport = GraphicsLayoutWidget()
+        self.view = self.viewport.addViewBox(lockAspect = False, enableMenu = True)
+        self.autoScale = QtGui.QAction("Auto Range", self.view.menu)
+        self.autoScale.triggered.connect(self.doAutoScale)
+        self.view.menu.addAction(self.autoScale)
+
         self.pos = [self.wavelength['start'].m, self.y_axis['start'].m]
         self.accuracy = [self.wavelength['step'].m, self.y_axis['step'].m]
 
@@ -72,14 +78,25 @@ class ScanMonitorWidget(QtGui.QWidget):
             d2 = self.data[self.data.shape[0]/2:]
             d2 = np.reshape(d1,(num_wl_points, num_y_points))
 
-            self.main_plot1.setImage(d1, pos=self.pos, scale=self.accuracy)
-            self.main_plot2.setData(d2[::-1], pos=self.pos, scale=self.accuracy)
+            self.img1 = pg.ImageItem()
+            self.view.addItem(self.img1)
+            self.img2 = pg.ImageItem()
+            self.view.addItem(self.img2)
+
+            self.img1.setImage(d1, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
+            self.img2.setData(d2[::-1], pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
         else:
             self.data = np.zeros((num_wl_points*num_y_points))
-            self.main_plot = pg.ImageView(view=plt)
-            self.layout.addWidget(self.main_plot)
+            print('num_wl_points: {}'.format(num_wl_points))
+            print('num_y_points: {}'.format(num_y_points))
             d = np.reshape(self.data,(self.num_wl_points, self.num_y_points))
-            self.main_plot.setImage(d, pos=self.pos, scale=self.accuracy)
+
+            self.img = pg.ImageItem()
+            self.view.addItem(self.img)
+            self.img.setImage(d, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
+
+        self.layout.addWidget(self.viewport)
+        self.setLayout(self.layout)
 
     def clear_data(self):
 
@@ -123,34 +140,22 @@ class ScanMonitorWidget(QtGui.QWidget):
             self.id = id
 
     def set_data(self, values):
-        if self.two_way:
-            pass
-        else:
+        if len(values) > 0:
             self.data[self.starting_point:self.starting_point+len(values)] = values
             self.starting_point += len(values)
             self.update_image()
-        #print('Y-pos: {}'.format(self.y_pos))
-        #if len(values) + self.starting_point <= self.data.shape[0]:
-        #    self.data[self.starting_point:self.starting_point+len(values), self.y_pos] = values
-        #    self.starting_point += len(values)
-        #    self.update_image()
-        #else:
-        #    # Have to split the data
-        #    self.set_data(values[0:self.data.shape[0]-self.starting_point])
-        #    self.starting_point = 0
-        #    self.y_pos += 1
-        #    self.set_data(values[self.data.shape[0]-self.starting_point:])
 
     def update_image(self):
         if self.two_way:
-            d1 = self.data[:self.data.shape[0], :]
-            d2 = self.data[self.data.shape[0]:, :]
+            d = np.reshape(self.data, (self.num_y_points, self.num_wl_points))
+            d1 = d[::2,:]
+            d2 = d[1::2,::-1]
 
-            self.main_plot1.setImage(d1)
-            self.main_plot2.setData(d2[::-1])
+            self.img1.setImage(d1.T, autoLevels=True, autoRange=False, autoHistogramRange=False)
+            self.img2.setData(d2.T, autoLevels=True, autoRange=False, autoHistogramRange=False)
         else:
-            d = np.reshape(self.data,(self.num_wl_points, self.num_y_points))
-            self.main_plot.setImage(d)
+            d = np.reshape(self.data, (self.num_y_points, self.num_wl_points))
+            self.img.setImage(d.T, autoLevels=True, autoRange=False, autoHistogramRange=False)
 
     def save(self):
         """Save the data to disk.
@@ -175,3 +180,7 @@ class ScanMonitorWidget(QtGui.QWidget):
     def choose_dir(self):
         self.directory = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", self.directory))
         self.save()
+
+    def doAutoScale(self):
+        h, y = self.img.getHistogram()
+        self.imv.setLevels(min(h),max(h))

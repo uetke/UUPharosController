@@ -30,13 +30,15 @@ class ScanConfigWidget(QtGui.QWidget):
                 self.devices_input.append(dev)
 
         self.devices['time'] = 'time'
-        self.configure_monitors(self.devices_input)
 
     def configure_monitors(self, devs_to_monitor):
         for dev in devs_to_monitor:
-            if dev.properties['name'] not in self.monitors:
-                self.monitors[dev.properties['name']] = {'widget': ScanMonitorWidget()}
-                self.monitors[dev.properties['name']]['widget'].set_name(dev.properties['description'])
+            if dev.properties['name'] in self.monitors:
+                self.monitors[dev.properties['name']]['widget'].close()
+                self.monitors[dev.properties['name']]['widget'].deleteLater()
+
+            self.monitors[dev.properties['name']] = {'widget': ScanMonitorWidget()}
+            self.monitors[dev.properties['name']]['widget'].set_name(dev.properties['description'])
 
     def open_monitor(self, devs):
         """Opens the signal monitor window for the given devices."""

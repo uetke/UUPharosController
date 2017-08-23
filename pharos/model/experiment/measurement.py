@@ -147,6 +147,7 @@ class Measurement(object):
                 conditions['devices'] = devs_to_monitor
                 conditions['trigger'] = daq_driver.properties['trigger']
                 conditions['trigger_source'] = daq_driver.properties['trigger_source']
+                print('Trigger source {}'.format(conditions['trigger_source']))
                 conditions['sampling'] = 'continuous'
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable
@@ -195,7 +196,6 @@ class Measurement(object):
         i = 0
         for value in np.linspace(start, stop, num_points_dev):
             i+=1
-            print('Iteration {}'.format(i))
             if dev_to_scan != 'time':
                 self.set_value_to_device(dev_to_scan, value * units)
             self.do_line_scan()

@@ -187,7 +187,7 @@ class MainWindow(QtGui.QMainWindow):
 
         devs_to_monitor = self.monitor_widget.get_devices_checked()
         if len(devs_to_monitor) > 0:
-            self.scan_widget.open_monitor(devs_to_monitor)
+
             self.experiment.scan['detectors'] = devs_to_monitor
             self.experiment.scan['laser']['params'] = self.laser_widget.update_laser_values()
             self.experiment.scan['axis']['device'] = self.scan_widget.get_devices_and_values()
@@ -211,6 +211,8 @@ class MainWindow(QtGui.QMainWindow):
                          'step': step_dev,
                          'name': self.experiment.scan['axis']['device']['name']}}
 
+            self.scan_widget.configure_monitors(devs_to_monitor)
+            self.scan_widget.open_monitor(devs_to_monitor)
             self.scan_widget.set_axis_to_monitor(axis)
             if self.experiment.scan['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.scan_widget.set_two_way_monitors(True)

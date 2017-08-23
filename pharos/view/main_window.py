@@ -67,7 +67,8 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_paused = False
         self.monitor_running = False
         self.scan_running = False
-        
+        self.daq_enabled = False
+
         if self.laser.driver.sweep_condition != 'Stop':
             self.laser.driver.stop_sweep()
 
@@ -130,7 +131,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def start_monitor(self):
         if self.monitor_running or self.monitor_paused or self.scan_running:
-            return
+            raise Warning('Finish ongoing processes before triggering a new one.')
 
         devs_to_monitor = self.monitor_widget.get_devices_checked()
         if len(devs_to_monitor) > 0:
@@ -153,7 +154,9 @@ class MainWindow(QtGui.QMainWindow):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
             self.monitor_timer.start(time_to_scan/config.monitor_read_scan)
+            self.daq_enabled = True
         else:
+            self.daq_enabled = False
             self.laser.driver.execute_sweep()
         self.monitor_running = True
 
@@ -179,6 +182,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def start_scan(self):
         if self.monitor_running or self.monitor_paused or self.scan_running:
+            print('Finish ongoing processes before triggering a new one.')
             return
 
         devs_to_monitor = self.monitor_widget.get_devices_checked()
@@ -233,14 +237,21 @@ class MainWindow(QtGui.QMainWindow):
         self.scan_widget.update_signal_values(data)
 
     def update_monitors(self):
-        data = self.experiment.read_continuous_scans()
-        self.monitor_widget.update_signal_values(data)
+        if self.daq_enabled:
+            data = self.experiment.read_continuous_scans()
+            self.monitor_widget.update_signal_values(data)
         
     def stop_monitor(self):
-        #self.start_button.setText('Start')
-        self.monitor_timer.stop()
-        #self.update_monitors()
-        self.experiment.stop_continuous_scans()
+        if not (self.monitor_running or self.monitor_paused):
+            return
+
+        if self.daq_enabled:
+            self.monitor_timer.stop()
+            self.update_monitors()
+            self.experiment.stop_continuous_scans()
+        else:
+            self.experiment.stop_laser()
+        self.daq_enabled = False
         self.monitor_paused = False
         self.monitor_running = False
 
@@ -252,7 +263,6 @@ class MainWindow(QtGui.QMainWindow):
             return
         self.monitor_timer.stop()
         self.experiment.pause_continuous_scans()
-        #self.start_button.setText('Resume')
         self.monitor_paused = True
         self.monitor_running = False
 

@@ -286,11 +286,15 @@ class Measurement(object):
                     data[dev.properties['name']] = dd[i,:]
         return data
 
-    def stop_scan(self):
-        scan = self.scan
-        laser = self.devices[scan['laser']['name']].driver
+    def stop_laser(self):
+        laser = self.devices[self.scan['laser']['name']].driver
         laser.pause_sweep()
         laser.stop_sweep()
+
+    def stop_scan(self):
+        scan = self.scan
+        self.stop_laser()
+
         for d in self.daqs:
             daq = self.daqs[d]
             if len(daq['monitor']) > 0:

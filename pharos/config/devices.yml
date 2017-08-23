@@ -90,8 +90,8 @@ Stage 1:
     slope: 1
     offset: 0
   limits:
-    min: 0
-    max: 10
+    min: 0um
+    max: 10um
   connection:
     type: daq
     device: NI-DAQ

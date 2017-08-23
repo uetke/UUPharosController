@@ -435,9 +435,6 @@ If you are using a continuous scan mode, you &lt;b&gt;have to&lt;/b&gt; set all 
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Number of sweeps the laser will perform. &lt;/p&gt;&lt;p&gt;If left blank or set to 0 it will never stop.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
-        <property name="toolTipDuration">
-         <number>-1</number>
-        </property>
        </widget>
       </item>
       <item row="1" column="3">

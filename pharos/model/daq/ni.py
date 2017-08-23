@@ -129,6 +129,8 @@ class ni(DaqBase):
         units = Q_(dev.properties['calibration']['units'])
         slope = dev.properties['calibration']['slope'] * units
         offset = dev.properties['calibration']['offset'] * units
+        value = value.to(units)
+        value = value.m
         slope = slope.m
         offset = offset.m
         return (value - offset) / slope
@@ -142,8 +144,8 @@ class ni(DaqBase):
         dev = conditions['dev']
         port = "Dev%s/ao%s" % (self.daq_num, dev.properties['port'])
         units = Q_(dev.properties['calibration']['units'])
-        min_value = dev.properties['limits']['min']*units
-        max_value = dev.properties['limits']['max']*units
+        min_value = Q_(dev.properties['limits']['min']).to(units)
+        max_value = Q_(dev.properties['limits']['max']).to(units)
         # Convert values to volts:
         value = conditions['value'].to(units)
         V = self.from_units_to_volts(value, dev)

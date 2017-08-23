@@ -204,7 +204,8 @@ class MainWindow(QtGui.QMainWindow):
                     'y_axis':
                         {'start': start_dev,
                          'stop': stop_dev,
-                         'step': step_dev}}
+                         'step': step_dev,
+                         'name': self.experiment.scan['axis']['device']['name']}}
 
             self.scan_widget.set_axis_to_monitor(axis)
             if self.experiment.scan['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):

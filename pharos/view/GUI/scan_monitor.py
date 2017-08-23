@@ -24,7 +24,6 @@ class ScanMonitorWidget(QtGui.QWidget):
 
         self.layout = QtGui.QHBoxLayout(self)
 
-
         self.two_way = False  # If the laser scan is two-ways
 
         self.file_menu = self.menu.addMenu("&File")
@@ -45,10 +44,13 @@ class ScanMonitorWidget(QtGui.QWidget):
         self.wavelength = axis['wavelength']
         units_wl = self.wavelength['stop'].u  # units
         num_wl_points = ((self.wavelength['stop']-self.wavelength['start'])/self.wavelength['step']).to('')
+       
+        num_wl_points = int(num_wl_points.m)
         self.y_axis = axis['y_axis']
         units_y = self.y_axis['stop'].u
-        num_y_points = ((self.y_axis['stop']-self.wavelength['start'])/self.y_axis['step']).to('')
-
+        num_y_points = ((self.y_axis['stop']-self.y_axis['start'])/self.y_axis['step']).to('')
+        num_y_points = int(num_y_points.m)
+        
         plt = pg.PlotItem(labels={'bottom': ('Wavelength', units_wl), 'left': (self.y_axis['name'], units_y)})
 
         self.pos = [self.wavelength['start'].m, self.y_axis['start'].m]
@@ -70,12 +72,12 @@ class ScanMonitorWidget(QtGui.QWidget):
     def clear_data(self):
         if self.two_way:
             self.layout.removeWidget(self.main_plot1)
-            self.main_plot1.deleteLater()
+            #self.main_plot1.deleteLater()
             self.layout.removeWidget(self.main_plot2)
-            self.main_plot2.deleteLater()
+            #self.main_plot2.deleteLater()
         else:
             self.layout.removeWidget(self.main_plot)
-            self.main_plot.deleteLater()
+            #self.main_plot.deleteLater()
         self.wavelength = None
         self.y_axis = None
         self.data = None
@@ -105,17 +107,17 @@ class ScanMonitorWidget(QtGui.QWidget):
             self.set_data(values[0:self.data.shape[0]-self.starting_point])
             self.starting_point = 0
             self.y_pos += 1
-            self.set_ydata(values[self.data.shape[0]-self.starting_point:])
+            self.set_data(values[self.data.shape[0]-self.starting_point:])
 
     def update_image(self):
         if self.two_way:
             d1 = self.data[:self.data.shape[0], :]
             d2 = self.data[self.data.shape[0]:, :]
 
-            self.main_plot1.setImage(d1, pos=self.pos, scale=self.accuracy, autoLevels=False)
-            self.main_plot2.setData(d2[::-1], pos=self.pos, scale=self.accuracy, autoLevels=False)
+            self.main_plot1.setImage(d1, pos=self.pos, scale=self.accuracy)
+            self.main_plot2.setData(d2[::-1], pos=self.pos, scale=self.accuracy)
         else:
-            self.main_plot.setImage(self.data, pos=self.pos, scale=self.accuracy, autoLevels=False)
+            self.main_plot.setImage(self.data, pos=self.pos, scale=self.accuracy)
 
     def save(self):
         """Save the data to disk.

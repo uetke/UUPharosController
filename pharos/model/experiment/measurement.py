@@ -89,8 +89,8 @@ class Measurement(object):
 
         scan = self.measure['scan']
         # First setup the laser
-        laser_params = scan['laser']
-        laser = self.devices[laser_params['name']]
+        laser_params = scan['laser']['params']
+        laser = self.devices[scan['laser']['name']]
         if 'wavelength_sweeps' not in laser_params:
             laser_params['wavelength_sweeps'] = 1  # This to avoid conflicts in downstream code.
         elif laser_params['wavelength_sweeps'] == 0:

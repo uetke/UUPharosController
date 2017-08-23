@@ -47,7 +47,7 @@ class ScanConfigWidget(QtGui.QWidget):
     def set_axis_to_monitor(self, axis):
         """Sets the axis information to the monitors."""
         for mon in self.monitors:
-            mon['widget'].set_axis(axis)
+            self.monitors[mon]['widget'].set_axis(axis)
 
     def update_signal_values(self, data):
         """Updates the data to the different monitors."""
@@ -76,6 +76,9 @@ class ScanConfigWidget(QtGui.QWidget):
         values = {}
         for dev in self.devices_widget:
             v = dev.get_values()
+            #values[v['name']] = v['values']
+            
+        return v
 
 
 class DeviceScan(QtGui.QWidget):
@@ -151,7 +154,6 @@ class DeviceScan(QtGui.QWidget):
             'name': dev_name,
             'range': [min_value, max_value, step_value,]
         }
-
         return values
 
 

@@ -61,6 +61,8 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.laser_scan_widget.stop_scan_button, QtCore.SIGNAL('clicked()'), self.stop_scan)
         QtCore.QObject.connect(self.laser_scan_widget.pause_scan_button, QtCore.SIGNAL('clicked()'), self.pause_scan)
 
+        self.laser_widget.applyButton.clicked.connect(self.update_laser)
+        self.laser_widget.readCurrent.clicked.connect(self.update_laser_widget)
         self.laser_timer.timeout.connect(self.update_values_from_laser)
 
         self.shutter_value = False
@@ -77,8 +79,8 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_widget.populate_devices(self.experiment.daqs)
 
     def update_laser(self):
-        wavelength = Q_(self.wavelength.text())
-        power = Q_(self.power.text())
+        wavelength = Q_(self.laser_widget.wavelength.text())
+        power = Q_(self.laser_widget.power.text())
         values = {
             'wavelength': wavelength,
             'powermW': power,
@@ -179,6 +181,10 @@ class MainWindow(QtGui.QMainWindow):
         self.shutter.setChecked(self.laser.driver.shutter)
         self.auto_power.setChecked(self.laser.driver.auto_power)
         self.coherent_control.setChecked(self.laser.driver.coherent_control)
+
+    def update_laser_widget(self):
+        self.laser_widget.wavelength.setText('{:~}'.format(self.laser.wavelength))
+        self.laser_widget.power.setText('{:~}'.format(self.laser.powermW))
 
     def start_scan(self):
         if self.monitor_running or self.monitor_paused or self.scan_running:

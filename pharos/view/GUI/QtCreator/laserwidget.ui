@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>447</width>
-    <height>291</height>
+    <width>611</width>
+    <height>528</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -41,25 +41,25 @@ If you are using a continuous scan mode, you &lt;b&gt;have to&lt;/b&gt; set all 
       <string>Scan</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="3">
-       <widget class="QLabel" name="stop_wavelength_label">
+      <item row="3" column="0">
+       <widget class="QLabel" name="speed_label">
         <property name="font">
          <font>
           <pointsize>13</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Stop</string>
+         <string>Speed</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>stop_wavelength_line</cstring>
+         <cstring>speed_line</cstring>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="3" column="1">
        <widget class="QLineEdit" name="speed_line">
         <property name="minimumSize">
          <size>
@@ -83,25 +83,7 @@ If you are using a continuous scan mode, you &lt;b&gt;have to&lt;/b&gt; set all 
         </property>
        </widget>
       </item>
-      <item row="1" column="3">
-       <widget class="QLabel" name="trigger_step_label">
-        <property name="font">
-         <font>
-          <pointsize>13</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Trig. Step</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-        <property name="buddy">
-         <cstring>trigger_step_line</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
+      <item row="2" column="2">
        <widget class="QLineEdit" name="stop_wavelength_line">
         <property name="minimumSize">
          <size>
@@ -125,25 +107,103 @@ If you are using a continuous scan mode, you &lt;b&gt;have to&lt;/b&gt; set all 
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="speed_label">
+      <item row="2" column="3">
+       <widget class="QLabel" name="stop_wavelength_label">
         <property name="font">
          <font>
           <pointsize>13</pointsize>
          </font>
         </property>
         <property name="text">
-         <string>Speed</string>
+         <string>Stop</string>
         </property>
         <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
         </property>
         <property name="buddy">
-         <cstring>speed_line</cstring>
+         <cstring>stop_wavelength_line</cstring>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="0" column="3">
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Power</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Wavelength</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="wavelength">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="sizeIncrement">
+         <size>
+          <width>8</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Start wavelength of the scan</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLineEdit" name="power">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>Stop wavelength of the scan</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
        <widget class="QLineEdit" name="trigger_step_line">
         <property name="minimumSize">
          <size>
@@ -167,7 +227,25 @@ If you are using a continuous scan mode, you &lt;b&gt;have to&lt;/b&gt; set all 
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item row="3" column="3">
+       <widget class="QLabel" name="trigger_step_label">
+        <property name="font">
+         <font>
+          <pointsize>13</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Trig. Step</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>trigger_step_line</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
        <widget class="QLineEdit" name="start_wavelength_line">
         <property name="minimumSize">
          <size>
@@ -197,7 +275,7 @@ If you are using a continuous scan mode, you &lt;b&gt;have to&lt;/b&gt; set all 
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
+      <item row="2" column="0">
        <widget class="QLabel" name="start_wavelength_label">
         <property name="font">
          <font>
@@ -212,6 +290,20 @@ If you are using a continuous scan mode, you &lt;b&gt;have to&lt;/b&gt; set all 
         </property>
         <property name="buddy">
          <cstring>start_wavelength_line</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QPushButton" name="applyButton">
+        <property name="text">
+         <string>Apply</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="2">
+       <widget class="QPushButton" name="readCurrent">
+        <property name="text">
+         <string>Read Current</string>
         </property>
        </widget>
       </item>

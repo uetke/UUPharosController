@@ -30,7 +30,7 @@ class LaserWidgetGUI(QtGui.QWidget):
         self.start_wavelength_line.setText(values['start_wavelength'])
         self.stop_wavelength_line.setText(values['stop_wavelength'])
         self.speed_line.setText(values['wavelength_speed'])
-        self.trigger_step_line.setText(values['trigger_step'])
+        self.trigger_step_line.setText(values['interval_trigger'])
 
         if 'wait_time' in values:
             self.wait_line.setText(values['wait_time'])
@@ -55,7 +55,7 @@ class LaserWidgetGUI(QtGui.QWidget):
             'start_wavelength': Q_(self.start_wavelength_line.text()),
             'stop_wavelength': Q_(self.stop_wavelength_line.text()),
             'wavelength_speed': Q_(self.speed_line.text()),
-            'trigger_step': Q_(self.trigger_step_line.text()),
+            'interval_trigger': Q_(self.trigger_step_line.text()),
           }
         
         if self.continuous_button.isChecked():

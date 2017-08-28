@@ -113,7 +113,7 @@ class Measurement(object):
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
             
         num_points = int(
-            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])*laser.params['wavelength_sweeps']
+            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['interval_trigger'])*laser.params['wavelength_sweeps']
         
         dev_to_scan = scan['axis']['device']['name']
         if dev_to_scan != 'time':
@@ -128,7 +128,7 @@ class Measurement(object):
             stop = dev_range[1]
             num_points_dev = stop
         # This is temporal accuracy for the DAQ.
-        accuracy = laser.params['trigger_step'] / laser.params['wavelength_speed']
+        accuracy = laser.params['interval_trigger'] / laser.params['wavelength_speed']
 
         conditions = {
             'accuracy': accuracy,
@@ -248,8 +248,8 @@ class Measurement(object):
 
         # Lets calculate the conditions of the scan
         num_points = int(
-            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['trigger_step'])
-        accuracy = laser.params['trigger_step'] / laser.params['wavelength_speed']
+            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['interval_trigger'])
+        accuracy = laser.params['interval_trigger'] / laser.params['wavelength_speed']
 
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params[
             'wavelength_speed']
@@ -257,7 +257,7 @@ class Measurement(object):
         self.measure['monitor']['approx_time_to_scan'] = approx_time_to_scan
 
         conditions = {
-            'accuracy': accuracy,
+            'accuracy': accuracy*.85,
             'points': num_points
         }
 

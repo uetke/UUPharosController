@@ -148,8 +148,8 @@ class MainWindow(QtGui.QMainWindow):
             # Convert everything to the units of the start_wl
             start_wl = start_wl.m
             stop_wl = self.experiment.monitor['laser']['params']['stop_wavelength'].m_as(units)
-            step = self.experiment.monitor['laser']['params']['trigger_step'].m_as(units)
-            num_points = (stop_wl - start_wl) / step
+            step = self.experiment.monitor['laser']['params']['interval_trigger'].m_as(units)
+            num_points = (stop_wl - start_wl) / step+1
             xdata = np.linspace(start_wl, stop_wl, num_points)
             
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
@@ -183,8 +183,8 @@ class MainWindow(QtGui.QMainWindow):
         self.coherent_control.setChecked(self.laser.driver.coherent_control)
 
     def update_laser_widget(self):
-        self.laser_widget.wavelength.setText('{:~}'.format(self.laser.wavelength))
-        self.laser_widget.power.setText('{:~}'.format(self.laser.powermW))
+        self.laser_widget.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
+        self.laser_widget.power.setText('{:~}'.format(self.laser.driver.powermW))
 
     def start_scan(self):
         if self.monitor_running or self.monitor_paused or self.scan_running:
@@ -201,7 +201,7 @@ class MainWindow(QtGui.QMainWindow):
 
             start_wl = self.experiment.scan['laser']['params']['start_wavelength']
             stop_wl = self.experiment.scan['laser']['params']['stop_wavelength']
-            step = self.experiment.scan['laser']['params']['trigger_step']
+            step = self.experiment.scan['laser']['params']['interval_trigger']
 
             start_dev = self.experiment.scan['axis']['device']['range'][0]
             stop_dev = self.experiment.scan['axis']['device']['range'][1]

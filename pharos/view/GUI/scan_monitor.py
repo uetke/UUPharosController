@@ -172,7 +172,7 @@ class ScanMonitorWidget(QtGui.QWidget):
                 data = np.vstack((self.wavelength, self.data))
             else:
                 pass
-            np.savetxt(file, data)
+            np.savetxt(file, data.T)
             print('Data seved to %s' % file)
         else:
             self.choose_dir()

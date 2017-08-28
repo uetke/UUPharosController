@@ -13,7 +13,7 @@ monitor:
       start_wavelength: 1491 nm
       stop_wavelength:  1510 nm
       wavelength_speed:  10 nm/s
-      trigger_step: 0.01 nm
+      interval_trigger: 0.01 nm
       sweep_mode: ContOne
       wavelength_sweeps: 1
   detectors:
@@ -27,7 +27,7 @@ scan:
       start_wavelength: 1492 nm
       stop_wavelength:  1548 nm
       wavelength_speed:  50 nm/s
-      trigger_step: 0.01 nm
+      interval_trigger: 0.01 nm
       sweep_mode: ContOne
       wavelength_sweeps: 1
   axis:  # The laser doesn't need to appear here, it is always considered the first axis of the scan

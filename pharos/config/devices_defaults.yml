@@ -9,7 +9,7 @@ Santec Laser:
   speed: 50 nm/s
   steps: 100
   step: 1 nm
-  interval_trigger: 0.01 nm
+  interval_trigger: 0.001 nm
   wait_time: 0 ms
   step_time: 0.1 s
   wavelength_sweeps: 1

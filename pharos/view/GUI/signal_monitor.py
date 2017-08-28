@@ -105,7 +105,7 @@ class SignalMonitorWidget(QtGui.QWidget):
                 data = np.vstack((self.wavelength, self.ydata))
             else:
                 data = np.vstack((self.wavelength, self.ydata[:len(self.ydata)/2], self.ydata[len(self.ydata)/2::-1]))
-            np.savetxt(file, data)
+            np.savetxt(file, data.T)
             print('Data seved to %s' % file)
         else:
             self.choose_dir()

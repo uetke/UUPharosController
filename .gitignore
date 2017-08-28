@@ -14,3 +14,7 @@ Thumbs.db
 .idea
 build
 dist
+devices.yml
+devices_defaults.yml
+measurement.yml
+config.py

@@ -1,8 +1,19 @@
+"""
+    scan_config_widget
+    ==================
+    Widget for configuring a 2D scan with a laser scanning wavelengths.
+    It started with the idea of allowing N-D scans (by adding more than one device) but it proved not
+    to be the best approach (start from simple and build to complicated).
+    However the GUI allows to setup more than one device by clicking a + button (now disabled).
+
+    :copyright: 2017
+    .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
+"""
+
 import os
-from PyQt4 import QtCore, QtGui, uic
+from PyQt4 import QtGui, uic
 from lantz import Q_
 from pharos.view.GUI.scan_monitor import ScanMonitorWidget
-from PyQt4.QtCore import pyqtSlot
 
 
 class ScanConfigWidget(QtGui.QWidget):
@@ -30,6 +41,8 @@ class ScanConfigWidget(QtGui.QWidget):
                 self.devices_input.append(dev)
 
         self.devices['time'] = 'time'
+
+        self.add_new_device()
 
     def configure_monitors(self, devs_to_monitor):
         for dev in devs_to_monitor:

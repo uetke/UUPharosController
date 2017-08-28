@@ -99,6 +99,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QPushButton" name="add_device_button">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="styleSheet">
         <string notr="true"/>
        </property>
@@ -113,6 +116,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="remove_device_button">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string/>
        </property>

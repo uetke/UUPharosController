@@ -12,7 +12,7 @@ Welcome to Pharos Controller's documentation!
 
 .. automodule:: pharos
 
-.. autoclass:: pharos.View.main_window.MainWindow
+.. autoclass:: pharos.view.main_window.MainWindow
     :members:
 
 Indices and tables

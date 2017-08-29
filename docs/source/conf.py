@@ -19,7 +19,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../pharos'))
+sys.path.insert(0, os.path.abspath('C:\\Users\\Aquiles\\Documents\\Programs\\PharosController\\pharos'))
 
 
 # -- General configuration ------------------------------------------------
@@ -45,7 +45,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 
 # The master toctree document.
-master_doc = 'y'
+master_doc = 'index'
 
 # General information about the project.
 project = 'Pharos Controller'
@@ -77,7 +77,7 @@ exclude_patterns = []
 pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
-todo_include_todos = False
+todo_include_todos = True
 
 
 # -- Options for HTML output ----------------------------------------------

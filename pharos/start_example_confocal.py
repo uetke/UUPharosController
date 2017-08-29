@@ -3,7 +3,7 @@
     ======================
     Example built by Sanli following Aquiles instructions on how to have a confocal scan without a GUI.
     Its main goal is as an educative project.
-
+    @author: Sanli Faez
 """
 
 from pharos.model.lib.general_functions import from_yaml_to_dict, start_logger, stop_logger

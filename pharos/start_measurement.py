@@ -1,3 +1,12 @@
+"""
+    start_measurement
+    =================
+    Starting point for a measurement without GUI. It is mainly an example of how things should be built from the ground
+    up in order to later have a GUI.
+
+    .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
+"""
+
 from pharos.model.lib.general_functions import from_yaml_to_dict, start_logger, stop_logger
 from pharos.model.experiment.measurement import Measurement
 

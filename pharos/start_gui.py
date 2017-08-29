@@ -1,7 +1,14 @@
+"""
+    start_gui
+    =========
+    Starting point for the GUI of the program. It loads the configuration files and startes the experiment class.
+    Then it builds the main Window GUI.
+
+    .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
+"""
 import yaml
 import sys
 from pharos.model.lib.session import session
-from pharos.model.lib.device import device
 from pharos.model.lib.general_functions import from_yaml_to_devices
 from pharos.view.main_window import MainWindow
 from PyQt4.Qt import QApplication

@@ -1,3 +1,11 @@
+"""
+    main_window
+    ===========
+    Holds the GUI logic. It is responsible for bindin buttons, processing signals, etc.
+    Doesn't deal with layout concerns, those are located in the GUI folder.
+
+    .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
+"""
 import numpy as np
 import os
 from PyQt4 import QtCore, QtGui, uic
@@ -77,6 +85,10 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_widget.populate_devices(self.experiment.daqs)
 
     def update_laser(self):
+        """
+        Gets the values from the laser_widget and sends them to the laser. It only deals with the wavelength and the
+        power. The rest of the values are passed to the scan and are therefore not for modifying the laser in-vivo.
+        """
         wavelength = Q_(self.laser_widget.wavelength.text())
         power = Q_(self.laser_widget.power.text())
         values = {
@@ -86,32 +98,47 @@ class MainWindow(QtGui.QMainWindow):
         self.laser.driver.update(values)
 
     def update_wavelength(self, value):
+        """
+        Updates the wavelength text and laser. It is triggered from the sliding bar.
+
+
+        .. todo:: The value is in the range (0, something) and is converted to wavelength assuming the lower limit of
+        the laser is 1480, which is true for the Santec, but not universal. The should be a way of retrieving the lower
+        limit at runtime.
+
+        """
         new_value = 1480+value*0.0001
         new_value = new_value*Q_('nm')
         self.wavelength.setText('{:4.4f~}'.format(new_value))
         self.laser.driver.wavelength = new_value
 
     def increase_wavelength(self):
+        """Increases the wavelength by the amount specified in the GUI. """
         increase = Q_(self.wavelength_increment.text())
         self.laser.driver.wavelength = self.laser.driver.wavelength + increase
 
     def decrease_wavelength(self):
+        """Decreases the wavelength by the amount specified in the GUI"""
         increase = Q_(self.wavelength_increment.text())
         self.laser.driver.wavelength-=increase
 
     def increase_power(self):
+        """Increases the power by the amount specified in the GUI."""
         increase = Q_(self.power_increment.text())
         self.laser.driver.powermW += increase
 
     def decrease_power(self):
+        """ Decreases the power by the amount specified in the GUI. """
         increase = Q_(self.power_increment.text())
         self.laser.driver.powermW -= increase
 
     def update_shutter(self, state):
+        """ Updates the status of the shutter. If it was open, changes to close and the opposite. """
         state = bool(state)
         self.laser.driver.shutter = state
 
     def update_ld_current(self, state):
+        """ Updates the status of the LD_current."""
         state = bool(state)
         self.laser.driver.LD_current = state
 
@@ -120,16 +147,23 @@ class MainWindow(QtGui.QMainWindow):
         self.laser.driver.auto_power = state
 
     def update_coherent_control(self, state):
+        """ Updates the cohernt control status. """
         state = bool(state)
         self.laser.driver.coherent_control = state
 
     def update_power(self, value):
+        """ Updates the power of the laser. It is triggered when the sliding bar changes position. """
         new_value = 0.01+value*0.01
         new_value = new_value*Q_('mW')
         self.power.setText('{:1.2f~}'.format(new_value))
         self.laser.driver.powermW = new_value
 
     def start_monitor(self):
+        """ Starts the monitor of one or several signals.
+        It reads the parameters from the GUI and loads them into the experiment class.
+        If there are detectors selected, it opens the window to display the data; if nothing is selected, it just
+        triggers the laser and does not start the NI-card for acquiring.
+        """
         if self.monitor_running or self.monitor_paused or self.scan_running:
             raise Warning('Finish ongoing processes before triggering a new one.')
 
@@ -161,6 +195,13 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_running = True
 
     def update_values_from_laser(self):
+        """ Reads the values from the laser and passes them to the GUI. It also blocks the signals of the sliders to
+        avoid an infinite loop: update the slide=>update the value=>update the slide, etc.
+        If the laser would be able to check the status of the LD_current, Shutter, etc, it would update it on the GUI.
+        A driver built on top of the IEEE standar is able to do it, and I have already included the first steps in the
+        controllers folder.
+
+        """
         wl = self.laser.driver.wavelength
         pw = self.laser.driver.powermW
         self.wavelength.setText('{:~}'.format(wl))
@@ -181,6 +222,7 @@ class MainWindow(QtGui.QMainWindow):
         self.coherent_control.setChecked(self.laser.driver.coherent_control)
 
     def update_laser_widget(self):
+        """ Updates the values displayed in the GUI. It is triggerend only on demand from the user. """
         self.laser_widget.wavelength.setText('{:~}'.format(self.laser.driver.wavelength))
         self.laser_widget.power.setText('{:~}'.format(self.laser.driver.powermW))
 

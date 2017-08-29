@@ -1,5 +1,3 @@
-from builtins import bool
-
 import numpy as np
 import os
 from PyQt4 import QtCore, QtGui, uic

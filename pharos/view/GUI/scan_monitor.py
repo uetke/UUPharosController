@@ -8,6 +8,7 @@ from pyqtgraph.Qt import QtGui
 class ScanMonitorWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent=None)
+        self.resize(450, 450)
         self.name = None
         self.id = None
         self.wavelength = None
@@ -40,8 +41,6 @@ class ScanMonitorWidget(QtGui.QWidget):
 
     def set_axis(self, axis):
         """Sets the axis names, limits and an initial empty dataset."""
-        self.clear_data()
-
         self.wavelength = axis['wavelength']
         units_wl = self.wavelength['stop'].u  # units
         num_wl_points = ((self.wavelength['stop']-self.wavelength['start'])/self.wavelength['step']).to('')
@@ -52,7 +51,7 @@ class ScanMonitorWidget(QtGui.QWidget):
         self.setWindowTitle(self.y_axis['name'])
         units_y = self.y_axis['stop'].u
         num_y_points = ((self.y_axis['stop']-self.y_axis['start'])/self.y_axis['step']).to('')
-        num_y_points = int(num_y_points.m)
+        num_y_points = int(num_y_points.m)+1
         self.num_y_points = num_y_points
 
         self.viewport = GraphicsLayoutWidget()
@@ -62,6 +61,7 @@ class ScanMonitorWidget(QtGui.QWidget):
         self.accuracy = [self.wavelength['step'].m, self.y_axis['step'].m]
 
         if self.two_way:
+            self.resize(450, 900)
             self.view1 = self.viewport.addViewBox(row=0, col=0, lockAspect=False, enableMenu=True)
             self.autoScale = QtGui.QAction("Auto Range", self.view1.menu)
             self.autoScale.triggered.connect(self.doAutoScale)
@@ -73,38 +73,42 @@ class ScanMonitorWidget(QtGui.QWidget):
             self.view2.menu.addAction(self.autoScale)
 
             self.data = np.zeros((2*num_wl_points*num_y_points))
-
-            d1 = self.data[:self.data.shape[0]/2]
+            
+            self.len_1_way = int(self.data.shape[0]/2)
+            d1 = self.data[:self.len_1_way]
             d1 = np.reshape(d1,(num_wl_points, num_y_points))
-            d2 = self.data[self.data.shape[0]/2:]
+            d2 = self.data[self.len_1_way:]
             d2 = np.reshape(d2,(num_wl_points, num_y_points))
 
-            self.img1 = pg.ImageItem()
+            self.img1 = pg.ImageItem(border='w')
             self.view1.addItem(self.img1)
             self.imv1 = pg.ImageView(view=self.view1, imageItem=self.img1)
-            self.img2 = pg.ImageItem()
+            self.img2 = pg.ImageItem(border='w')
             self.view2.addItem(self.img2)
             self.imv2 = pg.ImageView(view=self.view2, imageItem=self.img2)
 
+            self.layout.addWidget(self.imv1)
+            self.layout.addWidget(self.imv2)
 
-            self.imv1.setImage(d1, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
-            self.imv2.setData(d2[::-1], pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
+            self.img1.setImage(d1, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
+            self.img2.setImage(d2[::-1], pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
+            print('Two way plots')
 
         else:
+            self.resize(450, 450)
             self.view = self.viewport.addViewBox(lockAspect=False, enableMenu=True)
             self.autoScale = QtGui.QAction("Auto Range", self.view.menu)
             self.autoScale.triggered.connect(self.doAutoScale)
             self.view.menu.addAction(self.autoScale)
-
             self.data = np.zeros((num_wl_points*num_y_points))
             d = np.reshape(self.data,(self.num_wl_points, self.num_y_points))
 
-            self.img = pg.ImageItem()
+            self.img = pg.ImageItem(border='w')
             self.view.addItem(self.img)
             self.imv = pg.ImageView(view=self.view, imageItem=self.img)
-            self.imv.setImage(d, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
-
-            self.layout.addWidget(self.viewport)
+            self.img.setImage(d, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True,
+                              autoHistogramRange=True)
+            self.layout.addWidget(self.imv)
         self.setLayout(self.layout)
 
     def clear_data(self):
@@ -156,15 +160,17 @@ class ScanMonitorWidget(QtGui.QWidget):
 
     def update_image(self):
         if self.two_way:
-            d = np.reshape(self.data, (self.num_y_points, self.num_wl_points))
-            d1 = d[::2, :]
-            d2 = d[1::2, ::-1]
-
-            self.imv1.setImage(d1.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
-            self.imv2.setImage(d2.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
+            d = np.reshape(self.data, (self.num_y_points, 2*self.num_wl_points))
+            d1 = d[:, :self.num_wl_points]
+            d2 = d[:, -1:self.num_wl_points-1:-1]
+            self.d1 = d1
+            self.d2 = d2
+            self.img1.setImage(d1.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
+            self.img2.setImage(d2.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
         else:
             d = np.reshape(self.data, (self.num_y_points, self.num_wl_points))
-            self.imv.setImage(d.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
+            self.d = d
+            self.img.setImage(d.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
 
     def save(self):
         """Save the data to disk.
@@ -189,7 +195,7 @@ class ScanMonitorWidget(QtGui.QWidget):
             stop_y = stop_y.m
             step_y = step_y.m_as(units_y)
 
-            with open(file, 'a') as f:
+            with open(file, 'wb') as f:
                 header = "# 2D scan performed with the PharosController\n"
                 header += "# X-Axis: wavelength. Start, Stop, Step (in nm)\n"
                 header += "{}, {}, {} \n".format(start, stop, step)
@@ -197,16 +203,14 @@ class ScanMonitorWidget(QtGui.QWidget):
                     header += "# X-Axis set as Two-Way scan\n"
                 header += "# Y-Axis: {}. Start, Stop, Step (in {})\n".format(name_y, units_y)
                 header += "{}, {}, {}\n".format(start_y, stop_y, step_y)
-                f.write(header)
+                f.write(header.encode('ascii'))
                 if self.two_way:
-                    d = np.reshape(self.data, (self.num_y_points, self.num_wl_points))
-                    d1 = d[::2, :]
-                    np.savetxt(f, d1)
-                    d2 = d[1::2, ::-1]
-                    np.savetxt(f, d2)
+                    f.write('# First round\n'.encode('ascii'))
+                    np.savetxt(f, self.d1, fmt='%7.5f')
+                    f.write('# Second round\n'.encode('ascii'))
+                    np.savetxt(f, self.d2, fmt='%7.5f')
                 else:
-                    d = np.reshape(self.data, (self.num_y_points, self.num_wl_points))
-                    np.savetxt(f, d)
+                    np.savetxt(f, self.d, fmt='%7.5f')
             print('Data seved to %s' % file)
         else:
             self.choose_dir()

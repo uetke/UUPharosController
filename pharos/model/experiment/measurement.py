@@ -192,10 +192,9 @@ class Measurement(object):
             stop = dev_range[1]
             num_points_dev = stop
 
-        print('Do scan total number of points: {}'.format(num_points_dev))
-        i = 0
-        for value in np.linspace(start, stop, num_points_dev):
-            i+=1
+        num_points_dev += 1 # So the last bit of information is true.
+
+        for value in np.linspace(start, stop, num_points_dev, endpoint=True):
             if dev_to_scan != 'time':
                 self.set_value_to_device(dev_to_scan, value * units)
             self.do_line_scan()

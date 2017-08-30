@@ -57,7 +57,7 @@ class ScanConfigWidget(QtGui.QWidget):
         """Opens the signal monitor window for the given devices."""
         for dev in devs:
             self.monitors[dev.properties['name']]['widget'].show()
-            self.monitors[dev.properties['name']]['widget'].clear_data()
+            #self.monitors[dev.properties['name']]['widget'].clear_data()
 
     def set_axis_to_monitor(self, axis):
         """Sets the axis information to the monitors."""

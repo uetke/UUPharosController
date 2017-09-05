@@ -111,4 +111,4 @@ if __name__ == '__main__':
         lib.CC_LoadSettings(serial)
         lib.CC_ClearMessageQueue(serial)
         print(lib.CC_GetPosition(serial))
-        lib.CC_MoveToPosition(serial, ctypes.c_int(180000))
+        lib.CC_MoveToPosition(serial, ctypes.c_int(00))

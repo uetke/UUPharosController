@@ -6,7 +6,7 @@ C:\Program Files\Thorlabs\Kinesis
 Only copying the dll doesn't satisfy all the dependences. Apparently a full installation is needed, but didn't go
 into the details."""
 
-from ctypes import c_long, c_buffer, c_float, windll, pointer
+from ctypes import c_long, c_buffer, c_float, windll, byref, c_char, c_char_p, c_int
 import os
 
 
@@ -98,14 +98,17 @@ if __name__ == '__main__':
     import os
 
     os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorlabs\\Kinesis'
-    os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files\\Thorlabs\\APT\\APT Server'
-    filename = ctypes.util.find_library("APT")
-    lib = ctypes.windll.LoadLibrary(filename)
-    lib.APTInit()
-    numUnits = c_long()
-    HWType = c_long(31)
-    lib.GetNumHWUnitsEx(HWType, pointer(numUnits))
-    serial = ctypes.c_long(83843619)
-    lib.InitHWDevice(serial)
-    #lib.MOT_Identify(serial)
-    print(numUnits)
+    #os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files\\Thorlabs\\APT\\APT Server'
+    filename = ctypes.util.find_library("Thorlabs.MotionControl.TCube.DCServo.DLL")
+    lib = ctypes.cdll.LoadLibrary(filename)
+    # lib.CC_Open.argtypes = [c_char_p]
+    serial = c_char_p(b"83843619")
+    if lib.TLI_BuildDeviceList() == 0:
+        n = lib.TLI_GetDeviceListSize()
+        print('DevList: {}'.format(n))
+        lib.CC_Open(serial)
+        lib.CC_StartPolling(serial, 200)
+        lib.CC_LoadSettings(serial)
+        lib.CC_ClearMessageQueue(serial)
+        print(lib.CC_GetPosition(serial))
+        lib.CC_MoveToPosition(serial, ctypes.c_int(180000))

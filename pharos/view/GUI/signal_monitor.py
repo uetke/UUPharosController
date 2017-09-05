@@ -103,17 +103,17 @@ class SignalMonitorWidget(QtGui.QWidget):
             file = os.path.join(self.directory, '%s%i.dat' % (filename, i))
             header = "# Data saved by Pharos Controller\n"
 
-            with open(file, 'a') as f:
+            with open(file, 'wb') as f:
                 if not self.two_way:
                     header += "# Column 1: Wavelength, Column2: {}\n".format(self.name)
-                    f.write(header)
                     data = np.vstack((self.wavelength, self.ydata))
                 else:
                     header += "# Column 1: Wavelength, Column 2: {0} forward, Column 3: {0} backward\n".format(self.name)
                     d1 = self.ydata[:self.len_ydata]
                     d2 = self.ydata[self.len_ydata:]
                     data = np.vstack((self.wavelength, d1, d2))
-                np.savetxt(f, data.T)
+                f.write(header)
+                np.savetxt(f, data.T, fmt='%7.5f')
             print('Data saved to %s' % file)
         else:
             self.choose_dir()

@@ -396,8 +396,14 @@ QCheckBox::indicator{
     </property>
     <addaction name="actionAbout_PharosController"/>
    </widget>
+   <widget class="QMenu" name="menuDevices">
+    <property name="title">
+     <string>Devices</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuConfig"/>
+   <addaction name="menuDevices"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

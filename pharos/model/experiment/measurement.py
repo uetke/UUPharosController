@@ -13,8 +13,9 @@ class Measurement(object):
         """
         self.measure = measure  # Dictionary of the measurement steps
         self.devices = {}  # Dictionary holding all the devices
+        self.output_devices = [] # List of devices with output capabilities
         self.daqs = {}  # Dictionary that holds for each daq the inputs and outputs.
-
+        self.rotation_stages = [] # If there are rotation stages present, they will show up in this list.
         # This short block is going to become useful in the future, when interfacing with a GUI
         for d in self.measure:
             setattr(self, d, self.measure[d])
@@ -31,7 +32,12 @@ class Measurement(object):
         devices_list = from_yaml_to_devices(devices_file)
         for dev in devices_list:
             self.devices[dev.properties['name']] = dev
+            if 'outputs' in dev.properties:
+                self.output_devices.append(dev)
             print('Added %s to the experiment' % dev)
+            if dev.properties['type'] == "Rotation Stage":
+                self.rotation_stages.append(dev.properties['name'])
+
 
     def initialize_devices(self):
         """ Initializes the devices first by loading the driver,
@@ -86,8 +92,7 @@ class Measurement(object):
         ALL THIS IS WORK IN PROGRESS, THAT WORKS WITH VERY SPECIFIC SETUP CONDITIONS!
         :return:
         """
-
-        scan = self.measure['scan']
+        scan = self.scan
         # First setup the laser
         laser_params = scan['laser']['params']
         laser = self.devices[scan['laser']['name']]
@@ -109,19 +114,18 @@ class Measurement(object):
         devices_to_monitor = scan['detectors']
 
         for dev in devices_to_monitor:
-            #dev = self.devices[d]
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
             
         num_points = int(
             (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['interval_trigger'])*laser.params['wavelength_sweeps']
         
-        dev_to_scan = scan['axis']['device']['name']
+        dev_to_scan = scan['axis']['device']['dev']['name']
         if dev_to_scan != 'time':
             dev_range = scan['axis']['device']['range']
             start = Q_(dev_range[0])
             stop = Q_(dev_range[1])
             step = Q_(dev_range[2])
-            num_points_dev = ((stop-start)/step).to('')
+            num_points_dev = int(((stop-start)/step).to(''))
         else:
             dev_range = scan['axis']['device']['range']
             start = 1
@@ -160,7 +164,7 @@ class Measurement(object):
     def do_line_scan(self):
         """ Does the wavelength scan and gets the data from the DAQ.
         After a line scan, the different devices should be increased by 1, etc."""
-        scan = self.measure['scan']
+        scan = self.scan
         laser = self.devices[scan['laser']['name']]
         laser.driver.execute_sweep()
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']*laser.params['wavelength_sweeps']
@@ -173,9 +177,10 @@ class Measurement(object):
     def do_scan(self):
         """ Does the scan considering that everything else was already set up.
         """
-        scan = self.measure['scan']
+        scan = self.scan
         laser = self.devices[scan['laser']['name']]
-        dev_to_scan = scan['axis']['device']['name']
+        dev_to_scan = scan['axis']['device']['dev']['name']
+        output = scan['axis']['device']['output']
         approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['wavelength_speed']
         # Scan the laser and the values of the given device
         if dev_to_scan != 'time':
@@ -196,7 +201,7 @@ class Measurement(object):
 
         for value in np.linspace(start, stop, num_points_dev, endpoint=True):
             if dev_to_scan != 'time':
-                self.set_value_to_device(dev_to_scan, value * units)
+                self.set_value_to_device(dev_to_scan, {output: value * units})
             self.do_line_scan()
         return True
 
@@ -208,7 +213,7 @@ class Measurement(object):
         """
         dev = self.devices[dev_name]
         # If it is an analog channel
-        if dev.properties['connection']['type'] == 'daq':
+        if dev.properties['type'] == 'daq':
             daq = self.devices[dev.properties['connection']['device']]
             conditions = {
                 'dev': dev,

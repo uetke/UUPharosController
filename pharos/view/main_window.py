@@ -15,10 +15,12 @@ from pharos.view.GUI.laser_widget_gui import LaserWidgetGUI
 from pharos.view.GUI.scan_config_widget import ScanConfigWidget
 from pharos.view.GUI.monitor_config_widget import MonitorConfigWidget
 from pharos.view.GUI.wavelength_scan_widget import LaserScanWidget
+from pharos.view.GUI.rotation_stage_gui import ThorlabsRotationWidgetGUI
 from pharos.view.generic_work_thread import WorkThread
 
 from pharos.config import config
 import pharos.view.GUI.QtCreator.resources_rc
+
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, experiment, parent=None):
@@ -81,8 +83,19 @@ class MainWindow(QtGui.QMainWindow):
             self.laser.driver.stop_sweep()
 
         self.laser_widget.populate_values(self.experiment.monitor['laser']['params'])
-        self.scan_widget.populate_devices(self.experiment.daqs)
+        self.scan_widget.populate_devices(self.experiment)
         self.monitor_widget.populate_devices(self.experiment.daqs)
+
+        if len(self.experiment.rotation_stages) > 0:
+            self.roation_stages_widget = []
+            self.rotation_actions = []
+            for rot in self.experiment.rotation_stages:
+                dev = self.experiment.devices[rot]
+                self.rotation_stages_widget.append(ThorlabsRotationWidgetGUI(dev))
+                self.rotation_actions.append(QtGui.QAction(dev.properties['name'], self))
+                self.rotation_actions[-1].triggered.connect(self.rotation_stages_widget[-1].show)
+                self.menuDevices.addAction(self.rotation_actions[-1])
+
 
     def update_laser(self):
         """
@@ -100,7 +113,6 @@ class MainWindow(QtGui.QMainWindow):
     def update_wavelength(self, value):
         """
         Updates the wavelength text and laser. It is triggered from the sliding bar.
-
 
         .. todo:: The value is in the range (0, something) and is converted to wavelength assuming the lower limit of
         the laser is 1480, which is true for the Santec, but not universal. The should be a way of retrieving the lower

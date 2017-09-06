@@ -10,6 +10,20 @@ TSL-710:
     type: GPIB
     port: 1
   defaults: config/devices_defaults.yml #setting defaults will trigger an action after initializing each device with model/lib/device.py class
+  outputs:
+    - wavelength
+    - powermW
+
+ThorRotation1:
+  type: Rotation Stage
+  name: Rotation 1
+  driver: controller.thorlabs.tdc001/TDC011
+  description: Laser Power 1
+  connection:
+    type: daq  # Even if it is not a DAQ, it initializes the driver correctly.
+    port: 83843619
+  outputs:
+    - position
 
 PhotoDiode1:
   name: Photodiode Test

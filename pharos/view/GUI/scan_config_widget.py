@@ -31,18 +31,17 @@ class ScanConfigWidget(QtGui.QWidget):
         self.remove_device_button.clicked[bool].connect(self.remove_last_device)
         self.i = 0
 
-    def populate_devices(self, daqs):
+    def populate_devices(self, experiment):
         """ Adds group boxes for all the output devices connected to the daqs and Time at the end.
-        :param daqs: Dictionary of daqs containing the devices connected Check the measurement class for the definition."""
-        for d in daqs:
-            for dev in daqs[d]['output']:
-                self.devices[dev.properties['name']] = dev
-            for dev in daqs[d]['input']:
-                self.devices_input.append(dev)
+        :param experiment: Experiment class."""
 
-        self.devices['time'] = 'time'
+        for d in experiment.output_devices:
+            self.devices[d] = []
+            for o in d['outputs']:
+                self.devices.append({'dev': d,
+                                    'output': o})
 
-        self.add_new_device()
+                self.add_new_device(self.devices[-1])
 
     def configure_monitors(self, devs_to_monitor):
         for dev in devs_to_monitor:
@@ -78,8 +77,10 @@ class ScanConfigWidget(QtGui.QWidget):
             self.monitors[m]['widget'].close()
             self.monitors[m]['widget'].deleteLater()
 
-    def add_new_device(self):
-        self.devices_widget.append(DeviceScan(self.devices, parent=self))
+    def add_new_device(self, dev):
+        ind = len(self.devices_widget)
+        name = "{} => {}".format(dev['dev'], dev['output'])
+        self.devices_widget.append(DeviceScan(name=name, index=ind, parent=self))
         self.devices_layout.addWidget(self.devices_widget[-1])
 
     def remove_last_device(self):
@@ -88,40 +89,39 @@ class ScanConfigWidget(QtGui.QWidget):
         del self.devices_widget[-1]
 
     def get_devices_and_values(self):
-        values = {}
         for dev in self.devices_widget:
             v = dev.get_values()
-            #values[v['name']] = v['values']
-            
-        return v
+            if v['radio']:
+                values = v
+        dev = self.devices[values['index']]
+        values['device'] = dev
+        return values
 
 
 class DeviceScan(QtGui.QWidget):
-    def __init__(self, devices=None, parent=None):
+    def __init__(self, name=None, index=0, parent=None):
         QtGui.QWidget.__init__(self, parent=parent)
 
-        self.devices = devices
+        self.device = device
 
         self.layout = QtGui.QHBoxLayout()
-        self.dropdown = QtGui.QComboBox()
+        self.dev_name = QtGui.QLineEdit()
+        if name is not None:
+            self.dev_name.setText(name)
         self.min_line = QtGui.QLineEdit()
         self.max_line = QtGui.QLineEdit()
         self.step_line = QtGui.QLineEdit()
+        self.radio = QtGui.QRadioButton()
 
-        self.dropdown.currentIndexChanged.connect(self.check_limits)
-        self.min_line.editingFinished.connect(self.check_limits)
-        self.max_line.editingFinished.connect(self.check_limits)
-        self.step_line.editingFinished.connect(self.check_limits)
-
-        self.layout.addWidget(self.dropdown)
+        self.layout.addWidget(self.radio)
+        self.layout.addWidget(self.dev_name)
         self.layout.addWidget(self.min_line)
         self.layout.addWidget(self.max_line)
         self.layout.addWidget(self.step_line)
 
         self.setLayout(self.layout)
+        self.index = index
 
-        for dev in devices:
-            self.dropdown.addItem(dev)
 
     def check_limits(self):
         red_background =  "QLineEdit { background: rgb(255, 20, 20); selection-background-color: rgb(233, 99, 0); }"
@@ -155,19 +155,14 @@ class DeviceScan(QtGui.QWidget):
             self.max_line.setStyleSheet(white_background)
 
     def get_values(self):
-        dev_name = self.dropdown.currentText()
-        if dev_name == 'time':
-            min_value = self.min_line.text()
-            max_value = self.max_line.text()
-            step_value = 1
-        else:
-            min_value = Q_(self.min_line.text())
-            max_value = Q_(self.max_line.text())
-            step_value = Q_(self.step_line.text())
+        min_value = Q_(self.min_line.text())
+        max_value = Q_(self.max_line.text())
+        step_value = Q_(self.step_line.text())
 
         values = {
-            'name': dev_name,
-            'range': [min_value, max_value, step_value,]
+            'index': self.index,
+            'radio': self.radio.isChecked(),
+            'range': [min_value, max_value, step_value, ]
         }
         return values
 

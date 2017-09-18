@@ -136,10 +136,10 @@ class ni(DaqBase):
         t.CreateDOChan(channel, None, nidaq.DAQmx_Val_ChanPerLine)
 
         if status:
-            status = nidaq.int32(1)
+            status = -1
         else:
-            status = nidaq.int32(0)
-
+            status = 0
+        print('Status: {}'.format(status))
         t.WriteDigitalScalarU32(nidaq.bool32(True), 0, status, None)
 
     def from_units_to_volts(self, value, dev):
@@ -221,10 +221,6 @@ class ni(DaqBase):
         nidaq.DAQmxResetDevice('Dev%s' % self.daq_num)
 
 if __name__ == '__main__':
-    a = ni(3)
-    b = 10*Q_('ms')
-    print(type(b))
-    # b = Q_(b, 'seconds')
-    print(1/b.to('seconds'))
-    print(nidaq.DAQmx_Val_Falling)
-    print(b.magnitude)
+    import time
+    a = ni(2)
+    a.digital_output('PFI1',False)

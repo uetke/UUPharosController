@@ -23,12 +23,14 @@ class TDC(Driver):
         if not isinstance(serial, str):
             serial = str(serial)
         self.serial = serial.encode('utf-8')
-        print(self.serial)
         self.lib.CC_Open(self.serial)
         self.lib.CC_LoadSettings(self.serial)
-        self.lib.CC_StartPolling(self.serial, ctypes.c_int(500))
+        self.lib.CC_StartPolling(self.serial, ctypes.c_int(100))
         self.num_position = self.lib.CC_GetNumberPositions(self.serial)
 
+        # Position in device units to know if it finished moving.
+        self.raw_target_position = 0
+        self.raw_position = 0
 
     @Feat()
     def can_home(self):
@@ -46,11 +48,13 @@ class TDC(Driver):
     def position(self):
         # In device units
         dev_position = self.lib.CC_GetPosition(self.serial)
+        self.raw_position = int(dev_position)
         return dev_position/self.num_position*360*Q_('deg')
 
     @position.setter
     def position(self, value):
         dev_position = int(value/360*self.num_position)
+        self.raw_target_position = int(dev_position)
         dev_position = ctypes.c_int(dev_position)
         self.lib.CC_MoveToPosition(self.serial, dev_position)
 
@@ -136,6 +140,10 @@ class TDC(Driver):
     @Action()
     def home_device(self):
         self.lib.CC_Home(self.serial)
+
+    @Feat()
+    def finished_moving(self):
+        return self.raw_target_position == self.raw_position
 
 
 if __name__ == '__main__':

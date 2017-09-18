@@ -127,6 +127,21 @@ class ni(DaqBase):
     def from_volt_to_units(self, value, dev):
         pass
 
+    def digital_output(self, port, status):
+        """ Sets the port of the digital_output to status (either True or False)
+        """
+        t = nidaq.Task()
+        dev = 'Dev%s' % self.daq_num
+        channel = "Dev%s/%s" % (self.daq_num, port)
+        t.CreateDOChan(channel, None, nidaq.DAQmx_Val_ChanPerLine)
+
+        if status:
+            status = nidaq.int32(1)
+        else:
+            status = nidaq.int32(0)
+
+        t.WriteDigitalScalarU32(nidaq.bool32(True), 0, status, None)
+
     def from_units_to_volts(self, value, dev):
         units = Q_(dev.properties['calibration']['units'])
         slope = dev.properties['calibration']['slope'] * units

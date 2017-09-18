@@ -35,6 +35,9 @@ scan:
       name: Rotation 1
       range: [35deg, 55deg, 1deg]
       property: position
+  shutter:
+    port: PFI2
+    delay: 1s
   detectors:
     - Photodiode Test
     - Photodiode 2

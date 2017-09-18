@@ -258,7 +258,8 @@ class MainWindow(QtGui.QMainWindow):
             start_dev = self.experiment.scan['axis']['device']['range'][0]
             stop_dev = self.experiment.scan['axis']['device']['range'][1]
             step_dev = self.experiment.scan['axis']['device']['range'][2]
-
+            
+           
             axis = {'wavelength':
                         {'start': start_wl,
                          'stop': stop_wl,
@@ -267,7 +268,7 @@ class MainWindow(QtGui.QMainWindow):
                         {'start': start_dev,
                          'stop': stop_dev,
                          'step': step_dev,
-                         'name': self.experiment.scan['axis']['device']['name']}}
+                         'name': self.experiment.scan['axis']['device']['dev']['dev'].properties['name']}}
 
             self.scan_widget.configure_monitors(devs_to_monitor)
             self.scan_widget.open_monitor(devs_to_monitor)

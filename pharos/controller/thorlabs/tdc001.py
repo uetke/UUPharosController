@@ -9,7 +9,8 @@ from lantz import Q_
 from .data_types import MOT_DC_PIDParameters, TLI_HardwareInformation, MOT_HomingParameters,\
     MOT_JogParameters
 
-class TDC011(Driver):
+
+class TDC(Driver):
     LIBRARY_NAME = 'Thorlabs.MotionControl.TCube.DCServo.DLL'
 
     def __init__(self, serial, *args, **kwargs):
@@ -22,6 +23,7 @@ class TDC011(Driver):
         if not isinstance(serial, str):
             serial = str(serial)
         self.serial = serial.encode('utf-8')
+        print(self.serial)
         self.lib.CC_Open(self.serial)
         self.lib.CC_LoadSettings(self.serial)
         self.lib.CC_StartPolling(self.serial, ctypes.c_int(500))
@@ -140,17 +142,18 @@ if __name__ == '__main__':
     import os
     import time
     os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorlabs\\Kinesis'
-    with TDC011("83843619") as inst:
-        inst.enable_channel()
-        print('Position: {}'.format(inst.position))
-        new_pos = 102*Q_('deg')
-        # inst.position = new_pos
+    inst = TDC(83860737)
+    inst.enable_channel()
+    print('Position: {}'.format(inst.position))
+    new_pos = 102*Q_('deg')
+    # inst.position = new_pos
+    time.sleep(1)
+    inst.lib.CC_Home(inst.serial)
+    while True:
+        # mt, mi, md = inst.get_next_message()
+        # print('Message Type: {}'.format(mt))
+        # print('Message ID: {}'.format(mi))
+        # print('Message Data: {}'.format(md))
+        print(inst.position)
         time.sleep(1)
-        inst.lib.CC_Home(inst.serial)
-        while True:
-            # mt, mi, md = inst.get_next_message()
-            # print('Message Type: {}'.format(mt))
-            # print('Message ID: {}'.format(mi))
-            # print('Message Data: {}'.format(md))
-            print(inst.position)
-            time.sleep(1)
+            

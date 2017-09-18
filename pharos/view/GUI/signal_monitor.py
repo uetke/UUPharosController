@@ -112,7 +112,7 @@ class SignalMonitorWidget(QtGui.QWidget):
                     d1 = self.ydata[:self.len_ydata]
                     d2 = self.ydata[self.len_ydata:]
                     data = np.vstack((self.wavelength, d1, d2))
-                f.write(header)
+                f.write(header.encode('ascii'))
                 np.savetxt(f, data.T, fmt='%7.5f')
             print('Data saved to %s' % file)
         else:

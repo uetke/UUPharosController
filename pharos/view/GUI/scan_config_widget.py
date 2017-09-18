@@ -24,7 +24,7 @@ class ScanConfigWidget(QtGui.QWidget):
 
         self.devices_widget = []
         self.devices_input = []
-        self.devices = {}
+        self.devices = []
         self.monitors = {}
 
         self.add_device_button.clicked[bool].connect(self.add_new_device)
@@ -36,8 +36,8 @@ class ScanConfigWidget(QtGui.QWidget):
         :param experiment: Experiment class."""
 
         for d in experiment.output_devices:
-            self.devices[d] = []
-            for o in d['outputs']:
+            self.devices = []
+            for o in d.properties['outputs']:
                 self.devices.append({'dev': d,
                                     'output': o})
 
@@ -94,15 +94,14 @@ class ScanConfigWidget(QtGui.QWidget):
             if v['radio']:
                 values = v
         dev = self.devices[values['index']]
-        values['device'] = dev
+        values['dev'] = dev
+        
         return values
 
 
 class DeviceScan(QtGui.QWidget):
     def __init__(self, name=None, index=0, parent=None):
         QtGui.QWidget.__init__(self, parent=parent)
-
-        self.device = device
 
         self.layout = QtGui.QHBoxLayout()
         self.dev_name = QtGui.QLineEdit()

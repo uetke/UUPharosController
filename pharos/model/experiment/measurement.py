@@ -4,7 +4,9 @@ import time
 from lantz import Q_
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
 from pharos.config import config
+import os
 
+os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorlabs\\Kinesis'
 
 class Measurement(object):
     def __init__(self, measure):
@@ -47,10 +49,8 @@ class Measurement(object):
         for k in self.devices:
             dev = self.devices[k]
             print('Starting %s' % dev.properties['name'])
-            try:
-                dev.initialize_driver()
-            except:
-                print('Error initializing %s' % dev.properties['name'])
+            dev.initialize_driver()
+            #    print('Error initializing %s' % dev.properties['name'])
             if 'defaults' in dev.properties:
                 defaults_file = dev.properties['defaults']
                 defaults = from_yaml_to_dict(defaults_file)[dev.properties['name']]
@@ -119,7 +119,8 @@ class Measurement(object):
         num_points = int(
             (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['interval_trigger'])*laser.params['wavelength_sweeps']
         
-        dev_to_scan = scan['axis']['device']['dev']['name']
+        dev_to_scan = scan['axis']['device']['dev']['dev']
+        output_to_scan = scan['axis']['device']['dev']['output']
         if dev_to_scan != 'time':
             dev_range = scan['axis']['device']['range']
             start = Q_(dev_range[0])
@@ -179,8 +180,8 @@ class Measurement(object):
         """
         scan = self.scan
         laser = self.devices[scan['laser']['name']]
-        dev_to_scan = scan['axis']['device']['dev']['name']
-        output = scan['axis']['device']['output']
+        dev_to_scan = scan['axis']['device']['dev']['dev'].properties['name']
+        output = scan['axis']['device']['dev']['output']
         approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['wavelength_speed']
         # Scan the laser and the values of the given device
         if dev_to_scan != 'time':
@@ -213,15 +214,16 @@ class Measurement(object):
         """
         dev = self.devices[dev_name]
         # If it is an analog channel
-        if dev.properties['type'] == 'daq':
-            daq = self.devices[dev.properties['connection']['device']]
-            conditions = {
-                'dev': dev,
-                'value': value
-            }
-            daq.driver.analog_output_dc(conditions)
+        if 'model' in dev.properties:
+            if dev.properties['model'] == 'ni':
+                daq = self.devices[dev.properties['connection']['device']]
+                conditions = {
+                    'dev': dev,
+                    'value': value
+                }
+                daq.driver.analog_output_dc(conditions)
         else:
-            self.devices[dev.dev.properties['name']].apply_values(value)
+            dev.apply_values(value)
 
     def setup_continuous_scans(self, monitor=None):
         """ Sets up scans that continuously start. This is useful for monitoring a signal over time.

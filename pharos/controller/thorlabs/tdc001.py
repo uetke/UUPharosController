@@ -16,10 +16,7 @@ class TDC(Driver):
     def __init__(self, serial, *args, **kwargs):
         super().__init__(*args, **kwargs)
         filename = ctypes.util.find_library(self.LIBRARY_NAME)
-        try:
-            self.lib = ctypes.cdll.LoadLibrary(filename)
-        except:
-            raise Exception('ERROR')
+        self.lib = ctypes.cdll.LoadLibrary(filename)
         if not isinstance(serial, str):
             serial = str(serial)
         self.serial = serial.encode('utf-8')
@@ -53,6 +50,7 @@ class TDC(Driver):
         dev_position = int(value/360*self.num_position)
         dev_position = ctypes.c_int(dev_position)
         self.lib.CC_MoveToPosition(self.serial, dev_position)
+
 
     @Action()
     def clear_message_queue(self):
@@ -150,10 +148,9 @@ if __name__ == '__main__':
     time.sleep(1)
     inst.lib.CC_Home(inst.serial)
     while True:
-        # mt, mi, md = inst.get_next_message()
-        # print('Message Type: {}'.format(mt))
-        # print('Message ID: {}'.format(mi))
-        # print('Message Data: {}'.format(md))
+        mt, mi, md = inst.get_next_message()
+        print('Message Type: {}'.format(mt))
+        print('Message ID: {}'.format(mi))
+        print('Message Data: {}'.format(md))
         print(inst.position)
         time.sleep(1)
-            

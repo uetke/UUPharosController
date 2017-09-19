@@ -180,7 +180,10 @@ class Measurement(object):
         shutter = self.scan['shutter']
         ni_daq = self.devices['NI-DAQ']
         ni_daq.driver.digital_output(shutter['port'], False)
-        delay = Q_(shutter['delay'])
+        if not isinstance(shutter['delay'], Q_):
+            delay = Q_(shutter['delay'])
+        else:
+            delay = shutter['delay']
         delay = delay.m_as('s')
         time.sleep(delay)
         ni_daq.driver.digital_output(shutter['port'], True)

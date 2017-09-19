@@ -56,7 +56,6 @@ class ScanMonitorWidget(QtGui.QWidget):
 
         self.viewport = GraphicsLayoutWidget()
 
-
         self.pos = [self.wavelength['start'].m, self.y_axis['start'].m]
         self.accuracy = [self.wavelength['step'].m, self.y_axis['step'].m]
 

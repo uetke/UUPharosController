@@ -247,6 +247,12 @@ class MainWindow(QtGui.QMainWindow):
         if len(devs_to_monitor) > 0:
 
             self.experiment.scan['detectors'] = devs_to_monitor
+            # Read the delay from the GUI
+            delay = self.scan_widget.delay.text()
+            if delay != "":
+                delay = Q_(delay)
+                self.experiment.scan['shutter']['delay'] = delay
+
             self.experiment.scan['laser']['params'] = self.laser_widget.update_laser_values()
             self.experiment.scan['axis']['device'] = self.scan_widget.get_devices_and_values()
             self.experiment.setup_scan()
@@ -258,8 +264,7 @@ class MainWindow(QtGui.QMainWindow):
             start_dev = self.experiment.scan['axis']['device']['range'][0]
             stop_dev = self.experiment.scan['axis']['device']['range'][1]
             step_dev = self.experiment.scan['axis']['device']['range'][2]
-            
-           
+
             axis = {'wavelength':
                         {'start': start_wl,
                          'stop': stop_wl,

@@ -222,7 +222,7 @@ class Measurement(object):
                 self.set_value_to_device(dev_to_scan, {output: value * units})
                 dev = self.devices[dev_to_scan]
                 time.sleep(0.1)
-                while not dev.finished_moving:
+                while not dev.driver.finished_moving:
                     time.sleep(0.2)
 
             self.do_line_scan()

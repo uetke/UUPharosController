@@ -87,6 +87,16 @@ class Measurement(object):
             dev = self.devices[d]
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
 
+    def sync_shutter(self):
+        """ Opens and closes the shutter to be sure the digout high means shutter open."""
+        shutter = self.scan['shutter']
+        ni_daq = self.devices['NI-DAQ']
+        ni_daq.driver.digital_output(shutter['port'], False)
+        time.sleep(0.2)
+        ni_daq.driver.digital_output(shutter['port'], True)
+        time.sleep(0.2)
+        ni_daq.driver.digital_output(shutter['port'], False)
+
     def setup_scan(self):
         """ Prepares the scan by setting all the parameters to the DAQs and laser.
         ALL THIS IS WORK IN PROGRESS, THAT WORKS WITH VERY SPECIFIC SETUP CONDITIONS!
@@ -163,16 +173,23 @@ class Measurement(object):
         self.measure['scan']['approx_time_to_scan'] = approx_time_to_scan
 
     def do_line_scan(self):
-        """ Does the wavelength scan and gets the data from the DAQ.
+        """ Does the wavelength scan.
         After a line scan, the different devices should be increased by 1, etc."""
         scan = self.scan
         laser = self.devices[scan['laser']['name']]
+        shutter = self.scan['shutter']
+        ni_daq = self.devices['NI-DAQ']
+        ni_daq.driver.digital_output(shutter['port'], False)
+        delay = Q_(shutter['delay'])
+        delay = delay.m_as('s')
+        time.sleep(delay)
+        ni_daq.driver.digital_output(shutter['port'], True)
         laser.driver.execute_sweep()
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']*laser.params['wavelength_sweeps']
 
         while laser.driver.sweep_condition != 'Stop':
-            sleep(approx_time_to_scan.m*1.1)  # It checks 3 times, maybe overkill?
-
+            sleep(approx_time_to_scan.m*1.1)
+        ni_daq.driver.digital_output(shutter['port'], False)
         return True
 
     def do_scan(self):

@@ -136,7 +136,7 @@ class ni(DaqBase):
         t.CreateDOChan(channel, None, nidaq.DAQmx_Val_ChanPerLine)
 
         if status:
-            status = -1
+            status = -1  # With this value, the digital output is set to High
         else:
             status = 0
         print('Status: {}'.format(status))

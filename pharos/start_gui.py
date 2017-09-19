@@ -45,7 +45,8 @@ experiment.load_devices()  # Uses the file specified in the YAML
 experiment.initialize_devices()
 experiment.connect_all_devices_to_daq()
 experiment.connect_monitor_devices_to_daq()
-
+experiment.sync_shutter()
+# Starting the GUI
 m = MainWindow(experiment)
 m.show()
 ap.exit(ap.exec_())

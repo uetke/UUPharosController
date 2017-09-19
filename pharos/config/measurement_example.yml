@@ -37,7 +37,7 @@ scan:
       property: position
   shutter:
     port: PFI2
-    delay: 1s
+    delay: 100ms
   detectors:
     - Photodiode Test
     - Photodiode 2

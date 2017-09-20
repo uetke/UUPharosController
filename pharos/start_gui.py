@@ -8,10 +8,11 @@
 """
 import yaml
 import sys
+from PyQt4.Qt import QApplication
+
 from pharos.model.lib.session import session
 from pharos.model.lib.general_functions import from_yaml_to_devices
 from pharos.view.main_window import MainWindow
-from PyQt4.Qt import QApplication
 from pharos.model.lib.general_functions import from_yaml_to_dict, start_logger, stop_logger
 from pharos.model.experiment.measurement import Measurement
 

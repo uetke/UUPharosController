@@ -1,3 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+    Measurement class
+    =================
+
+    The measurement class is a general idea in which to lay out the logic of the experiment to perform. There are not
+    predefined boundaries. The main idea is that a dictionary constructed from a yaml file is passed as argument. Each
+    main key of the dictionary will be available straight in the class as `self.main_key`.
+
+    Having a dictionary
+
+"""
 import numpy as np
 from time import sleep
 import time

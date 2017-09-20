@@ -2,7 +2,6 @@
 ---
 # Configures the steps of an experiment
 
-
 init:
   devices: 'config/devices.yml'
 
@@ -41,8 +40,6 @@ scan:
   detectors:
     - Photodiode Test
     - Photodiode 2
-
-
 
 finish:
   TSL-10:

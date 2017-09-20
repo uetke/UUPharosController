@@ -54,59 +54,62 @@ class ScanMonitorWidget(QtGui.QWidget):
         num_y_points = int(num_y_points.m)+1
         self.num_y_points = num_y_points
 
-        self.viewport = GraphicsLayoutWidget()
+        # self.viewport = GraphicsLayoutWidget()
 
         self.pos = [self.wavelength['start'].m, self.y_axis['start'].m]
         self.accuracy = [self.wavelength['step'].m, self.y_axis['step'].m]
 
         if self.two_way:
-            self.resize(450, 900)
-            self.view1 = self.viewport.addViewBox(row=0, col=0, lockAspect=False, enableMenu=True)
-            self.autoScale = QtGui.QAction("Auto Range", self.view1.menu)
+            self.resize(1200, 500)
+            self.view1 = pg.PlotItem()
+            self.view1.setLabel(axis='left', text='<h1>{} ({:~})</h1>'.format(self.y_axis['name'], units_y))
+            self.view1.setLabel(axis='bottom', text='<h1>wavelength (nm)</h1>')
+            self.imv1 = pg.ImageView(view=self.view1)
+            vb = self.view1.getViewBox()
+            vb.setAspectLocked(lock=False)
+            self.autoScale = QtGui.QAction("Auto Range", vb.menu)
             self.autoScale.triggered.connect(self.doAutoScale)
-            self.view1.menu.addAction(self.autoScale)
+            vb.menu.addAction(self.autoScale)
 
-            self.view2 = self.viewport.addViewBox(row=0, col=1, lockAspect=False, enableMenu=True)
-            self.autoScale = QtGui.QAction("Auto Range", self.view2.menu)
+            self.view2 = pg.PlotItem()
+            self.view2.setLabel(axis='left', text='<h1>{} ({:~})</h1>'.format(self.y_axis['name'], units_y))
+            self.view2.setLabel(axis='bottom', text='<h1>wavelength (nm)</h1>')
+            self.imv2 = pg.ImageView(view=self.view2)
+            vb = self.view2.getViewBox()
+            vb.setAspectLocked(lock=False)
+            vb.autoRange()
+            self.autoScale = QtGui.QAction("Auto Range", vb.menu)
             self.autoScale.triggered.connect(self.doAutoScale)
-            self.view2.menu.addAction(self.autoScale)
+            vb.menu.addAction(self.autoScale)
 
             self.data = np.zeros((2*num_wl_points*num_y_points))
-            
-            self.len_1_way = int(self.data.shape[0]/2)
-            d1 = self.data[:self.len_1_way]
-            d1 = np.reshape(d1,(num_wl_points, num_y_points))
-            d2 = self.data[self.len_1_way:]
-            d2 = np.reshape(d2,(num_wl_points, num_y_points))
+            d = np.reshape(self.data, (self.num_y_points, 2 * self.num_wl_points))
+            d1 = d[:, :self.num_wl_points]
+            d2 = d[:, -1:self.num_wl_points - 1:-1]
+            self.d1 = d1
+            self.d2 = d2
 
-            self.img1 = pg.ImageItem(border='w')
-            self.view1.addItem(self.img1)
-            self.imv1 = pg.ImageView(view=self.view1, imageItem=self.img1)
-            self.img2 = pg.ImageItem(border='w')
-            self.view2.addItem(self.img2)
-            self.imv2 = pg.ImageView(view=self.view2, imageItem=self.img2)
+            self.imv1.setImage(d1, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
+            self.imv2.setImage(d2, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
 
             self.layout.addWidget(self.imv1)
             self.layout.addWidget(self.imv2)
 
-            self.img1.setImage(d1, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
-            self.img2.setImage(d2[::-1], pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=False, autoHistogramRange=False)
-            print('Two way plots')
-
         else:
-            self.resize(450, 450)
-            self.view = self.viewport.addViewBox(lockAspect=False, enableMenu=True)
-            self.autoScale = QtGui.QAction("Auto Range", self.view.menu)
+            self.resize(750, 500)
+            self.view = pg.PlotItem()
+            self.view.setLabel(axis='left', text='<h1>{} ({:~})</h1>'.format(self.y_axis['name'], units_y))
+            self.view.setLabel(axis='bottom', text='<h1>wavelength (nm)</h1>')
+            self.imv = pg.ImageView(view=self.view)
+            vb = self.view.getViewBox()
+            vb.setAspectLocked(lock=False)
+            self.autoScale = QtGui.QAction("Auto Range", vb.menu)
             self.autoScale.triggered.connect(self.doAutoScale)
-            self.view.menu.addAction(self.autoScale)
-            self.data = np.zeros((num_wl_points*num_y_points))
-            d = np.reshape(self.data,(self.num_wl_points, self.num_y_points))
+            vb.menu.addAction(self.autoScale)
 
-            self.img = pg.ImageItem(border='w')
-            self.view.addItem(self.img)
-            self.imv = pg.ImageView(view=self.view, imageItem=self.img)
-            self.img.setImage(d, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True,
-                              autoHistogramRange=True)
+            self.data = np.zeros((num_wl_points * num_y_points))
+            d = np.reshape(self.data, (self.num_wl_points, self.num_y_points))
+            self.imv.setImage(d, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
             self.layout.addWidget(self.imv)
         self.setLayout(self.layout)
 
@@ -164,12 +167,12 @@ class ScanMonitorWidget(QtGui.QWidget):
             d2 = d[:, -1:self.num_wl_points-1:-1]
             self.d1 = d1
             self.d2 = d2
-            self.img1.setImage(d1.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
-            self.img2.setImage(d2.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
+            self.imv1.setImage(d1.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
+            self.imv2.setImage(d2.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
         else:
             d = np.reshape(self.data, (self.num_y_points, self.num_wl_points))
             self.d = d
-            self.img.setImage(d.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
+            self.imv.setImage(d.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
 
     def save(self):
         """Save the data to disk.
@@ -220,10 +223,42 @@ class ScanMonitorWidget(QtGui.QWidget):
 
     def doAutoScale(self):
         if self.two_way:
-            h, y = self.img1.getHistogram()
+            img1 = self.imv1.getImageItem()
+            h, y = img1.getHistogram()
             self.imv1.setLevels(min(h), max(h))
-            h, y = self.img2.getHistogram()
+            img2 = self.imv2.getImageItem()
+            h, y = img2.getHistogram()
             self.imv2.setLevels(min(h), max(h))
         else:
-            h, y = self.img.getHistogram()
+            img = self.imv.getImageItem()
+            h, y = img.getHistogram()
             self.imv.setLevels(min(h), max(h))
+
+if __name__ == "__main__":
+    import sys
+    from PyQt4.Qt import QApplication
+    from lantz import Q_
+    import numpy as np
+
+    ap = QApplication(sys.argv)
+    m = ScanMonitorWidget()
+    axis = {
+        'wavelength':
+            {'stop': Q_('1500nm'),
+             'start': Q_('1200nm'),
+             'step': Q_('1nm')},
+        'y_axis': {
+            'name': 'y_axis',
+            'start': Q_('1mm'),
+            'stop': Q_('10mm'),
+            'step': Q_('1mm'),
+        }
+
+    }
+    m.two_way = True
+    m.set_axis(axis)
+
+    d = np.random.random_sample((3000))
+    m.set_data(d)
+    m.show()
+    ap.exit(ap.exec_())

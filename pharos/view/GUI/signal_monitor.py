@@ -39,7 +39,7 @@ class SignalMonitorWidget(QtGui.QWidget):
         self.layout.removeWidget(self.main_plot)
         self.main_plot.deleteLater()
         self.main_plot = pg.PlotWidget()
-        self.main_plot.setLabel('bottom', 'Wavelength', units='nm')
+        self.main_plot.setLabel('bottom', '<h1>Wavelength (nm)</h1>')
         self.layout.addWidget(self.main_plot)
         self.ydata = None
         self.wavelength = None

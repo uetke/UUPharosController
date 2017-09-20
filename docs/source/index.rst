@@ -66,3 +66,4 @@ methods.
 
    yaml_files
    devices
+   NI_Model

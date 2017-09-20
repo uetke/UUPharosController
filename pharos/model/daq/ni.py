@@ -1,7 +1,31 @@
 """
-    Pharos.Model.daq.ni.py
-    ==================================
-    National Instruments model for acquiring analog signals.
+    NI model class
+    ==============
+    **National Instruments model for acquiring and generating signals.**
+
+    .. warning:: This model relies on the PyDAQmx package.
+
+    This class defines several methods that are useful when dealing with experiments. For example, when acquiring an
+    analog signal, the method `analog_input_setup` takes within its arguments a list of `Devices` and it takes care of
+    checking their limits, connection port, etc.
+
+    If you are planning to add something to your experiment that the NI class does not support yet, the best is to look
+    at the documentation **NI-DAQmx C Reference Help** (http://zone.ni.com/reference/en-XX/help/370471AA-01/). PyDAQmx
+    wrapped all the C functions, removing the initial 'DAQmx' from the name, and the task handle is implicitly defined.
+
+    The logic to add a new function here would be, for example: check if there is already something similar happening,
+    for example if the same type of channel is already covered in the class and try to build from that example. If not, go
+    to the documentation of NI and try to build a quick and simple python script that does what you are expecting. In this
+    way you can be sure you understood what you are supposed to achieve. Then, write methods within this class that allow
+    you to setup and trigger the new task. Sometimes the splitting between setting up and triggering is useful, since it
+    allow you to trigger several times the same task without redefining it.
+
+    Bear in mind that you will have access to specific information from outside the NI class. For example you can pass
+    devices as arguments, and they will carry all the information you set up in the YAML file. If what you need is not
+    yet covered, go back to the YAML and add it, then continue editing the NI class. Remember that adding is easy, removing
+    or renaming implies that you have to check all the downstream code, and being YML the first step, it will imply reviewing
+    everything.
+    
 
     .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
 """
@@ -11,8 +35,8 @@ from pharos.config import config
 from pharos.model.daq._skeleton import DaqBase
 from lantz import Q_
 
-class ni(DaqBase):
 
+class ni(DaqBase):
     def __init__(self, daq_num=1):
         """Class trap for condensing tasks that can be used for interacting with an optical trap.
         session -- class with important variables, including the adq card.

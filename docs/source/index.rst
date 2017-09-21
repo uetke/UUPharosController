@@ -58,11 +58,25 @@ With this logic in mind, a GUI is nothing but a way of passing values to the exp
 methods.
 
 
+Adding a new feature
+********************
+If you want to add a new feature, you can check this guide that walks you step by step.
+:doc:`adding_feature`
+
+Understanding
+*************
+If you want to understand different parts of the code, you can check:
+
+- :doc:`yaml_files`
+- :doc:`experiment_class`
+- :doc:`NI_Model`
+- :doc:`devices`
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   :hidden:
 
    yaml_files
    devices

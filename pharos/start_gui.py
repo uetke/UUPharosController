@@ -1,7 +1,7 @@
 """
     start_gui
     =========
-    Starting point for the GUI of the program. It loads the configuration files and startes the experiment class.
+    Starting point for the GUI of the program. It loads the configuration files and starts the experiment class.
     Then it builds the main Window GUI.
 
     .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>

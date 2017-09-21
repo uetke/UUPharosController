@@ -4,21 +4,19 @@
 Santec Laser:
   wavelength: 1520 nm
   start_wavelength: 1492 nm
-  stop_wavelength: 1548 nm
-  power: 1 mW
-  speed: 50 nm/s
-  steps: 100
-  step: 1 nm
+  stop_wavelength: 1493 nm
+  wavelength_speed:  .5 nm/s
   interval_trigger: 0.001 nm
+  sweep_mode: ContOne
+  wavelength_sweeps: 1
+  powermW: 1 mW
   wait_time: 0 ms
   step_time: 0.1 s
   wavelength_sweeps: 1
   sweep_mode: ContOne
-  sweep: continuous
-  mode: one
   trigger: False
   LD_current: True
-  auto_power: False
+  auto_power: True
   coherent_control: False
   fine_tune: False
   shutter: True

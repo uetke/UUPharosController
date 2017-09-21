@@ -207,9 +207,9 @@ class ScanMonitorWidget(QtGui.QWidget):
                 header += "{}, {}, {}\n".format(start_y, stop_y, step_y)
                 f.write(header.encode('ascii'))
                 if self.two_way:
-                    f.write('# First round\n'.encode('ascii'))
+                    f.write('# Forward direction\n'.encode('ascii'))
                     np.savetxt(f, self.d1, fmt='%7.5f')
-                    f.write('# Second round\n'.encode('ascii'))
+                    f.write('# Backward direction\n'.encode('ascii'))
                     np.savetxt(f, self.d2, fmt='%7.5f')
                 else:
                     np.savetxt(f, self.d, fmt='%7.5f')

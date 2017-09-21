@@ -229,7 +229,7 @@ class Measurement(object):
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']*laser.params['wavelength_sweeps']
 
         while laser.driver.sweep_condition != 'Stop':
-            sleep(approx_time_to_scan.m*1.1)
+            sleep(approx_time_to_scan.m/config.monitor_read_scan)
         ni_daq.driver.digital_output(shutter['port'], False)
         return True
 
@@ -405,7 +405,9 @@ class Measurement(object):
     def stop_scan(self):
         scan = self.scan
         self.stop_laser()
-
+        ni_daq = self.devices['NI-DAQ']
+        shutter = self.scan['shutter']
+        ni_daq.driver.digital_output(shutter['port'], False)
         for d in self.daqs:
             daq = self.daqs[d]
             if len(daq['monitor']) > 0:

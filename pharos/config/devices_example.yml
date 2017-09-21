@@ -17,11 +17,11 @@ TSL-710:
 ThorRotation1:
   type: Rotation Stage
   name: Rotation 1
-  driver: controller.thorlabs.tdc001/TDC011
+  driver: controller.thorlabs.tdc001/TDC
   description: Laser Power 1
   connection:
     type: daq  # Even if it is not a DAQ, it initializes the driver correctly.
-    port: 83843619
+    port: 83860737
   outputs:
     - position
 
@@ -109,8 +109,6 @@ Stage 1:
   connection:
     type: daq
     device: NI-DAQ
-
-
 
 NI-DAQ:
   name: NI-DAQ

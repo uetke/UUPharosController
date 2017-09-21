@@ -35,7 +35,7 @@ scan:
       range: [35deg, 55deg, 1deg]
       property: position
   shutter:
-    port: PFI2
+    port: PFI1
     delay: 100ms
   detectors:
     - Photodiode Test

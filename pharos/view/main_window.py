@@ -87,7 +87,7 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_widget.populate_devices(self.experiment.daqs)
 
         if len(self.experiment.rotation_stages) > 0:
-            self.roation_stages_widget = []
+            self.rotation_stages_widget = []
             self.rotation_actions = []
             for rot in self.experiment.rotation_stages:
                 dev = self.experiment.devices[rot]

@@ -13,18 +13,18 @@ class ThorlabsRotationWidgetGUI(QtGui.QWidget):
         self.go_button.clicked.connect(self.go_to)
 
         self.update_timer = QtCore.QTimer()
-        self.update_timer.start(500)
+        self.update_timer.start(1000)
         self.update_timer.timeout.connect(self.update_position)
 
     def home(self):
-        self.stage.home_device()
+        self.stage.driver.home_device()
 
     def update_position(self):
-        self.curr_position.setText("{0:f~}".format(self.stage.position))
+        self.curr_position.setText("{0:f~}".format(self.stage.driver.position))
 
     def go_to(self):
         new_pos = Q_(self.go_to_pos.text())
-        self.stage.position = new_pos
+        self.stage.driver.position = new_pos
 
 if __name__ == "__main__":
     import sys

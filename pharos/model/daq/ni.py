@@ -248,3 +248,5 @@ if __name__ == '__main__':
     import time
     a = ni(2)
     a.digital_output('PFI1',False)
+    time.sleep(0.1)
+    a.digital_output('PFI1',True)

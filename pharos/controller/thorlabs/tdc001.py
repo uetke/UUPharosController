@@ -141,6 +141,7 @@ class TDC(Driver):
 
     @Feat()
     def finished_moving(self):
+        pos = self.position
         return self.raw_target_position == self.raw_position
 
 

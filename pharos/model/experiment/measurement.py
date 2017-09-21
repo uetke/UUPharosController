@@ -4,8 +4,28 @@
     =================
 
     The measurement class is a general idea in which to lay out the logic of the experiment to perform. There are not
-    predefined boundaries. The main idea is that a dictionary constructed from a yaml file is passed as argument. Each
-    main key of the dictionary will be available straight in the class as `self.main_key`.
+    predefined boundaries. Several methods guide the step-by-step process for performing an experiment; they should be
+    ideally defined before starting to write. This guives the user a clearer idea of what needs to be developed, step
+    by step. For example, in order to perform a 2D scan of the laser and an extra device, the following methods have to
+    be defined:
+
+    - `load_devices` reads the file established in the init property of the dictionary
+    - `initialize_devices` iterates through all the devices and initializes them provided they have a driver
+    - `connect_all_devices_to_daq` checks which devices are connected to a DAQ and appends them
+
+    .. warning:: In the Experimentor program this is now done radically different.
+
+    - `synch_shutter` was added by Karindra in order to cycle through the shutter and guarantee that Digou high => shutter open
+    -
+    - `setup_scan` prepares the laser and the ADQ for the measurement, but it doesn't trigger it.
+    - `do_scan` actually is responsible for performing the 2D scan. It has a for loop that blocks the execution.
+    - `do_line_scan` does a 1D wavelength scan, it runs inside the loop of the `do_scan`
+    - `set_value_to_device` sets a particular value to a specific device, considering how it is connected, etc. It should work both with devices connected to a DAQ and to devices connected directly to the computer.
+
+    .. todo:: The class does not leverage the capabilities of Qt for threading and emitting signals
+    .. todo:: data is read but not stored within the class; maybe it should be better to have it built-in
+    .. todo:: There is no method for saving; it was introduced in the GUI. Maibe it would make it a bit more robust.
+
 
     Having a dictionary
 
@@ -23,6 +43,12 @@ os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorla
 class Measurement(object):
     def __init__(self, measure):
         """Measurement class that will hold all the information regarding the experiment being performed.
+        The main idea is that a dictionary constructed from a yaml file is passed as argument. Each
+        main key of the dictionary will be available straight in the class as `self.main_key`. See the lines that read::
+
+            for d in measure:
+                setattr(self, d, measure[d])
+
         :param measure: a dictionary with the necessary steps
         """
         self.measure = measure  # Dictionary of the measurement steps

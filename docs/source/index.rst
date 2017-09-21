@@ -67,3 +67,4 @@ methods.
    yaml_files
    devices
    NI_Model
+   experiment_class

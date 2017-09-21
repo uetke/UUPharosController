@@ -68,3 +68,4 @@ methods.
    devices
    NI_Model
    experiment_class
+   adding_feature

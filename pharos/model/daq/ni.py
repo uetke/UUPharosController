@@ -155,7 +155,6 @@ class ni(DaqBase):
         """ Sets the port of the digital_output to status (either True or False)
         """
         t = nidaq.Task()
-        dev = 'Dev%s' % self.daq_num
         channel = "Dev%s/%s" % (self.daq_num, port)
         t.CreateDOChan(channel, None, nidaq.DAQmx_Val_ChanPerLine)
 
@@ -244,9 +243,11 @@ class ni(DaqBase):
     def reset_device(self):
         nidaq.DAQmxResetDevice('Dev%s' % self.daq_num)
 
+
 if __name__ == '__main__':
-    import time
     a = ni(2)
-    a.digital_output('PFI1',False)
-    time.sleep(0.1)
-    a.digital_output('PFI1',True)
+    status = True
+    while True:
+        status = not status
+        a.digital_output('PFI1', status)
+        input()

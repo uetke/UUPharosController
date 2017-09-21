@@ -15,8 +15,7 @@
 
     .. warning:: In the Experimentor program this is now done radically different.
 
-    - `synch_shutter` was added by Karindra in order to cycle through the shutter and guarantee that Digou high => shutter open
-    -
+    - `sync_shutter` was added by Karindra in order to cycle through the shutter and guarantee that Digou high => shutter open
     - `setup_scan` prepares the laser and the ADQ for the measurement, but it doesn't trigger it.
     - `do_scan` actually is responsible for performing the 2D scan. It has a for loop that blocks the execution.
     - `do_line_scan` does a 1D wavelength scan, it runs inside the loop of the `do_scan`
@@ -27,8 +26,7 @@
     .. todo:: There is no method for saving; it was introduced in the GUI. Maibe it would make it a bit more robust.
 
 
-    Having a dictionary
-
+    .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
 """
 import numpy as np
 from time import sleep
@@ -63,7 +61,6 @@ class Measurement(object):
     def load_devices(self, source=None):
         """ Loads the devices from the files defined in the INIT part of the yml.
         :param source: Not implemented yet.
-        :return:
         """
         if source is not None:
             return
@@ -126,7 +123,10 @@ class Measurement(object):
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
 
     def sync_shutter(self):
-        """ Opens and closes the shutter to be sure the digout high means shutter open."""
+        """ Opens and closes the shutter to be sure the digout high means shutter open.
+
+        .. codeauthor:: Karindra Perrier
+        """
         shutter = self.scan['shutter']
         ni_daq = self.devices['NI-DAQ']
         ni_daq.driver.digital_output(shutter['port'], False)

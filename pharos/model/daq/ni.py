@@ -25,7 +25,7 @@
     yet covered, go back to the YAML and add it, then continue editing the NI class. Remember that adding is easy, removing
     or renaming implies that you have to check all the downstream code, and being YML the first step, it will imply reviewing
     everything.
-    
+
 
     .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
 """

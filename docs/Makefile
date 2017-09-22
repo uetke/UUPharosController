@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = python -msphinx
+SPHINXBUILD   = python /home/aquiles/.virtualenvs/pharos/bin/sphinx-build
 SPHINXPROJ    = PharosController
 SOURCEDIR     = source
 BUILDDIR      = build

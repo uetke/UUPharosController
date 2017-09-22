@@ -1,8 +1,3 @@
-.. Pharos Controller documentation master file, created by
-   sphinx-quickstart on Tue Aug 29 13:51:54 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 Welcome to Pharos Controller's documentation!
 =============================================
 The Pharos Controller can be installed as any other Python package by using the setup.py file provided. It can also be

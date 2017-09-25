@@ -6,9 +6,9 @@
 
     .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
 """
-import yaml
+
 import sys
-imort os
+import os
 from PyQt4.Qt import QApplication
 
 from pharos.model.lib.session import session

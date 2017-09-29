@@ -105,6 +105,7 @@ Once we have our devices configured, we would like to do a scan. We call this a 
       detectors:
       - Photodiode Test
       - Photodiode 2
+
 You see now that we define the laser we want to scan (in case there is more than one), and we refer to it by its name. We define some parameters and some detectors.
 
 .. note:: Because of how the parser of the YAML file works, params is going to be a dictionary, while detectors is going to be a list.
@@ -138,6 +139,7 @@ Imagine now that later on, you decide you need to have a shutter controlling a s
       shutter:
         port: PFI2
         delay: 100ms
+
 And of course we should also include what to do once the experiment is over. For example we want to close the shutter of the laser, but not switch it off:
 
 .. code-block:: yaml

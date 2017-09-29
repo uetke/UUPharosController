@@ -38,6 +38,7 @@ import os
 
 os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorlabs\\Kinesis'
 
+
 class Measurement(object):
     def __init__(self, measure):
         """Measurement class that will hold all the information regarding the experiment being performed.
@@ -74,7 +75,6 @@ class Measurement(object):
             print('Added %s to the experiment' % dev)
             if dev.properties['type'] == "Rotation Stage":
                 self.rotation_stages.append(dev.properties['name'])
-
 
     def initialize_devices(self):
         """ Initializes the devices first by loading the driver,

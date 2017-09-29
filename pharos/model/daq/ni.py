@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     NI model class
     ==============

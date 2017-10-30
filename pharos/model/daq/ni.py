@@ -84,6 +84,9 @@ class ni(DaqBase):
                 trigger_edge = nidaq.DAQmx_Val_Rising
             elif conditions['trigger_edge'] == 'falling':
                 trigger_edge = nidaq.DAQmx_Val_Falling
+            else:
+                print('Unrecognised trigger edge. Falling to default')
+                trigger_edge = config.ni_trigger_edge
         else:
             trigger_edge = config.ni_trigger_edge
 
@@ -155,6 +158,7 @@ class ni(DaqBase):
         """ Sets the port of the digital_output to status (either True or False)
         """
         t = nidaq.Task()
+        dev = 'Dev%s' % self.daq_num
         channel = "Dev%s/%s" % (self.daq_num, port)
         t.CreateDOChan(channel, None, nidaq.DAQmx_Val_ChanPerLine)
 
@@ -243,11 +247,9 @@ class ni(DaqBase):
     def reset_device(self):
         nidaq.DAQmxResetDevice('Dev%s' % self.daq_num)
 
-
 if __name__ == '__main__':
+    import time
     a = ni(2)
-    status = True
-    while True:
-        status = not status
-        a.digital_output('PFI1', status)
-        input()
+    a.digital_output('PFI1',False)
+    time.sleep(0.1)
+    a.digital_output('PFI1',True)

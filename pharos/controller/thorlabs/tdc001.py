@@ -16,6 +16,7 @@ class TDC(Driver):
     def __init__(self, serial, *args, **kwargs):
         super().__init__(*args, **kwargs)
         filename = ctypes.util.find_library(self.LIBRARY_NAME)
+        print(filename)
         self.lib = ctypes.cdll.LoadLibrary(filename)
         if not isinstance(serial, str):
             serial = str(serial)

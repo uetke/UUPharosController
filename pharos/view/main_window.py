@@ -8,6 +8,7 @@
 """
 import numpy as np
 import os
+import time
 from PyQt4 import QtCore, QtGui, uic
 from lantz import Q_
 
@@ -199,12 +200,14 @@ class MainWindow(QtGui.QMainWindow):
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
-            self.monitor_timer.start(time_to_scan/config.monitor_read_scan)
+            self.laser_condition = 'Running'
+            self.monitor_timer.start(config.monitor_read_scan)
             self.daq_enabled = True
         else:
             self.daq_enabled = False
             self.laser.driver.execute_sweep()
         self.monitor_running = True
+        self.t0 = time.time()
 
     def update_values_from_laser(self):
         """ Reads the values from the laser and passes them to the GUI. It also blocks the signals of the sliders to
@@ -219,9 +222,10 @@ class MainWindow(QtGui.QMainWindow):
         self.wavelength.setText('{:~}'.format(wl))
         self.power.setText('{:~}'.format(pw))
         condition = self.laser.driver.sweep_condition
+        self.laser_condition = condition
         self.laser_status.setText(condition)
-        if self.monitor_running and condition == 'Stop':
-            self.stop_monitor()
+        #if self.monitor_running and condition == 'Stop':
+        #    self.read_last_values()
         self.wavelength_slider.blockSignals(True)
         self.power_slider.blockSignals(True)
         self.wavelength_slider.setValue((wl.m_as('nm')-1480)/0.0001)
@@ -283,8 +287,9 @@ class MainWindow(QtGui.QMainWindow):
             self.worker_thread = WorkThread(self.experiment.do_scan)
             self.worker_thread.start()
             time_to_scan = self.experiment.measure['scan']['approx_time_to_scan'].m_as(Q_('ms'))
-            self.scan_timer.start(time_to_scan/config.monitor_read_scan)
+            self.scan_timer.start(config.monitor_read_scan)
             self.scan_running = True
+            self.t0 = time.time()
 
     def stop_scan(self):
         if self.scan_running:
@@ -296,15 +301,20 @@ class MainWindow(QtGui.QMainWindow):
     def pause_scan(self):
         """ Not yet implemented, it just stops the scan."""
         self.stop_scan()
-
+            
     def update_scans(self):
         data = self.experiment.read_continuous_scans()
         self.scan_widget.update_signal_values(data)
 
     def update_monitors(self):
         if self.daq_enabled:
+            t1 = time.time()
             data = self.experiment.read_continuous_scans()
             self.monitor_widget.update_signal_values(data)
+            self.t0 = time.time()
+            if self.laser_condition == 'Stop':
+                self.stop_monitor()
+        
         
     def stop_monitor(self):
         if not (self.monitor_running or self.monitor_paused):
@@ -312,7 +322,7 @@ class MainWindow(QtGui.QMainWindow):
 
         if self.daq_enabled:
             self.monitor_timer.stop()
-            self.update_monitors()
+            #self.update_monitors()
             self.experiment.stop_continuous_scans()
         else:
             self.experiment.stop_laser()
@@ -326,7 +336,7 @@ class MainWindow(QtGui.QMainWindow):
             self.monitor_paused = False
             self.monitor_running = True 
             return
-        self.monitor_timer.stop()
+        #self.monitor_timer.stop()
         self.experiment.pause_continuous_scans()
         self.monitor_paused = True
         self.monitor_running = False

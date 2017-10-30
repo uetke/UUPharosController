@@ -15,7 +15,8 @@
 
     .. warning:: In the Experimentor program this is now done radically different.
 
-    - `sync_shutter` was added by Karindra in order to cycle through the shutter and guarantee that Digou high => shutter open
+    - `synch_shutter` was added by Karindra in order to cycle through the shutter and guarantee that Digou high => shutter open
+    -
     - `setup_scan` prepares the laser and the ADQ for the measurement, but it doesn't trigger it.
     - `do_scan` actually is responsible for performing the 2D scan. It has a for loop that blocks the execution.
     - `do_line_scan` does a 1D wavelength scan, it runs inside the loop of the `do_scan`
@@ -26,7 +27,8 @@
     .. todo:: There is no method for saving; it was introduced in the GUI. Maibe it would make it a bit more robust.
 
 
-    .. sectionauthor:: Aquiles Carattino <aquiles@uetke.com>
+    Having a dictionary
+
 """
 import numpy as np
 from time import sleep
@@ -61,6 +63,7 @@ class Measurement(object):
     def load_devices(self, source=None):
         """ Loads the devices from the files defined in the INIT part of the yml.
         :param source: Not implemented yet.
+        :return:
         """
         if source is not None:
             return
@@ -123,10 +126,7 @@ class Measurement(object):
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
 
     def sync_shutter(self):
-        """ Opens and closes the shutter to be sure the digout high means shutter open.
-
-        .. codeauthor:: Karindra Perrier
-        """
+        """ Opens and closes the shutter to be sure the digout high means shutter open."""
         shutter = self.scan['shutter']
         ni_daq = self.devices['NI-DAQ']
         ni_daq.driver.digital_output(shutter['port'], False)
@@ -317,19 +317,28 @@ class Measurement(object):
 
         # Lets calculate the conditions of the scan
         num_points = int(
-            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['interval_trigger'])
+            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['interval_trigger'])+1
         accuracy = laser.params['interval_trigger'] / laser.params['wavelength_speed']
 
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params[
             'wavelength_speed']
 
         self.measure['monitor']['approx_time_to_scan'] = approx_time_to_scan
-
+        
+        wl_sweeps = int(monitor['laser']['params']['wavelength_sweeps'])
+        if wl_sweeps > 0:
+            num_points = num_points * wl_sweeps
+            if monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
+                num_points = num_points*2
+            sampling = 'continuous'
+        else:
+            sampling = 'continuous'
         conditions = {
             'accuracy': accuracy*.85,
             'points': num_points
         }
-
+        print('Experiment number of points: {}'.format(num_points))
+        print('Sampling: {}'.format(sampling))
         # Then setup the ADQs
         for d in self.daqs:
             daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
@@ -344,7 +353,7 @@ class Measurement(object):
                 print('Trigger: %s' % conditions['trigger'])
                 conditions['trigger_source'] = daq_driver.properties['trigger_source']
                 print('Trigger source: %s' % conditions['trigger_source'])
-                conditions['sampling'] = 'continuous'
+                conditions['sampling'] = sampling
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable
                 print('Task number: %s' % self.daqs[d]['monitor_task'])
@@ -389,6 +398,7 @@ class Measurement(object):
             daq_driver = self.devices[d]
             if len(daq['monitor']) > 0:
                 vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
+                #print('Data acquired: {}'.format(vv))
                 t1 = time.time()
                 dd = dd[:vv*len(daq['monitor'])]
                 dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
@@ -416,6 +426,23 @@ class Measurement(object):
                     daq_driver.stop_task(daq['monitor_task'])
                     daq_driver.clear_task(daq['monitor_task'])
 
+    def read_last_values(self):
+        conditions = {'points': -1} # To read all the points available
+        data = {}
+        for d in self.daqs:
+            daq = self.daqs[d]
+            daq_driver = self.devices[d]
+            if len(daq['monitor']) > 0:
+                vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
+                t1 = time.time()
+                dd = dd[:vv*len(daq['monitor'])]
+                dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
+                for i in range(len(daq['monitor'])):
+                    dev = daq['monitor'][i]
+                    data[dev.properties['name']] = dd[i,:]
+        print('Reading last values')
+        return data
+            
     def stop_continuous_scans(self):
         monitor = self.monitor
         laser = self.devices[monitor['laser']['name']].driver
@@ -437,7 +464,7 @@ class Measurement(object):
     def resume_continuous_scans(self):
         monitor = self.monitor
         laser = self.devices[monitor['laser']['name']].driver
-        laser.execute_sweep()
+        laser.resume_sweep()
 
 
 if __name__ == "__main__":

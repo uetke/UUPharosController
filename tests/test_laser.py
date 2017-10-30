@@ -18,6 +18,8 @@ class TestLaser(unittest.TestCase):
         self.inst.step_wavelength = Q_('0.1 nm')
         self.inst.sweep_mode = 'StepOne'
         self.inst.wavelength = Q_('1510 nm')
+        self.inst.wavelength_sweeps = 2
+        self.inst.wavelength_sweeps = 2
         
     def test_connection(self):
         idn = self.inst.idn

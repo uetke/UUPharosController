@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 #
 # Pharos Controller documentation build configuration file, created by
-# sphinx-quickstart on Tue Aug 29 13:51:54 2017.
+# sphinx-quickstart on Fri Sep 22 10:10:14 2017.
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -19,7 +18,12 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('C:\\Users\\Aquiles\\Documents\\Programs\\PharosController\\pharos'))
+sys.path.insert(0, os.path.abspath('../../'))
+import mock
+
+MOCK_MODULES = ['lantz', 'PyDAQmx', 'PyQt4']
+for mod_name in MOCK_MODULES:
+    sys.modules[mod_name] = mock.Mock()
 
 
 # -- General configuration ------------------------------------------------
@@ -32,9 +36,8 @@ sys.path.insert(0, os.path.abspath('C:\\Users\\Aquiles\\Documents\\Programs\\Pha
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.imgmath',
-    'sphinx.ext.githubpages',
-    'sphinx.ext.todo']
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -80,7 +83,7 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
-show_authors = True
+
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for

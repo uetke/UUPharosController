@@ -87,10 +87,6 @@ class TestLaser(unittest.TestCase):
         self.inst.stop_sweep()
         sleep(1)
         self.assertEqual(self.inst.sweep_condition, 'Stop', 'Sweep is not stopped')
-        
-        
-        
-
 
 
 if __name__ == '__main__':

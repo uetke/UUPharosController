@@ -104,11 +104,12 @@ class Measurement(object):
         """
         for d in self.devices:
             dev = self.devices[d]  # Get the device from the devices list
-            if 'device' in dev.properties['connection']:
-                connected_to = dev.properties['connection']['device']
-                mode = dev.properties['mode']
-                self.daqs[connected_to][mode].append(dev)
-                print('Appended %s to %s' % (dev, connected_to))
+            if 'connection' in dev.properties:
+                if 'device' in dev.properties['connection']:
+                    connected_to = dev.properties['connection']['device']
+                    mode = dev.properties['mode']
+                    self.daqs[connected_to][mode].append(dev)
+                    print('Appended %s to %s' % (dev, connected_to))
 
     def connect_monitor_devices_to_daq(self):
         """ Connects only the devices to be monitored to the appropriate daq
@@ -148,7 +149,8 @@ class Measurement(object):
             laser_params['wavelength_sweeps'] = 1  # This to avoid conflicts in downstream code.
         elif laser_params['wavelength_sweeps'] == 0:
             laser_params['wavelength_sweeps'] = 1  # This to avoid conflicts in downstream code.
-
+        
+        laser_params['wavelength'] = laser_params['start_wavelength']
         try:
             laser.apply_values(laser_params)
         except:
@@ -256,7 +258,7 @@ class Measurement(object):
             stop = dev_range[1]
             num_points_dev = stop
 
-        num_points_dev += 1 # So the last bit of information is true.
+        num_points_dev += 1  # So the last bit of information is true.
 
         for value in np.linspace(start, stop, num_points_dev, endpoint=True):
             if dev_to_scan != 'time':
@@ -465,6 +467,16 @@ class Measurement(object):
         monitor = self.monitor
         laser = self.devices[monitor['laser']['name']].driver
         laser.resume_sweep()
+
+    def open_shutter(self):
+        shutter = self.scan['shutter']
+        ni_daq = self.devices['NI-DAQ']
+        ni_daq.driver.digital_output(shutter['port'], True)
+
+    def close_shutter(self):
+        shutter = self.scan['shutter']
+        ni_daq = self.devices['NI-DAQ']
+        ni_daq.driver.digital_output(shutter['port'], False)
 
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@ from pharos.view.GUI.scan_config_widget import ScanConfigWidget
 from pharos.view.GUI.monitor_config_widget import MonitorConfigWidget
 from pharos.view.GUI.wavelength_scan_widget import LaserScanWidget
 from pharos.view.GUI.rotation_stage_gui import ThorlabsRotationWidgetGUI
+from pharos.view.GUI.shutter_gui import ShutterGui
 from pharos.view.generic_work_thread import WorkThread
 
 from pharos.config import config
@@ -97,6 +98,11 @@ class MainWindow(QtGui.QMainWindow):
                 self.rotation_actions[-1].triggered.connect(self.rotation_stages_widget[-1].show)
                 self.menuDevices.addAction(self.rotation_actions[-1])
 
+        if 'shutter' in self.experiment.scan:
+            self.shutter_widget = ShutterGui(self.experiment)
+            self.shutter_action = QtGui.QAction('Shutter Control', self)
+            self.shutter_action.triggered.connect(self.shutter_widget.show)
+            self.menuDevices.addAction(self.shutter_action)
 
     def update_laser(self):
         """

@@ -43,6 +43,9 @@ class ScanConfigWidget(QtGui.QWidget):
 
                 self.add_new_device(self.devices[-1])
 
+        ttime = {'dev': 'time', 'output': 'time'}
+        self.add_new_device(ttime)
+
     def configure_monitors(self, devs_to_monitor):
         for dev in devs_to_monitor:
             if dev.properties['name'] in self.monitors:

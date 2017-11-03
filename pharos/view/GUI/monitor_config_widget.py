@@ -1,6 +1,7 @@
 import os
 from PyQt4 import QtCore, QtGui, uic
-from pharos.view.GUI.signal_monitor import SignalMonitorWidget
+# from pharos.view.GUI.signal_monitor import SignalMonitorWidget
+from pharos.view.GUI.monitor_with_memory import MonitorMemory as SignalMonitorWidget
 
 
 class MonitorConfigWidget(QtGui.QWidget):

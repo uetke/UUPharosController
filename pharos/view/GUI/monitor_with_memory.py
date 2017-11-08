@@ -8,7 +8,9 @@ import os.path
 import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.Qt import QtCore, QtGui
+from scipy.optimize import leastsq
 
+from pharos.model.lib.general_functions import lorentz, errorfunc
 
 class MonitorMemory(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -46,7 +48,16 @@ class MonitorMemory(QtGui.QMainWindow):
         self.name = None
         self.id = None
         self.show_label = False
+        self.do_average_plot = False
+        self.lorentz_fitting = False
         self.label = pg.TextItem(border='w', fill=(0,0,255))
+
+        self.plot_average = QtGui.QAction("Plot Average", self.main_plot.plotItem.vb.menu)
+        self.plot_average.triggered.connect(self.make_average)
+        self.main_plot.plotItem.vb.menu.addAction(self.plot_average)
+        self.fit_lorentzian_action = QtGui.QAction("Fit a Lorentzian", self.main_plot.plotItem.vb.menu)
+        self.fit_lorentzian_action.triggered.connect(self.fit_lorentzian)
+        self.main_plot.plotItem.vb.menu.addAction(self.fit_lorentzian_action)
         self.directory = None
 
     def clear_data(self):
@@ -76,21 +87,18 @@ class MonitorMemory(QtGui.QMainWindow):
             for i in range(self.memory):
                 d1 = self.ydata[-i, :int(self.len_ydata/2)]
                 d2 = self.ydata[-i, int(self.len_ydata/2):]
-                self.p1.append(self.main_plot.plot(self.wavelength, d1, pen={'color': '#b6dbff', 'width': 4/(i+1)}))
+                self.p1.append(self.main_plot.plot(self.wavelength, d1))
                 self.p1[-1].setDownsampling(auto=True, method='peak')
-                self.p2.append(self.main_plot.plot(self.wavelength, d2, pen={'color': '#ffff6d', 'width': 4/(i+1)}))
+                self.p2.append(self.main_plot.plot(self.wavelength, d2))
                 self.p2[-1].setDownsampling(auto=True, method='peak')
-            pg.SignalProxy(self.p1[-1].scene().sigMouseMoved).connect(self.print_mouse) #, rateLimit=60, slot=self.print_mouse)
-            # pg.SignalProxy(self.main_plot.plotItem.scene().sigMouseMoved.connect(self.print_mouse))
-
         else:
             self.ydata = np.zeros((self.memory, len(self.wavelength)))
             self.len_ydata = int(len(self.wavelength))
             self.p = []
             for i in range(self.memory):
-                self.p.append(self.main_plot.plot(self.wavelength, self.ydata[-1, :], pen={'color': "#b6dbff", 'width': 4/(i+1)}))
+                self.p.append(self.main_plot.plot(self.wavelength, self.ydata[-1, :]))
                 self.p[-1].setDownsampling(auto=True, method='peak')
-
+        self.set_pens()
         self.main_plot.scene().sigMouseMoved.connect(self.print_mouse)
 
 
@@ -116,10 +124,20 @@ class MonitorMemory(QtGui.QMainWindow):
                 # self.p1.setDownsampling(auto=True, method='peak')
                 self.p2[i].setData(self.wavelength2, d2)
                 # self.p2.setDownsampling(auto=True, method='peak')
+            if self.do_average_plot:
+                data_mean = np.mean(self.ydata, axis=0)
+                self.p1[0].setData(self.wavelength, data_mean[:int(self.len_ydata/2)])
+                self.p2[0].setData(self.wavelength, data_mean[int(self.len_ydata/2):])
         else:
             for i in range(self.memory):
                 d = self.ydata[-i-1, :]
                 self.p[i].setData(self.wavelength, d)
+            if self.do_average_plot:
+                data_mean = np.mean(self.ydata, axis=0)
+                for i in range(self.memory - 1):
+                    self.p[i].setPen({'color': '#b6dbff', 'width': .1})
+                self.p[-1].setData(self.wavelength, data_mean)
+                self.p[-1].setPen({'color': '#b6dbaa', 'width': 5})
 
     def set_name(self, name):
         if self.name is not None:
@@ -165,20 +183,110 @@ class MonitorMemory(QtGui.QMainWindow):
     def print_mouse(self, event):
         modifiers = QtGui.QApplication.keyboardModifiers()
         vb = self.main_plot.plotItem.vb
+        x = vb.mapSceneToView(event).x()
+        y = vb.mapSceneToView(event).y()
+        self.x_mouse = x
+        self.y_mouse = y
+
         if modifiers == QtCore.Qt.ControlModifier:
-            self.show_label = True
-            self.label.show()
-            self.main_plot.addItem(self.label)
+            if not self.show_label:
+                self.show_label = True
+                self.label.show()
+                self.main_plot.addItem(self.label)
             self.label.setPos(vb.mapSceneToView(event))
-            # self.label.anchor = event
-            x = vb.mapSceneToView(event).x()
-            y = vb.mapSceneToView(event).y()
             self.label.setHtml("<span style='font-size: 12pt'>x=%0.1f</span> <br />   <span style='font-size: 12pt'>y1=%0.1f</span>" % (
                 x, y))
         else:
             if self.show_label:
                 self.label.hide()
                 self.show_label = False
+
+    def set_pens(self):
+        if self.do_average_plot:
+            if self.two_way:
+                for i in range(self.memory):
+                    self.p1[i].setPen({'color': '#b6dbff', 'width': .1})
+                    self.p2[i].setPen({'color': '#ffff6d', 'width': .1})
+                self.p1[0].setPen({'color': '#b6dbff', 'width': 3})
+                self.p2[0].setPen({'color': '#ffff6d', 'width': 3})
+            else:
+                for i in range(self.memory):
+                    self.p[i].setPen({'color': '#b6dbff', 'width': .1})
+                self.p[0].setPen({'color': '#b6dbff', 'width': 3})
+        else:
+            if self.two_way:
+                for i in range(self.memory):
+                    self.p1[i].setPen({'color': '#b6dbff', 'width': 1/(i+1)})
+                    self.p2[i].setPen({'color': '#ffff6d', 'width': 1/(i+1)})
+                self.p1[-1].setPen({'color': '#b6dbff', 'width': 3})
+                self.p2[-1].setPen({'color': '#ffff6d', 'width': 3})
+            else:
+                for i in range(self.memory):
+                    self.p[i].setPen({'color': '#b6dbff', 'width': 1/(i+1)})
+                self.p[-1].setPen({'color': '#b6dbff', 'width': 3})
+
+    def make_average(self):
+        if not self.do_average_plot:
+            self.do_average_plot = True
+            self.set_pens()
+            self.update_monitor()
+        else:
+            self.do_average_plot = False
+            self.set_pens()
+            self.update_monitor()
+
+    def fit_lorentzian(self):
+
+        if not self.lorentz_fitting:
+            self.lorentz_fitting = True
+            if self.do_average_plot:
+                data = np.mean(self.ydata, axis=0)
+            else:
+                data = self.ydata[-1, :]
+
+            if self.two_way:
+                d1 = data[:int(self.len_ydata/2)]
+                d2 = data[int(self.len_ydata/2):]
+                p0 = [self.y_mouse-np.min(d1), self.x_mouse, 1, np.min(d1)]
+                solp1, ier = leastsq(errorfunc,
+                                     p0,
+                                     args=(self.wavelength, d1),
+                                     Dfun=None,
+                                     full_output=False,
+                                     ftol=1e-9,
+                                     xtol=1e-9,
+                                     maxfev=100000,
+                                     epsfcn=1e-10,
+                                     factor=0.1)
+                self.lorentz_plot1 = self.main_plot.plot(self.wavelength, lorentz(solp1, self.wavelength))
+
+                p0 = [self.y_mouse - np.min(d2), self.x_mouse, 1, np.min(d2)]
+                solp2, ier = leastsq(errorfunc,
+                                     p0,
+                                     args=(self.wavelength2, d2),
+                                     Dfun=None,
+                                     full_output=False,
+                                     ftol=1e-9,
+                                     xtol=1e-9,
+                                     maxfev=100000,
+                                     epsfcn=1e-10,
+                                     factor=0.1)
+
+                self.lorentz_plot2 = self.main_plot.plot(self.wavelength, lorentz(solp2, self.wavelength))
+
+            else:
+                p0 = [self.y_mouse - np.min(data), self.x_mouse, 1, np.min(data)]
+                solp, ier = leastsq(errorfunc,
+                                     p0,
+                                     args=(self.wavelength, data),
+                                     Dfun=None,
+                                     full_output=False,
+                                     ftol=1e-9,
+                                     xtol=1e-9,
+                                     maxfev=100000,
+                                     epsfcn=1e-10,
+                                     factor=0.1)
+                self.lorentz_plot = self.main_plot.plot(self.wavelength, lorentz(solp, self.wavelength))
 
 if __name__ == '__main__':
     import sys
@@ -187,12 +295,17 @@ if __name__ == '__main__':
     wavelength = np.linspace(1492, 1512, 500)
     ap = QApplication(sys.argv)
     m = MonitorMemory()
-    m.memory = 10
-    m.two_way = False
+    m.memory = 1
+    m.two_way = True
     m.set_wavelength(wavelength)
     m.set_name('Test')
-    for _ in range(5):
-        data = np.random.random(500)
-        m.set_ydata(data)
+    d1 = lorentz([1, 1505, 3, 4], wavelength)
+    d2 = lorentz([5, 1500, 2.5, 3.4], wavelength)
+    m.set_ydata(d1)
+    m.set_ydata(d2)
+    # for _ in range(5):
+    #     data = np.random.random(500)
+    #     m.set_ydata(data)
+    #
     m.show()
     ap.exit(ap.exec_())

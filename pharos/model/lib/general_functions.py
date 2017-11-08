@@ -31,7 +31,6 @@ def from_yaml_to_devices(filename = "config/devices.yml", name=None):
             devs.append(dd)
     return devs
 
-
 def from_yaml_to_dict(filename='config/measurement.yml'):
     stream = open(filename, 'r')
     output = yaml.load(stream)
@@ -46,6 +45,14 @@ def start_logger(filename=None):
 def stop_logger():
     sys.stdout = sys.stdout.old_stdout
 
+
+def lorentz(p,x):
+    """ Lorentzian function used for fitting """
+    return p[0]/((x-p[1])**2+p[2])+p[3]
+
+
+def errorfunc(p, x, z):
+    return lorentz(p, x) - z
 
 if __name__ == "__main__":
     d = from_yaml_to_devices('../../config/devices.yml',name='Santec Laser')

@@ -75,13 +75,13 @@ class MonitorMemory(pg.GraphicsView):
         if val_len + self.starting_point <= self.len_ydata:
             self.ydata[-1, self.starting_point:self.starting_point+val_len] = values
             self.starting_point += val_len
-            self.update_monitor()
         else:
             # Have to split the data and roll the accumulation matrix
             self.set_ydata(values[0:self.len_ydata-self.starting_point])
-            self.starting_point = 0
             self.ydata = np.roll(self.ydata, -1, axis=0)
+            self.starting_point = 0
             self.set_ydata(values[self.len_ydata-self.starting_point:])
+        self.update_monitor()
 
     def update_monitor(self):
         if self.two_way:

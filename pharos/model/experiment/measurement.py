@@ -151,6 +151,15 @@ class Measurement(object):
             laser_params['wavelength_sweeps'] = 1  # This to avoid conflicts in downstream code.
         
         laser_params['wavelength'] = laser_params['start_wavelength']
+
+        num_points = int(
+            (laser_params['stop_wavelength'] - laser_params['start_wavelength']) / laser_params['interval_trigger']) * laser_params['wavelength_sweeps']
+
+        # Some NI DAQs misbehave with odd number of data points.
+        if num_points % 2 != 0:
+            laser_params['stop_wavelength'] += laser_params['interval_trigger']
+            num_points += 1
+
         try:
             laser.apply_values(laser_params)
         except:
@@ -165,10 +174,7 @@ class Measurement(object):
 
         for dev in devices_to_monitor:
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
-            
-        num_points = int(
-            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['interval_trigger'])*laser.params['wavelength_sweeps']
-        
+
         dev_to_scan = scan['axis']['device']['dev']['dev']
         output_to_scan = scan['axis']['device']['dev']['output']
         if dev_to_scan != 'time':
@@ -304,8 +310,6 @@ class Measurement(object):
         if 'wavelength_sweeps' not in monitor['laser']['params']:
             monitor['laser']['params']['wavelength_sweeps'] = 0  # This will generate the laser to sweep always.
 
-        laser.apply_values(monitor['laser']['params'])
-
         # Clear the array to start afresh
         for d in self.daqs:
             self.daqs[d]['monitor'] = []
@@ -319,12 +323,20 @@ class Measurement(object):
 
         # Lets calculate the conditions of the scan
         num_points = int(
-            (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['interval_trigger'])+1
-        accuracy = laser.params['interval_trigger'] / laser.params['wavelength_speed']
+            (self.monitor['laser']['params']['stop_wavelength'] - self.monitor['laser']['params']['start_wavelength']) / self.monitor['laser']['params']['interval_trigger'])+1
 
-        approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params[
+        # Some DAQ cards behave strangely when dealing with even/odd number of points.
+        # Using an even number of data points makes it behave correctly 'always'
+        if num_points % 2 != 0:
+            self.monitor['laser']['params']['stop_wavelength'] += self.monitor['laser']['params']['interval_trigger']  #  Increase the stop wavelength in one step in order to have an extra data point
+            num_points += 1
+
+        accuracy = self.monitor['laser']['params']['interval_trigger'] / self.monitor['laser']['params']['wavelength_speed']
+
+        approx_time_to_scan = (self.monitor['laser']['params']['stop_wavelength'] - self.monitor['laser']['params']['start_wavelength']) / self.monitor['laser']['params'][
             'wavelength_speed']
 
+        laser.apply_values(self.monitor['laser']['params'])
         self.measure['monitor']['approx_time_to_scan'] = approx_time_to_scan
         
         wl_sweeps = int(monitor['laser']['params']['wavelength_sweeps'])
@@ -336,11 +348,9 @@ class Measurement(object):
         else:
             sampling = 'continuous'
         conditions = {
-            'accuracy': accuracy*.85,
+            'accuracy': accuracy,
             'points': num_points
         }
-        print('Experiment number of points: {}'.format(num_points))
-        print('Sampling: {}'.format(sampling))
         # Then setup the ADQs
         for d in self.daqs:
             daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
@@ -377,7 +387,7 @@ class Measurement(object):
         #sleep(1)
 
     def read_scans(self):
-        conditions = {'points': -1} # To read all the points available
+        conditions = {'points': -1}  # To read all the points available
         data = {}
         for d in self.daqs:
             daq = self.daqs[d]
@@ -400,8 +410,6 @@ class Measurement(object):
             daq_driver = self.devices[d]
             if len(daq['monitor']) > 0:
                 vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
-                #print('Data acquired: {}'.format(vv))
-                t1 = time.time()
                 dd = dd[:vv*len(daq['monitor'])]
                 dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
                 for i in range(len(daq['monitor'])):

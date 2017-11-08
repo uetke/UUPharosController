@@ -184,8 +184,11 @@ class MainWindow(QtGui.QMainWindow):
         triggers the laser and does not start the NI-card for acquiring.
         """
         if self.monitor_running or self.monitor_paused or self.scan_running:
-            raise Warning('Finish ongoing processes before triggering a new one.')
-
+            #self.stop_monitor()
+            self.laser.driver.execute_sweep()
+            print('Finishing ongoing processes before triggering a new one.')
+            return
+        
         devs_to_monitor = self.monitor_widget.get_devices_checked()
         if len(devs_to_monitor) > 0:
             self.monitor_widget.open_monitor(devs_to_monitor)
@@ -201,11 +204,14 @@ class MainWindow(QtGui.QMainWindow):
             stop_wl = self.experiment.monitor['laser']['params']['stop_wavelength'].m_as(units)
             step = self.experiment.monitor['laser']['params']['interval_trigger'].m_as(units)
             num_points = (stop_wl - start_wl) / step+1
+
             xdata = np.linspace(start_wl, stop_wl, num_points)
             
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
+
+            #  Set the number of accumulations to the monitor
             accumulations = self.laser_scan_widget.accumulations_line.text()
             if accumulations is not None:
                 accumulations = int(accumulations)
@@ -243,8 +249,6 @@ class MainWindow(QtGui.QMainWindow):
         condition = self.laser.driver.sweep_condition
         self.laser_condition = condition
         self.laser_status.setText(condition)
-        #if self.monitor_running and condition == 'Stop':
-        #    self.read_last_values()
         self.wavelength_slider.blockSignals(True)
         self.power_slider.blockSignals(True)
         self.wavelength_slider.setValue((wl.m_as('nm')-1480)/0.0001)
@@ -263,9 +267,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def start_scan(self):
         if self.monitor_running or self.monitor_paused or self.scan_running:
-            print('Finish ongoing processes before triggering a new one.')
+            self.stop_monitor()
+            raise Warning('Finishing ongoing processes before triggering a new one.')
             return
 
+        
         devs_to_monitor = self.monitor_widget.get_devices_checked()
         if len(devs_to_monitor) > 0:
 
@@ -327,13 +333,12 @@ class MainWindow(QtGui.QMainWindow):
 
     def update_monitors(self):
         if self.daq_enabled:
-            t1 = time.time()
             data = self.experiment.read_continuous_scans()
-            self.monitor_widget.update_signal_values(data)
-            self.t0 = time.time()
-            if self.laser_condition == 'Stop':
-                self.stop_monitor()
-        
+            new_data = 0
+            for d in data:
+                new_data += len(data[d])
+            if new_data > 0:
+                self.monitor_widget.update_signal_values(data)               
         
     def stop_monitor(self):
         if not (self.monitor_running or self.monitor_paused):
@@ -341,6 +346,8 @@ class MainWindow(QtGui.QMainWindow):
 
         if self.daq_enabled:
             self.monitor_timer.stop()
+            data = self.experiment.read_continuous_scans()
+            self.monitor_widget.update_signal_values(data)
             #self.update_monitors()
             self.experiment.stop_continuous_scans()
         else:

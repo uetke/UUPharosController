@@ -88,6 +88,11 @@ class MonitorConfigWidget(QtGui.QWidget):
         for dev in devs_to_monitor:
             self.monitors[dev.properties['name']]['widget'].set_wavelength(wavelength)
 
+    def set_accumulations_to_monitor(self, accumulations):
+        devs_to_monitor = self.get_devices_checked()
+        for dev in devs_to_monitor:
+            self.monitors[dev.properties['name']]['widget'].memory = accumulations
+
     def update_signal_values(self, data):
         """ Updates the data to the different monitors.
         It is an intermadiate step that may not be needed."""

@@ -553,16 +553,20 @@ If you are using a continuous scan mode, you &lt;b&gt;have to&lt;/b&gt; set all 
   <tabstop>start_wavelength_line</tabstop>
   <tabstop>stop_wavelength_line</tabstop>
   <tabstop>speed_line</tabstop>
-  <tabstop>wait_line</tabstop>
   <tabstop>trigger_step_line</tabstop>
-  <tabstop>step_time_line</tabstop>
-  <tabstop>step_line</tabstop>
-  <tabstop>sweeps_line</tabstop>
   <tabstop>continuous_button</tabstop>
   <tabstop>step_button</tabstop>
   <tabstop>one_button</tabstop>
   <tabstop>two_button</tabstop>
+  <tabstop>step_line</tabstop>
+  <tabstop>step_time_line</tabstop>
+  <tabstop>wait_line</tabstop>
+  <tabstop>sweeps_line</tabstop>
   <tabstop>trigger_check</tabstop>
+  <tabstop>wavelength</tabstop>
+  <tabstop>power</tabstop>
+  <tabstop>applyButton</tabstop>
+  <tabstop>readCurrent</tabstop>
  </tabstops>
  <resources/>
  <connections/>

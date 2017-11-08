@@ -206,6 +206,19 @@ class MainWindow(QtGui.QMainWindow):
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
+            accumulations = self.laser_scan_widget.accumulations_line.text()
+            if accumulations is not None:
+                accumulations = int(accumulations)
+                if accumulations > 0:
+                    self.monitor_widget.set_accumulations_to_monitor(accumulations)
+                else:
+                    accumulations = 1
+                    self.monitor_widget.set_accumulations_to_monitor(accumulations)
+            else:
+                self.laser_scan_widget.accumulations_line.setText('1')
+                accumulations = 1
+                self.monitor_widget.set_accumulations_to_monitor(accumulations)
+
             self.laser_condition = 'Running'
             self.monitor_timer.start(config.monitor_read_scan)
             self.daq_enabled = True

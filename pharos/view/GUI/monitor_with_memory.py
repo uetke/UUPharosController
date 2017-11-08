@@ -27,6 +27,8 @@ class MonitorMemory(pg.GraphicsView):
         self.p = None
         self.p1 = None
         self.p2 = None
+        self.name = None
+        self.id = None
         # self.p.setLabel(axis='left', text='Test', units='Test U', **{'color': '#FFF', 'font-size': '14pt'})
 
     def clear_data(self):
@@ -50,12 +52,12 @@ class MonitorMemory(pg.GraphicsView):
         if self.two_way:
             self.wavelength2 = wavelength[::-1]
             self.ydata = np.zeros((self.memory, 2*len(self.wavelength)))
-            self.len_ydata = int(len(self.wavelength))
+            self.len_ydata = 2*int(len(self.wavelength))
             self.p1 = []
             self.p2 = []
             for i in range(self.memory):
-                d1 = self.ydata[-i, :self.len_ydata]
-                d2 = self.ydata[-i, self.len_ydata:]
+                d1 = self.ydata[-i, :int(self.len_ydata/2)]
+                d2 = self.ydata[-i, int(self.len_ydata/2):]
                 self.p1.append(self.main_plot.plot(self.wavelength, d1, pen={'color': '#b6dbff', 'width': 4/(i+1)}))
                 # self.p1.setDownsampling(auto=True, method='peak')
                 self.p2.append(self.main_plot.plot(self.wavelength, d2, pen={'color': '#ffff6d', 'width': 4/(i+1)}))
@@ -84,29 +86,40 @@ class MonitorMemory(pg.GraphicsView):
     def update_monitor(self):
         if self.two_way:
             for i in range(self.memory):
-                d1 = self.ydata[-i, :self.len_ydata]
-                d2 = self.ydata[-i, self.len_ydata:]
+                d1 = self.ydata[-i-1, :int(self.len_ydata/2)]
+                d2 = self.ydata[-i-1, int(self.len_ydata/2):]
                 self.p1[i].setData(self.wavelength, d1)
                 # self.p1.setDownsampling(auto=True, method='peak')
                 self.p2[i].setData(self.wavelength2, d2)
                 # self.p2.setDownsampling(auto=True, method='peak')
         else:
             for i in range(self.memory):
-                d = self.ydata[-i, :]
+                d = self.ydata[-i-1, :]
                 self.p[i].setData(self.wavelength, d)
 
+    def set_name(self, name):
+        if self.name is not None:
+            raise Exception('Cannot change the name of a running window.')
+        else:
+            self.name = name
+            self.setWindowTitle(name)
 
+    def set_id(self, id):
+        if self.id is not None:
+            raise Exception('Cannot change the id a running window.')
+        else:
+            self.id = id
 
 if __name__ == '__main__':
     import sys
     from PyQt4.Qt import QApplication
 
-    wavelength = np.linspace(1492, 1512, 200)
+    wavelength = np.linspace(1492, 1512, 500)
     ap = QApplication(sys.argv)
     m = MonitorMemory()
     m.set_wavelength(wavelength)
     for _ in range(20):
-        data = np.random.random(200)
+        data = np.random.random(500)
         m.set_ydata(data)
     m.show()
     ap.exit(ap.exec_())

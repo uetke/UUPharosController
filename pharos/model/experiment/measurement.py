@@ -152,8 +152,8 @@ class Measurement(object):
         
         laser_params['wavelength'] = laser_params['start_wavelength']
 
-        num_points = int(
-            (laser_params['stop_wavelength'] - laser_params['start_wavelength']) / laser_params['interval_trigger']) * laser_params['wavelength_sweeps']
+        num_points = (laser_params['stop_wavelength'] - laser_params['start_wavelength']) / laser_params['interval_trigger'] * laser_params['wavelength_sweeps']
+        num_points = int(num_points.m_as(''))
 
         # Some NI DAQs misbehave with odd number of data points.
         if num_points % 2 != 0:
@@ -182,7 +182,7 @@ class Measurement(object):
             start = Q_(dev_range[0])
             stop = Q_(dev_range[1])
             step = Q_(dev_range[2])
-            num_points_dev = int(((stop-start)/step).to(''))
+            num_points_dev = int(((stop-start)/step).m_as(''))
         else:
             dev_range = scan['axis']['device']['range']
             start = 1

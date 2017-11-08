@@ -185,7 +185,7 @@ class MainWindow(QtGui.QMainWindow):
         """
         if self.monitor_running or self.monitor_paused or self.scan_running:
             #self.stop_monitor()
-            self.laser.driver.execute_sweep()
+            #self.laser.driver.execute_sweep()
             print('Finishing ongoing processes before triggering a new one.')
             return
         
@@ -197,6 +197,22 @@ class MainWindow(QtGui.QMainWindow):
             self.experiment.setup_continuous_scans()
             self.experiment.start_continuous_scans()
             time_to_scan = self.experiment.measure['monitor']['approx_time_to_scan'].m_as(Q_('ms'))
+            
+
+            #  Set the number of accumulations to the monitor, first do this, then set the wavelength.
+            accumulations = self.laser_scan_widget.accumulations_line.text()
+            if accumulations is not None or accumulations != '' :
+                try:
+                    accumulations = int(accumulations)
+                except:
+                    accumulations = 1       
+                if not accumulations > 0:
+                    accumulations = 1
+            else:
+                self.laser_scan_widget.accumulations_line.setText('1')
+                accumulations = 1
+            self.monitor_widget.set_accumulations_to_monitor(accumulations)
+            
             start_wl = self.experiment.monitor['laser']['params']['start_wavelength']
             units = start_wl.u
             # Convert everything to the units of the start_wl
@@ -210,21 +226,8 @@ class MainWindow(QtGui.QMainWindow):
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
-
-            #  Set the number of accumulations to the monitor
-            accumulations = self.laser_scan_widget.accumulations_line.text()
-            if accumulations is not None:
-                accumulations = int(accumulations)
-                if accumulations > 0:
-                    self.monitor_widget.set_accumulations_to_monitor(accumulations)
-                else:
-                    accumulations = 1
-                    self.monitor_widget.set_accumulations_to_monitor(accumulations)
-            else:
-                self.laser_scan_widget.accumulations_line.setText('1')
-                accumulations = 1
-                self.monitor_widget.set_accumulations_to_monitor(accumulations)
-
+            
+            
             self.laser_condition = 'Running'
             self.monitor_timer.start(config.monitor_read_scan)
             self.daq_enabled = True

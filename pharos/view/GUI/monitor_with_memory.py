@@ -87,6 +87,13 @@ class MonitorMemory(QtGui.QMainWindow):
         self.show_label = False
         self.do_average_plot = False
         self.lorentz_fitting = False
+        if self.params is not None:
+            self.params.deleteLater()
+        if self.params1 is not None:
+            self.params1.deleteLater()
+        if self.params2 is not None:
+            self.params2.deleteLater()
+            
         self.lorentz_plot1 = None
         self.lorentz_plot2 = None
         self.lorentz_plot = None
@@ -94,6 +101,18 @@ class MonitorMemory(QtGui.QMainWindow):
         self.params1 = None
         self.params2 = None
 
+        self.label = pg.TextItem(border='w', fill=(0,0,255))
+
+        self.plot_average = QtGui.QAction("Plot Average", self.main_plot.plotItem.vb.menu)
+        self.plot_average.triggered.connect(self.make_average)
+        self.main_plot.plotItem.vb.menu.addAction(self.plot_average)
+        self.fit_lorentzian_action = QtGui.QAction("Fit a Lorentzian", self.main_plot.plotItem.vb.menu)
+        self.fit_lorentzian_action.triggered.connect(self.fit_lorentzian)
+        self.main_plot.plotItem.vb.menu.addAction(self.fit_lorentzian_action)
+        self.hide_lorentzian_action = QtGui.QAction("Hide Lorentzian", self.main_plot.plotItem.vb.menu)
+        self.hide_lorentzian_action.triggered.connect(self.hide_lorentzian)
+        self.main_plot.plotItem.vb.menu.addAction(self.hide_lorentzian_action)
+        
     def set_wavelength(self, wavelength):
         self.wavelength = wavelength
         self.starting_point = 0
@@ -220,7 +239,7 @@ class MonitorMemory(QtGui.QMainWindow):
                 self.label.show()
                 self.main_plot.addItem(self.label)
             self.label.setPos(vb.mapSceneToView(event))
-            self.label.setHtml("<span style='font-size: 12pt'>x=%0.1f</span> <br />   <span style='font-size: 12pt'>y1=%0.1f</span>" % (
+            self.label.setHtml("<span style='font-size: 12pt'>x=%0.4f</span> <br />   <span style='font-size: 12pt'>y1=%0.1f</span>" % (
                 x, y))
         else:
             if self.show_label:

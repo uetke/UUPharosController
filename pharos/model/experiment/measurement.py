@@ -153,7 +153,7 @@ class Measurement(object):
         laser_params['wavelength'] = laser_params['start_wavelength']
 
         num_points = (laser_params['stop_wavelength'] - laser_params['start_wavelength']) / laser_params['interval_trigger'] * laser_params['wavelength_sweeps']
-        num_points = int(num_points.m_as(''))
+        num_points = int(num_points.m_as(''))+1
 
         # Some NI DAQs misbehave with odd number of data points.
         if num_points % 2 != 0:
@@ -172,39 +172,45 @@ class Measurement(object):
         # Lets see what happens with the devices to monitor
         devices_to_monitor = scan['detectors']
 
-        for dev in devices_to_monitor:
+        for dev_name in devices_to_monitor:
+            dev = self.devices[dev_name]
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
+            print('Appending {} to {}'.format(dev_name, dev.properties['connection']['device']))
 
-        dev_to_scan = scan['axis']['device']['dev']['dev']
-        output_to_scan = scan['axis']['device']['dev']['output']
+        dev_to_scan = scan['axis']['device']['name']
+        output_to_scan = scan['axis']['device']['property']
         if dev_to_scan != 'time':
             dev_range = scan['axis']['device']['range']
             start = Q_(dev_range[0])
             stop = Q_(dev_range[1])
             step = Q_(dev_range[2])
-            num_points_dev = int(((stop-start)/step).m_as(''))
+            num_points_dev = int(((stop-start)/step).m_as(''))+1
         else:
             dev_range = scan['axis']['device']['range']
             start = 1
             stop = dev_range[1]
             num_points_dev = stop
         # This is temporal accuracy for the DAQ.
+        print('Number of points device: {}'.format(num_points_dev))
+        print('Number of points scan: {}'.format(num_points))
         accuracy = laser.params['interval_trigger'] / laser.params['wavelength_speed']
 
         conditions = {
             'accuracy': accuracy,
             'points': num_points*num_points_dev,
         }
-        
-        # Then setup the ADQs
+        self.scan['total_points'] = conditions['points']
+        # Then setup the DAQs
         for d in self.daqs:
             daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
             daq_driver = self.devices[d]  # Gets the link to the DAQ
+            
             if len(daq['monitor']) > 0:
                 print('DAQ: %s' % d) 
                 devs_to_monitor = daq['monitor']  # daqs dictionary groups the channels by daq to which they are plugged
                 print('Devs to monitor:')
                 print(devs_to_monitor)
+                conditions['points'] *= len(daq['monitor'])
                 conditions['devices'] = devs_to_monitor
                 conditions['trigger'] = daq_driver.properties['trigger']
                 conditions['trigger_source'] = daq_driver.properties['trigger_source']
@@ -212,9 +218,12 @@ class Measurement(object):
                 conditions['sampling'] = 'continuous'
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable
+                print('Monitor Task: {}'.format(self.daqs[d]['monitor_task']))
+                if not daq_driver.driver.is_task_complete(daq['monitor_task']):
+                    daq_driver.stop_task(daq['monitor_task'])
+                daq_driver.driver.trigger_analog(None)
 
-        approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params[
-            'wavelength_speed']
+        approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']
 
         self.measure['scan']['approx_time_to_scan'] = approx_time_to_scan
 
@@ -247,8 +256,8 @@ class Measurement(object):
         """
         scan = self.scan
         laser = self.devices[scan['laser']['name']]
-        dev_to_scan = scan['axis']['device']['dev']['dev'].properties['name']
-        output = scan['axis']['device']['dev']['output']
+        dev_to_scan = scan['axis']['device']['name']
+        output = scan['axis']['device']['property']
         approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['wavelength_speed']
         # Scan the laser and the values of the given device
         if dev_to_scan != 'time':
@@ -276,6 +285,7 @@ class Measurement(object):
                     time.sleep(0.2)
 
             self.do_line_scan()
+            
         return True
 
     def set_value_to_device(self, dev_name, value):
@@ -387,14 +397,25 @@ class Measurement(object):
         laser.driver.execute_sweep()
         #sleep(1)
 
-    def read_scans(self):
-        conditions = {'points': -1}  # To read all the points available
+    def read_scans(self, points=0):
+        """ Reads the data from the DAQ. It has 3 modes of operation:
+            - points>0: reads that number of points from the daq, or timeouts if not enough available.
+            - points=0: splits the points and the buffer, i.e. this is idea when acquiring more than 1 channel, since points and buffer have different meanings for NI.
+            - points<0: reads all the available points in the DAQ.
+        """
+        
         data = {}
         for d in self.daqs:
             daq = self.daqs[d]
             daq_driver = self.devices[d]
             if len(daq['monitor']) > 0:
-                vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
+                if points == 0:
+                    total_points = self.scan['total_points']
+                    conditions = {'points': total_points}
+                    conditions['buffer_length'] = total_points*len(daq['monitor'])
+                else:
+                    conditions = {'points': points}
+                vv, dd = daq_driver.driver.read_analog(self.daqs[d]['monitor_task'], conditions)
                 dd = dd[:vv*len(daq['monitor'])]
                 dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
                 for i in range(len(daq['monitor'])):

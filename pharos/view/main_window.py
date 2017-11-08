@@ -185,8 +185,8 @@ class MainWindow(QtGui.QMainWindow):
         """
         if self.monitor_running or self.monitor_paused or self.scan_running:
             #self.stop_monitor()
-            #self.laser.driver.execute_sweep()
-            print('Finishing ongoing processes before triggering a new one.')
+            self.laser.driver.execute_sweep()
+            print('Triggering the laser again.')
             return
         
         devs_to_monitor = self.monitor_widget.get_devices_checked()

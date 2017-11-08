@@ -7,7 +7,7 @@
 import os.path
 import pyqtgraph as pg
 import numpy as np
-from pyqtgraph.Qt import QtGui
+from pyqtgraph.Qt import QtCore, QtGui
 
 
 class MonitorMemory(QtGui.QMainWindow):
@@ -32,18 +32,21 @@ class MonitorMemory(QtGui.QMainWindow):
         self.file_menu.addAction(self.quick_save_action)
         self.setMenuBar(self.menu)
 
+        self.central_widget = QtGui.QWidget()
+        self.central_widget.setLayout(QtGui.QVBoxLayout())
         self.main_plot = pg.PlotWidget()
         self.main_plot.setLabel('bottom', 'Wavelength (nm)', **{'color': '#FFF', 'font-size': '14pt'})
-        self.setCentralWidget(self.main_plot)
+
+        self.central_widget.layout().addWidget(self.main_plot)
+        self.setCentralWidget(self.central_widget)
 
         self.p = None
         self.p1 = None
         self.p2 = None
         self.name = None
         self.id = None
-
-
-
+        self.show_label = False
+        self.label = pg.TextItem(border='w', fill=(0,0,255))
         self.directory = None
 
     def clear_data(self):
@@ -74,16 +77,22 @@ class MonitorMemory(QtGui.QMainWindow):
                 d1 = self.ydata[-i, :int(self.len_ydata/2)]
                 d2 = self.ydata[-i, int(self.len_ydata/2):]
                 self.p1.append(self.main_plot.plot(self.wavelength, d1, pen={'color': '#b6dbff', 'width': 4/(i+1)}))
-                # self.p1.setDownsampling(auto=True, method='peak')
+                self.p1[-1].setDownsampling(auto=True, method='peak')
                 self.p2.append(self.main_plot.plot(self.wavelength, d2, pen={'color': '#ffff6d', 'width': 4/(i+1)}))
-                # self.p2.setDownsampling(auto=True, method='peak')
+                self.p2[-1].setDownsampling(auto=True, method='peak')
+            pg.SignalProxy(self.p1[-1].scene().sigMouseMoved).connect(self.print_mouse) #, rateLimit=60, slot=self.print_mouse)
+            # pg.SignalProxy(self.main_plot.plotItem.scene().sigMouseMoved.connect(self.print_mouse))
+
         else:
             self.ydata = np.zeros((self.memory, len(self.wavelength)))
             self.len_ydata = int(len(self.wavelength))
             self.p = []
             for i in range(self.memory):
                 self.p.append(self.main_plot.plot(self.wavelength, self.ydata[-1, :], pen={'color': "#b6dbff", 'width': 4/(i+1)}))
-            # self.p.setDownsampling(auto=True, method='peak')
+                self.p[-1].setDownsampling(auto=True, method='peak')
+
+        self.main_plot.scene().sigMouseMoved.connect(self.print_mouse)
+
 
     def set_ydata(self, values):
         val_len = len(values)
@@ -153,6 +162,24 @@ class MonitorMemory(QtGui.QMainWindow):
         self.directory = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", self.directory))
         self.save()
 
+    def print_mouse(self, event):
+        modifiers = QtGui.QApplication.keyboardModifiers()
+        vb = self.main_plot.plotItem.vb
+        if modifiers == QtCore.Qt.ControlModifier:
+            self.show_label = True
+            self.label.show()
+            self.main_plot.addItem(self.label)
+            self.label.setPos(vb.mapSceneToView(event))
+            # self.label.anchor = event
+            x = vb.mapSceneToView(event).x()
+            y = vb.mapSceneToView(event).y()
+            self.label.setHtml("<span style='font-size: 12pt'>x=%0.1f</span> <br />   <span style='font-size: 12pt'>y1=%0.1f</span>" % (
+                x, y))
+        else:
+            if self.show_label:
+                self.label.hide()
+                self.show_label = False
+
 if __name__ == '__main__':
     import sys
     from PyQt4.Qt import QApplication
@@ -160,10 +187,11 @@ if __name__ == '__main__':
     wavelength = np.linspace(1492, 1512, 500)
     ap = QApplication(sys.argv)
     m = MonitorMemory()
-    m.two_way = True
+    m.memory = 10
+    m.two_way = False
     m.set_wavelength(wavelength)
     m.set_name('Test')
-    for _ in range(20):
+    for _ in range(5):
         data = np.random.random(500)
         m.set_ydata(data)
     m.show()

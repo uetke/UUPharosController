@@ -239,6 +239,7 @@ class Measurement(object):
         while laser.driver.sweep_condition != 'Stop':
             sleep(approx_time_to_scan.m/config.monitor_read_scan)
         ni_daq.driver.digital_output(shutter['port'], False)
+
         return True
 
     def do_scan(self):
@@ -394,7 +395,6 @@ class Measurement(object):
             daq_driver = self.devices[d]
             if len(daq['monitor']) > 0:
                 vv, dd = daq_driver.driver.read_analog(daq['monitor_task'], conditions)
-                t1 = time.time()
                 dd = dd[:vv*len(daq['monitor'])]
                 dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
                 for i in range(len(daq['monitor'])):

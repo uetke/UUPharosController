@@ -10,7 +10,7 @@ import numpy as np
 from pyqtgraph.Qt import QtGui
 
 
-class MonitorMemory(pg.GraphicsView):
+class MonitorMemory(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
 
@@ -19,17 +19,32 @@ class MonitorMemory(pg.GraphicsView):
         self.memory = 10  # Number of previous plots to save
         self.starting_point = 0
 
+        self.menu = QtGui.QMenuBar(self)
+        self.file_menu = self.menu.addMenu("&File")
+        self.save_action = QtGui.QAction("&Save", self)
+        self.save_action.setShortcut('Ctrl+O')
+        self.save_action.triggered.connect(self.choose_dir)
+        self.file_menu.addAction(self.save_action)
+
+        self.quick_save_action = QtGui.QAction("&Quick save", self)
+        self.quick_save_action.triggered.connect(self.save)
+        self.quick_save_action.setShortcut('Ctrl+S')
+        self.file_menu.addAction(self.quick_save_action)
+        self.setMenuBar(self.menu)
+
         self.main_plot = pg.PlotWidget()
         self.main_plot.setLabel('bottom', 'Wavelength (nm)', **{'color': '#FFF', 'font-size': '14pt'})
-        self.layout = QtGui.QVBoxLayout(self)
-        self.layout.addWidget(self.main_plot)
-        # self.addWidget(self.main_plot)
+        self.setCentralWidget(self.main_plot)
+
         self.p = None
         self.p1 = None
         self.p2 = None
         self.name = None
         self.id = None
-        # self.p.setLabel(axis='left', text='Test', units='Test U', **{'color': '#FFF', 'font-size': '14pt'})
+
+
+
+        self.directory = None
 
     def clear_data(self):
         self.layout.removeWidget(self.main_plot)
@@ -110,6 +125,34 @@ class MonitorMemory(pg.GraphicsView):
         else:
             self.id = id
 
+    def save(self):
+        if self.directory is not None:
+            i = 0
+            filename = 'monitor_data_'
+            while os.path.isfile(os.path.join(self.directory, '%s%i.dat' % (filename, i))):
+                i += 1
+            file = os.path.join(self.directory, '%s%i.dat' % (filename, i))
+            header = "# Data saved by Pharos Controller\n"
+
+            with open(file, 'wb') as f:
+                if not self.two_way:
+                    header += "# Column 1: Wavelength, Column 2-{}: {}\n".format(self.memory, self.name)
+                    data = np.vstack((self.wavelength, self.ydata))
+                else:
+                    header += "# Column 1: Wavelength, Column 2 - {}: {} forward, Column {}-{}: {} backward\n".format(self.memory, self.name, self.memory+1, self.memory*2, self.name)
+                    d1 = self.ydata[:, :int(self.len_ydata/2)]
+                    d2 = self.ydata[:, int(self.len_ydata/2):]
+                    data = np.vstack((self.wavelength, d1, d2))
+                f.write(header.encode('ascii'))
+                np.savetxt(f, data.T, fmt='%7.5f')
+            print('Data saved to %s' % file)
+        else:
+            self.choose_dir()
+
+    def choose_dir(self):
+        self.directory = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", self.directory))
+        self.save()
+
 if __name__ == '__main__':
     import sys
     from PyQt4.Qt import QApplication
@@ -117,7 +160,9 @@ if __name__ == '__main__':
     wavelength = np.linspace(1492, 1512, 500)
     ap = QApplication(sys.argv)
     m = MonitorMemory()
+    m.two_way = True
     m.set_wavelength(wavelength)
+    m.set_name('Test')
     for _ in range(20):
         data = np.random.random(500)
         m.set_ydata(data)

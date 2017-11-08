@@ -55,7 +55,7 @@ class MonitorConfigWidget(QtGui.QWidget):
         for dev in devs_to_monitor:
             if dev.properties['name'] not in self.monitors:
                 self.monitors[dev.properties['name']] = {'widget': SignalMonitorWidget()}
-                self.monitors[dev.properties['name']]['widget'].set_name(dev.properties['description'])
+                self.monitors[dev.properties['name']]['widget'].set_name(dev.properties['name'])
 
     def apply_monitor(self, conditions):
         conditions['devices'] = []

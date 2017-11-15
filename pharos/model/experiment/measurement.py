@@ -210,20 +210,37 @@ class Measurement(object):
                 print(devs_to_monitor)
                 conditions['points'] *= len(daq['monitor'])
                 conditions['devices'] = devs_to_monitor
-                conditions['trigger'] = daq_driver.properties['trigger']
-                conditions['trigger_source'] = daq_driver.properties['trigger_source']
-                print('Trigger source {}'.format(conditions['trigger_source']))
+                if 'trigger' not in self.scan['daq']:
+                    raise Exception('A trigger has to be specified in the daq section of the scan')
+                conditions['trigger'] = self.scan['daq']['trigger']
+                print('Trigger: {}'.format(conditions['trigger']))
+                if conditions['trigger'] == 'external':
+                    conditions['trigger_source'] = self.scan['daq']['trigger_source']
+                    print('Trigger source: {}'.format(conditions['trigger_source']))
+                elif conditions['trigger'] == 'internal':
+                    if self.monitor['daq']['trigger_source'] is not None:
+                        raise Warning('Specifying trigger even if set to Internal')
+                else:
+                    raise Exception('Trigger not recognized. Check the config. Only external or internal can be used.')
+
+                if 'start_trigger' in self.scan['daq']:
+                    if self.scan['daq']['start_trigger'] is not None:
+                        conditions['start_source'] = self.scan['daq']['start_source']
+                        conditions['start_mode'] = 'digital'
+                    else:
+                        conditions['start_mode'] = 'software'
+
                 conditions['sampling'] = 'continuous'
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable
-                print('Monitor Task: {}'.format(self.daqs[d]['monitor_task']))
+                print('Scan Task: {}'.format(self.daqs[d]['monitor_task']))
                 if not daq_driver.driver.is_task_complete(daq['monitor_task']):
                     daq_driver.stop_task(daq['monitor_task'])
                 daq_driver.driver.trigger_analog(None)
 
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']
 
-        self.measure['scan']['approx_time_to_scan'] = approx_time_to_scan
+        self.scan['approx_time_to_scan'] = approx_time_to_scan
 
     def do_line_scan(self):
         """ Does the wavelength scan.
@@ -238,7 +255,8 @@ class Measurement(object):
         else:
             delay = shutter['delay']
         delay = delay.m_as('s')
-        time.sleep(delay)
+        if delay > 0:
+            time.sleep(delay)
         ni_daq.driver.digital_output(shutter['port'], True)
         laser.driver.execute_sweep()
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']*laser.params['wavelength_sweeps']
@@ -258,7 +276,7 @@ class Measurement(object):
         output = scan['axis']['device']['property']
         approx_time_to_scan = (laser.params['stop_wavelength']-laser.params['start_wavelength'])/laser.params['wavelength_speed']
         # Scan the laser and the values of the given device
-        if dev_to_scan != 'time':
+        if output != 'time':
             dev_range = scan['axis']['device']['range']
             start = Q_(dev_range[0])
             units = start.u
@@ -275,7 +293,7 @@ class Measurement(object):
         num_points_dev += 1  # So the last bit of information is true.
 
         for value in np.linspace(start, stop, num_points_dev, endpoint=True):
-            if dev_to_scan != 'time':
+            if output != 'time':
                 self.set_value_to_device(dev_to_scan, {output: value * units})
                 dev = self.devices[dev_to_scan]
                 time.sleep(0.1)
@@ -331,23 +349,23 @@ class Measurement(object):
 
         # Lets calculate the conditions of the scan
         num_points = int(
-            (self.monitor['laser']['params']['stop_wavelength'] - self.monitor['laser']['params']['start_wavelength'])
-            / self.monitor['laser']['params']['interval_trigger'])+1
+            (monitor['laser']['params']['stop_wavelength'] - monitor['laser']['params']['start_wavelength'])
+            / monitor['laser']['params']['interval_trigger'])+1
 
         # Some DAQ cards behave strangely when dealing with even/odd number of points.
         # Using an even number of data points makes it behave correctly 'always'
         if num_points % 2 != 0:
             #  Increase the stop wavelength in one step in order to have an extra data point
-            self.monitor['laser']['params']['stop_wavelength'] += self.monitor['laser']['params']['interval_trigger']
+            monitor['laser']['params']['stop_wavelength'] += monitor['laser']['params']['interval_trigger']
             num_points += 1
 
-        accuracy = self.monitor['laser']['params']['interval_trigger'] / self.monitor['laser']['params']['wavelength_speed']
+        accuracy = monitor['laser']['params']['interval_trigger'] / monitor['laser']['params']['wavelength_speed']
 
-        approx_time_to_scan = (self.monitor['laser']['params']['stop_wavelength'] - self.monitor['laser']['params']['start_wavelength']) / self.monitor['laser']['params'][
+        approx_time_to_scan = (monitor['laser']['params']['stop_wavelength'] - monitor['laser']['params']['start_wavelength']) / monitor['laser']['params'][
             'wavelength_speed']
 
-        laser.apply_values(self.monitor['laser']['params'])
-        self.measure['monitor']['approx_time_to_scan'] = approx_time_to_scan
+        laser.apply_values(monitor['laser']['params'])
+        monitor['approx_time_to_scan'] = approx_time_to_scan
         
         wl_sweeps = int(monitor['laser']['params']['wavelength_sweeps'])
         if wl_sweeps > 0:
@@ -371,23 +389,23 @@ class Measurement(object):
                 print('Devs to monitor:')
                 print(devs_to_monitor)
                 conditions['devices'] = devs_to_monitor
-                if 'trigger' not in self.monitor['daq']:
+                if 'trigger' not in monitor['daq']:
                     raise Exception('A trigger has to be specified in the daq section of the monitor')
-                conditions['trigger'] = self.monitor['daq']['trigger']
+                conditions['trigger'] = monitor['daq']['trigger']
                 print('Trigger: %s' % conditions['trigger'])
                 if conditions['trigger'] == 'external':
                     # It should specify also which port to use
-                    conditions['trigger_source'] = self.monitor['daq']['trigger_source']
+                    conditions['trigger_source'] = monitor['daq']['trigger_source']
                     print('Trigger source: %s' % conditions['trigger_source'])
                 elif conditions['trigger'] == 'internal':
-                    if self.monitor['daq']['trigger_source'] is not None:
+                    if monitor['daq']['trigger_source'] is not None:
                         raise Warning('Specifying trigger even if set to Internal.')
                 else:
                     raise Exception('Trigger not recognized. Check the config. Only external or internal can be used.')
 
                 if 'start_trigger' in self.monitor['daq']:
-                    if self.monitor['daq']['start_trigger'] is not None:
-                        conditions['start_source'] = self.monitor['daq']['start_source']
+                    if monitor['daq']['start_trigger'] is not None:
+                        conditions['start_source'] = monitor['daq']['start_source']
                         conditions['start_mode'] = 'digital'
                     else:
                         conditions['start_mode'] = 'software'
@@ -396,6 +414,8 @@ class Measurement(object):
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable
                 print('Task number: %s' % self.daqs[d]['monitor_task'])
+                # Store the values back to the class
+                self.monitor = monitor
 
     def start_continuous_scans(self):
         """Starts the laser, and triggers the daqs. It assumes setup_continuous_scans was already called."""

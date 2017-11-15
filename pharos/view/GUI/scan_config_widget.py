@@ -43,9 +43,6 @@ class ScanConfigWidget(QtGui.QWidget):
 
                 self.add_new_device(self.devices[-1])
 
-        ttime = {'dev': 'time', 'output': 'time'}
-        self.add_new_device(ttime)
-
     def configure_monitors(self, devs_to_monitor):
         for dev in devs_to_monitor:
             if dev.properties['name'] in self.monitors:
@@ -95,9 +92,15 @@ class ScanConfigWidget(QtGui.QWidget):
         for dev in self.devices_widget:
             v = dev.get_values()
             if v['radio']:
-                values = v
-        dev = self.devices[values['index']]
-        values['dev'] = dev
+                break
+
+        dev = self.devices[v['index']]
+
+        values= {
+            'name': dev['dev'],
+            'output': dev['output'],
+            'range': v['range'],
+        }
         
         return values
 

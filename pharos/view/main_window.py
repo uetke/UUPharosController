@@ -284,7 +284,6 @@ class MainWindow(QtGui.QMainWindow):
             raise Warning('Finishing ongoing processes before triggering a new one.')
             return
 
-        
         devs_to_monitor = self.monitor_widget.get_devices_checked()
         if len(devs_to_monitor) > 0:
 
@@ -296,7 +295,26 @@ class MainWindow(QtGui.QMainWindow):
                 self.experiment.scan['shutter']['delay'] = delay
 
             self.experiment.scan['laser']['params'] = self.laser_widget.update_laser_values()
-            self.experiment.scan['axis']['device'] = self.scan_widget.get_devices_and_values()
+            values = self.scan_widget.get_devices_and_values()
+            self.experiment.scan['axis']['device']['name'] = values['name']
+            self.experiment.scan['axis']['device']['property'] = values['output']
+            self.experiment.scan['axis']['device']['range'] = values['range']
+            if self.monitor_widget.trigger.currentText() == 'External':
+                self.experiment.scan['daq']['trigger'] = 'external'
+            elif self.monitor_widget.trigger.currentText() == 'Internal':
+                self.experiment.scan['daq']['trigger'] = 'internal'
+            else:
+                print('There is something wrong with the dropdown choices')
+
+            if self.monitor_widget.trigger_adc.text() != '':
+                self.experiment.scan['daq']['trigger_source'] = self.monitor_widget.trigger_adc.text()
+            else:
+                self.experiment.scan['daq']['trigger_source'] = None
+            if self.monitor_widget.trigger_start.text() != '':
+                self.experiment.scan['daq']['start_source'] = self.monitor_widget.trigger_start.text()
+            else:
+                self.experiment.scan['daq']['start_source'] = None
+
             self.experiment.setup_scan()
 
             start_wl = self.experiment.scan['laser']['params']['start_wavelength']

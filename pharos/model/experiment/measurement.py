@@ -138,7 +138,7 @@ class Measurement(object):
 
     def setup_scan(self):
         """ Prepares the scan by setting all the parameters to the DAQs and laser.
-        ALL THIS IS WORK IN PROGRESS, THAT WORKS WITH VERY SPECIFIC SETUP CONDITIONS!
+        THIS METHOD WORKS WITH VERY SPECIFIC SETUP CONDITIONS!
         :return:
         """
         scan = self.scan
@@ -160,11 +160,9 @@ class Measurement(object):
             laser_params['stop_wavelength'] += laser_params['interval_trigger']
             num_points += 1
 
-        try:
-            laser.apply_values(laser_params)
-        except:
-            print('Problem changing values of the laser')
-            
+        self.scan['laser']['params'] = laser_params
+        laser.apply_values(laser_params)
+
         # Clear the array to start afresh
         for d in self.daqs:
             self.daqs[d]['monitor'] = []
@@ -329,17 +327,18 @@ class Measurement(object):
         devices_to_monitor = monitor['detectors']
 
         for dev in devices_to_monitor:
-            #dev = self.devices[d]
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
 
         # Lets calculate the conditions of the scan
         num_points = int(
-            (self.monitor['laser']['params']['stop_wavelength'] - self.monitor['laser']['params']['start_wavelength']) / self.monitor['laser']['params']['interval_trigger'])+1
+            (self.monitor['laser']['params']['stop_wavelength'] - self.monitor['laser']['params']['start_wavelength'])
+            / self.monitor['laser']['params']['interval_trigger'])+1
 
         # Some DAQ cards behave strangely when dealing with even/odd number of points.
         # Using an even number of data points makes it behave correctly 'always'
         if num_points % 2 != 0:
-            self.monitor['laser']['params']['stop_wavelength'] += self.monitor['laser']['params']['interval_trigger']  #  Increase the stop wavelength in one step in order to have an extra data point
+            #  Increase the stop wavelength in one step in order to have an extra data point
+            self.monitor['laser']['params']['stop_wavelength'] += self.monitor['laser']['params']['interval_trigger']
             num_points += 1
 
         accuracy = self.monitor['laser']['params']['interval_trigger'] / self.monitor['laser']['params']['wavelength_speed']
@@ -372,10 +371,27 @@ class Measurement(object):
                 print('Devs to monitor:')
                 print(devs_to_monitor)
                 conditions['devices'] = devs_to_monitor
-                conditions['trigger'] = daq_driver.properties['trigger']
+                if 'trigger' not in self.monitor['daq']:
+                    raise Exception('A trigger has to be specified in the daq section of the monitor')
+                conditions['trigger'] = self.monitor['daq']['trigger']
                 print('Trigger: %s' % conditions['trigger'])
-                conditions['trigger_source'] = daq_driver.properties['trigger_source']
-                print('Trigger source: %s' % conditions['trigger_source'])
+                if conditions['trigger'] == 'external':
+                    # It should specify also which port to use
+                    conditions['trigger_source'] = self.monitor['daq']['trigger_source']
+                    print('Trigger source: %s' % conditions['trigger_source'])
+                elif conditions['trigger'] == 'internal':
+                    if self.monitor['daq']['trigger_source'] is not None:
+                        raise Warning('Specifying trigger even if set to Internal.')
+                else:
+                    raise Exception('Trigger not recognized. Check the config. Only external or internal can be used.')
+
+                if 'start_trigger' in self.monitor['daq']:
+                    if self.monitor['daq']['start_trigger'] is not None:
+                        conditions['start_source'] = self.monitor['daq']['start_source']
+                        conditions['start_mode'] = 'digital'
+                    else:
+                        conditions['start_mode'] = 'software'
+
                 conditions['sampling'] = sampling
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable

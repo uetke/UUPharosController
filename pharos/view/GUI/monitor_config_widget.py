@@ -17,7 +17,17 @@ class MonitorConfigWidget(QtGui.QWidget):
 
         QtCore.QObject.connect(self.select_all, QtCore.SIGNAL('clicked()'), self.check_all)
 
-    def populate_devices(self, daqs):
+    def populate_data(self, experiment):
+
+        if 'daq' in experiment.monitor:
+            if experiment.monitor['daq']['trigger'] == 'external':
+                self.trigger.setCurrentIndex(0)
+            else:
+                self.trigger.setCurrentIndex(1)
+            self.trigger_adc.setText(experiment.monitor['daq']['trigger_source'])
+            self.trigger_start.setText(experiment.monitor['daq']['start_source'])
+
+        daqs = experiment.daqs
         for d in daqs:
             self.groupbox.append(QtGui.QGroupBox())
             self.groupbox[-1].setTitle(d)

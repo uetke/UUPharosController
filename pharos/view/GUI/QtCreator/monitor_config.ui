@@ -21,7 +21,11 @@
     <widget class="QLabel" name="trigger_label">
      <property name="font">
       <font>
+       <family>MS Shell Dlg 2</family>
        <pointsize>12</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
@@ -35,11 +39,15 @@
    <item row="0" column="1">
     <widget class="QComboBox" name="trigger">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="font">
       <font>
+       <family>MS Shell Dlg 2</family>
        <pointsize>12</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <item>
@@ -55,17 +63,21 @@
     </widget>
    </item>
    <item row="0" column="2">
-    <widget class="QLineEdit" name="trigger_info">
+    <widget class="QLineEdit" name="trigger_adc">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="font">
       <font>
+       <family>MS Shell Dlg 2</family>
        <pointsize>12</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="toolTip">
-      <string extracomment="e.g.: PFI0"/>
+      <string extracomment="e.g.: PFI0">Which port to use to trigger the analog to digital conversion.</string>
      </property>
     </widget>
    </item>
@@ -73,48 +85,52 @@
     <widget class="QLabel" name="label">
      <property name="font">
       <font>
+       <family>MS Shell Dlg 2</family>
        <pointsize>12</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
-      <string>Port</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QLabel" name="label_2">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>Accuracy</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-     <property name="buddy">
-      <cstring>accuracy</cstring>
+      <string>Port ADC</string>
      </property>
     </widget>
    </item>
    <item row="1" column="2">
-    <widget class="QLineEdit" name="accuracy">
+    <widget class="QLineEdit" name="trigger_start">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="font">
       <font>
+       <family>MS Shell Dlg 2</family>
        <pointsize>12</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
       </font>
+     </property>
+     <property name="toolTip">
+      <string>Which port to use if the acquisition starts with an external trigger</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="4">
-    <layout class="QFormLayout" name="layout_widgets">
-     <item row="0" column="0">
-      <widget class="QWidget" name="devices_widget" native="true"/>
-     </item>
-    </layout>
+   <item row="1" column="3">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <family>MS Shell Dlg 2</family>
+       <pointsize>12</pointsize>
+       <weight>50</weight>
+       <italic>false</italic>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Port Start</string>
+     </property>
+    </widget>
    </item>
    <item row="3" column="0" colspan="2">
     <widget class="QPushButton" name="select_all">
@@ -127,6 +143,13 @@
       <string>Select all</string>
      </property>
     </widget>
+   </item>
+   <item row="2" column="0" colspan="4">
+    <layout class="QFormLayout" name="layout_widgets">
+     <item row="0" column="0">
+      <widget class="QWidget" name="devices_widget" native="true"/>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

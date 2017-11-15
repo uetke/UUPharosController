@@ -86,7 +86,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.laser_widget.populate_values(self.experiment.monitor['laser']['params'])
         self.scan_widget.populate_devices(self.experiment)
-        self.monitor_widget.populate_devices(self.experiment.daqs)
+        self.monitor_widget.populate_devices(self.experiment)
 
         if len(self.experiment.rotation_stages) > 0:
             self.rotation_stages_widget = []
@@ -184,7 +184,6 @@ class MainWindow(QtGui.QMainWindow):
         triggers the laser and does not start the NI-card for acquiring.
         """
         if self.monitor_running or self.monitor_paused or self.scan_running:
-            #self.stop_monitor()
             self.laser.driver.execute_sweep()
             print('Triggering the laser again.')
             return
@@ -194,10 +193,21 @@ class MainWindow(QtGui.QMainWindow):
             self.monitor_widget.open_monitor(devs_to_monitor)
             self.experiment.monitor['detectors'] = devs_to_monitor
             self.experiment.monitor['laser']['params'] = self.laser_widget.update_laser_values()
-            self.experiment.setup_continuous_scans()
-            self.experiment.start_continuous_scans()
-            time_to_scan = self.experiment.measure['monitor']['approx_time_to_scan'].m_as(Q_('ms'))
-            
+
+            if self.monitor_widget.trigger.currentText() == 'External':
+                self.experiment.monitor['daq']['trigger'] = 'external'
+            elif self.monitor_widget.trigger.currentText() == 'Internal':
+                self.experiment.monitor['daq']['trigger'] = 'internal'
+            else:
+                print('Something is wrong with the dropdown choices')
+            if self.monitor_widget.trigger_adc.text() != '':
+                self.experiment.monitor['daq']['trigger_source'] = self.monitor_widget.trigger_adc.text()
+            else:
+                self.experiment.monitor['daq']['trigger_source'] = None
+            if self.monitor_widget.trigger_start.text() != '':
+                self.experiment.monitor['daq']['start_source'] = self.monitor_widget.trigger_start.text()
+            else:
+                self.experiment.monitor['daq']['start_source'] = None
 
             #  Set the number of accumulations to the monitor, first do this, then set the wavelength.
             accumulations = self.laser_scan_widget.accumulations_line.text()
@@ -212,7 +222,9 @@ class MainWindow(QtGui.QMainWindow):
                 self.laser_scan_widget.accumulations_line.setText('1')
                 accumulations = 1
             self.monitor_widget.set_accumulations_to_monitor(accumulations)
-            
+
+            self.experiment.setup_continuous_scans()
+            self.experiment.start_continuous_scans()
             start_wl = self.experiment.monitor['laser']['params']['start_wavelength']
             units = start_wl.u
             # Convert everything to the units of the start_wl
@@ -226,8 +238,7 @@ class MainWindow(QtGui.QMainWindow):
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
-            
-            
+
             self.laser_condition = 'Running'
             self.monitor_timer.start(config.monitor_read_scan)
             self.daq_enabled = True
@@ -235,7 +246,6 @@ class MainWindow(QtGui.QMainWindow):
             self.daq_enabled = False
             self.laser.driver.execute_sweep()
         self.monitor_running = True
-        self.t0 = time.time()
 
     def update_values_from_laser(self):
         """ Reads the values from the laser and passes them to the GUI. It also blocks the signals of the sliders to

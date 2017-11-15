@@ -50,6 +50,13 @@ class LaserWidgetGUI(QtGui.QWidget):
             self.step_button.toggle()
             self.two_button.toggle()
 
+        if values['timing_trigger'] == 'Step':
+            self.trigger_step.toggle()
+        elif values['timing_trigger'] == 'Start':
+            self.trigger_start.toggle()
+        elif values['timing_trigger'] == 'Stop':
+            self.trigger_stop.toggle()
+
     def update_laser_values(self):
         values = {
             'start_wavelength': Q_(self.start_wavelength_line.text()),
@@ -90,6 +97,13 @@ class LaserWidgetGUI(QtGui.QWidget):
             values.update({'wait': Q_(self.wait_line.text()), })
         if self.sweeps_line.text() != "":
             values.update({'wavelength_sweeps': self.sweeps_line.text(), })
+
+        if self.trigger_step.isChecked():
+            values['timing_trigger'] = 'Step'
+        if self.trigger_start.isChecked():
+            values['timing_trigger'] = 'Start'
+        if self.trigger_stop.isChecked():
+            values['timing_trigger'] = 'Stop'
 
         return values
 

@@ -34,6 +34,11 @@ class MonitorMemory(QtGui.QMainWindow):
         self.file_menu.addAction(self.quick_save_action)
         self.setMenuBar(self.menu)
 
+        self.status_bar = self.statusBar()
+        self.status_bar.showMessage("This is a message")
+        self.status_bar.setStyleSheet(
+            "QStatusBar{color:black;font-weight:bold;font-size:14px}")
+
         self.central_widget = QtGui.QWidget()
         self.central_widget.setLayout(QtGui.QVBoxLayout())
         self.main_plot = pg.PlotWidget()
@@ -232,15 +237,15 @@ class MonitorMemory(QtGui.QMainWindow):
         y = vb.mapSceneToView(event).y()
         self.x_mouse = x
         self.y_mouse = y
-
+        self.status_bar.showMessage('({:8.4f},{:4.2f})'.format(self.x_mouse, self.y_mouse))
         if modifiers == QtCore.Qt.ControlModifier:
             if not self.show_label:
                 self.show_label = True
                 self.label.show()
                 self.main_plot.addItem(self.label)
-            self.label.setPos(vb.mapSceneToView(event))
-            self.label.setHtml("<span style='font-size: 12pt'>x=%0.4f</span> <br />   <span style='font-size: 12pt'>y1=%0.1f</span>" % (
+            self.label.setHtml("<span style='font-size: 12pt'>x=%0.4f</span> <br />   <span style='font-size: 12pt'>y1=%0.2f</span>" % (
                 x, y))
+            self.label.setPos(vb.mapSceneToView(event))
         else:
             if self.show_label:
                 self.label.hide()
@@ -389,7 +394,7 @@ if __name__ == '__main__':
     import sys
     from PyQt4.Qt import QApplication
 
-    wavelength = np.linspace(1492, 1512, 500)
+    wavelength = np.linspace(1492, 1512, 1000)
     ap = QApplication(sys.argv)
     m = MonitorMemory()
     m.memory = 2
@@ -399,7 +404,7 @@ if __name__ == '__main__':
     d1 = lorentz([10, 1505, 3, 4], wavelength)
     d2 = lorentz([5, 1500, 2.5, 3.4], wavelength)
     for _ in range(12):
-        data = np.random.random(500)*.2
+        data = np.random.random(1000)*.2
         m.set_ydata(data+d1)
 
     m.show()

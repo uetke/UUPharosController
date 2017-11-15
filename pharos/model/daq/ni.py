@@ -45,7 +45,6 @@ class ni(DaqBase):
         self.daq_num = daq_num
         self.monitorNum = []
         self.tasks = []
-        self.num_devices = np.zeros((500, )) # Stores the number of devices that are being acquired.
         self.nidaq = nidaq
 
     def analog_input_setup(self, conditions):
@@ -61,7 +60,6 @@ class ni(DaqBase):
             channel = ["Dev%s/ai%s" % (self.daq_num, devices.properties['port'])]
             limit_min = [devices.properties['limits']['min']]
             limit_max = [devices.properties['limits']['max']]
-            num_devices = 1
         else:
             channel = []
             limit_max = []
@@ -71,7 +69,6 @@ class ni(DaqBase):
                 limit_min.append(dev.properties['limits']['min'])
                 limit_max.append(dev.properties['limits']['max'])
         
-        num_devices = len(channel)
         channels = ', '.join(channel)
         channels.encode('utf-8')
         freq = int(1/conditions['accuracy'].to('s').magnitude)
@@ -80,7 +77,6 @@ class ni(DaqBase):
         
         if conditions['trigger'] == 'external':
             trigger = "/Dev%s/%s" % (self.daq_num, conditions['trigger_source'])
-            print('NI: external trigger: %s' % trigger)
         else:
             trigger = ""
         if 'trigger_edge' in conditions:
@@ -116,16 +112,31 @@ class ni(DaqBase):
         else:
             cont_finite = nidaq.DAQmx_Val_ContSamps
             num_points = config.ni_buffer
-            
-        print('NI-Class: Number of points: {}'.format(num_points))
-        print('NI-Class: Acquisition mode: {}'.format(cont_finite))
+
+
         t.CfgSampClkTiming(trigger, freq, trigger_edge, cont_finite, num_points)
+
+        if 'start_mode' in conditions:
+            if conditions['start_mode'] == 'digital':
+                trigger = "/Dev%s/%s" % (self.daq_num, conditions['start_source'])
+                if 'start_edge' in conditions:
+                    if conditions['start_edge'] == 'rising':
+                        edge = ni.DAQmx_Val_Rising
+                    elif conditions['start_edge'] == 'falling':
+                        edge = nidaq.DAQmx_Val_Falling
+                    else:
+                        raise Warning('Trigger edge for starting not recognized. Falling to default')
+                        edge = config.ni_start_edge
+
+                t.CfgDigEdgeStartTrig(trigger, edge)
+            elif conditions['start_mode'] == 'analog':
+                raise Warning('Starting with an analog trigger is not yet implemented')
+            elif conditions['start_mode'] == 'software':
+                print('Software starting')
+            else:
+                raise Warning('Only digital, analog and software start triggers are supported.')
+
         self.tasks.append(t)
-        try:
-            self.num_devices[len(self.tasks)-1] = num_devices
-        except:
-            print('Not enough space to store the number of devices')
-            
         return len(self.tasks)-1
 
     def trigger_analog(self, task=None):
@@ -156,12 +167,11 @@ class ni(DaqBase):
             if 'buffer_length' in conditions:
                 data = np.zeros((int(conditions['buffer_length']),), dtype=np.float64)
             else:
-                data = np.zeros((points*self.num_devices[task],), dtype=np.float64)
-            t.ReadAnalogF64(points, config.ni_read_timeout, nidaq.DAQmx_Val_GroupByChannel,
-                            data, len(data), nidaq.byref(read), None)
+                data = np.zeros((points,), dtype=np.float64)
         else:
             data = np.zeros((config.ni_buffer,), dtype=np.float64)
-            t.ReadAnalogF64(points, config.ni_read_timeout, nidaq.DAQmx_Val_GroupByChannel,
+
+        t.ReadAnalogF64(points, config.ni_read_timeout, nidaq.DAQmx_Val_GroupByChannel,
                             data, len(data), nidaq.byref(read), None)
         values = read.value
         return values, data

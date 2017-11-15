@@ -11,8 +11,7 @@ TSL-710:
     port: 1
   defaults: config/devices_defaults.yml #setting defaults will trigger an action after initializing each device with model/lib/device.py class
   outputs:
-    - wavelength
-    - powermW
+    - time
 
 ThorRotation1:
   type: Rotation Stage
@@ -41,7 +40,7 @@ PhotoDiode1:
   connection:
     type: daq
     device: NI-DAQ
-    
+
 PhotoDiode3:
   name: Photodiode Test 2
   port: 3
@@ -58,7 +57,8 @@ PhotoDiode3:
   connection:
     type: daq
     device: NI-DAQ
-    
+
+
 PhotoDiode4:
   name: Photodiode Test 4
   port: 4
@@ -93,23 +93,6 @@ PhotoDiode2:
     type: daq
     device: NI-DAQ
 
-Stage 1:
-  name: Stage 1
-  port: 1
-  type: analog
-  mode: output
-  description: Example analog Out
-  calibration:
-    units: um
-    slope: 1
-    offset: 0
-  limits:
-    min: 0um
-    max: 10um
-  connection:
-    type: daq
-    device: NI-DAQ
-
 NI-DAQ:
   name: NI-DAQ
   type: daq
@@ -121,26 +104,3 @@ NI-DAQ:
     port: 2
   trigger: external
   trigger_source: PFI0
-
-oscilloscope:
-  type: daq
-  driver: model.daq.keysight
-  name: Keysight oscilloscope
-  connection:
-    type: USB
-    port: 1
-
-DummyDaq:
-  type: daq
-  name: dummy daq
-  driver: pharos.model.daq.daqDummy/dummyDaq
-  connection:
-    type: daq
-    port: 1
-  defaults: config/devices_defaults.yml
-  trigger: external
-  trigger_source: PFI0
-
-
-
-

@@ -38,7 +38,8 @@ experiment.do_scan()
 data_scan = experiment.read_scans(0)
 for d in data_scan:
     print(d)
-    print(data_scan[d])
+    #print(data_scan[d])
+    print('test ka')
     
 ### CHECK IF THERE IS REMAINING DATA IN THE DAQ ###
 data_scan = experiment.read_scans(-1)

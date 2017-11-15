@@ -153,15 +153,16 @@ class Measurement(object):
         laser_params['wavelength'] = laser_params['start_wavelength']
 
         num_points = (laser_params['stop_wavelength'] - laser_params['start_wavelength']) / laser_params['interval_trigger'] * laser_params['wavelength_sweeps']
-        num_points = int(num_points.m_as(''))+1
+        num_points = int(round(num_points.m_as('')))+1
 
         # Some NI DAQs misbehave with odd number of data points.
         if num_points % 2 != 0:
             laser_params['stop_wavelength'] += laser_params['interval_trigger']
             num_points += 1
 
-        self.scan['laser']['params'] = laser_params
-        laser.apply_values(laser_params)
+        scan['laser']['params'] = laser_params
+        print('Measurement number of points: {}'.format(num_points))
+        laser.apply_values(scan['laser']['params'])
 
         # Clear the array to start afresh
         for d in self.daqs:
@@ -170,11 +171,9 @@ class Measurement(object):
         # Lets see what happens with the devices to monitor
         devices_to_monitor = scan['detectors']
 
-        for dev_name in devices_to_monitor:
-            dev = self.devices[dev_name]
+        for dev in devices_to_monitor:
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
-            print('Appending {} to {}'.format(dev_name, dev.properties['connection']['device']))
-
+            
         dev_to_scan = scan['axis']['device']['name']
         output_to_scan = scan['axis']['device']['property']
         if dev_to_scan != 'time':
@@ -197,7 +196,7 @@ class Measurement(object):
             'accuracy': accuracy,
             'points': num_points*num_points_dev,
         }
-        self.scan['total_points'] = conditions['points']
+        scan['total_points'] = conditions['points']
         # Then setup the DAQs
         for d in self.daqs:
             daq = self.daqs[d]  # Get the DAQ from the dictionary of daqs.
@@ -210,12 +209,12 @@ class Measurement(object):
                 print(devs_to_monitor)
                 conditions['points'] *= len(daq['monitor'])
                 conditions['devices'] = devs_to_monitor
-                if 'trigger' not in self.scan['daq']:
+                if 'trigger' not in scan['daq']:
                     raise Exception('A trigger has to be specified in the daq section of the scan')
-                conditions['trigger'] = self.scan['daq']['trigger']
+                conditions['trigger'] = scan['daq']['trigger']
                 print('Trigger: {}'.format(conditions['trigger']))
                 if conditions['trigger'] == 'external':
-                    conditions['trigger_source'] = self.scan['daq']['trigger_source']
+                    conditions['trigger_source'] = scan['daq']['trigger_source']
                     print('Trigger source: {}'.format(conditions['trigger_source']))
                 elif conditions['trigger'] == 'internal':
                     if self.monitor['daq']['trigger_source'] is not None:
@@ -223,9 +222,9 @@ class Measurement(object):
                 else:
                     raise Exception('Trigger not recognized. Check the config. Only external or internal can be used.')
 
-                if 'start_trigger' in self.scan['daq']:
-                    if self.scan['daq']['start_trigger'] is not None:
-                        conditions['start_source'] = self.scan['daq']['start_source']
+                if 'start_trigger' in scan['daq']:
+                    if scan['daq']['start_trigger'] is not None:
+                        conditions['start_source'] = scan['daq']['start_source']
                         conditions['start_mode'] = 'digital'
                     else:
                         conditions['start_mode'] = 'software'
@@ -240,7 +239,8 @@ class Measurement(object):
 
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']
 
-        self.scan['approx_time_to_scan'] = approx_time_to_scan
+        scan['approx_time_to_scan'] = approx_time_to_scan
+        self.scan = scan
 
     def do_line_scan(self):
         """ Does the wavelength scan.
@@ -348,9 +348,9 @@ class Measurement(object):
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
 
         # Lets calculate the conditions of the scan
-        num_points = int(
+        num_points = int(round(
             (monitor['laser']['params']['stop_wavelength'] - monitor['laser']['params']['start_wavelength'])
-            / monitor['laser']['params']['interval_trigger'])+1
+            / monitor['laser']['params']['interval_trigger']))+1
 
         # Some DAQ cards behave strangely when dealing with even/odd number of points.
         # Using an even number of data points makes it behave correctly 'always'

@@ -97,7 +97,7 @@ class ScanConfigWidget(QtGui.QWidget):
         dev = self.devices[v['index']]
 
         values= {
-            'name': dev['dev'],
+            'name': dev['dev'].properties['name'],
             'output': dev['output'],
             'range': v['range'],
         }

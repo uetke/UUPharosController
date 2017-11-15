@@ -86,7 +86,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.laser_widget.populate_values(self.experiment.monitor['laser']['params'])
         self.scan_widget.populate_devices(self.experiment)
-        self.monitor_widget.populate_devices(self.experiment)
+        self.monitor_widget.populate_data(self.experiment)
 
         if len(self.experiment.rotation_stages) > 0:
             self.rotation_stages_widget = []
@@ -231,7 +231,7 @@ class MainWindow(QtGui.QMainWindow):
             start_wl = start_wl.m
             stop_wl = self.experiment.monitor['laser']['params']['stop_wavelength'].m_as(units)
             step = self.experiment.monitor['laser']['params']['interval_trigger'].m_as(units)
-            num_points = (stop_wl - start_wl) / step+1
+            num_points = round((stop_wl - start_wl) / step)+1
 
             xdata = np.linspace(start_wl, stop_wl, num_points)
             
@@ -324,7 +324,6 @@ class MainWindow(QtGui.QMainWindow):
             start_dev = self.experiment.scan['axis']['device']['range'][0]
             stop_dev = self.experiment.scan['axis']['device']['range'][1]
             step_dev = self.experiment.scan['axis']['device']['range'][2]
-
             axis = {'wavelength':
                         {'start': start_wl,
                          'stop': stop_wl,
@@ -333,7 +332,7 @@ class MainWindow(QtGui.QMainWindow):
                         {'start': start_dev,
                          'stop': stop_dev,
                          'step': step_dev,
-                         'name': self.experiment.scan['axis']['device']['dev']['dev'].properties['name']}}
+                         'name': self.experiment.scan['axis']['device']['name']}}
 
             self.scan_widget.configure_monitors(devs_to_monitor)
             self.scan_widget.open_monitor(devs_to_monitor)

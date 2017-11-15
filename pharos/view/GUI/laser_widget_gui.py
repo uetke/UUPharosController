@@ -67,30 +67,18 @@ class LaserWidgetGUI(QtGui.QWidget):
         
         if self.continuous_button.isChecked():
             if self.one_button.isChecked():
-                if self.trigger_check.isChecked():
-                    sweep_mode = 'ContOneTrig'
-                else:
-                    sweep_mode = 'ContOne'
+                sweep_mode = 'ContOne'
             else:
-                if self.trigger_check.isChecked():
-                    sweep_mode = 'ContTwoTrig'
-                else:
-                    sweep_mode = 'ContTwo'
+                sweep_mode = 'ContTwo'
         else:
             values.update({
                 'step': Q_(self.step_line.text()),
                 'step_time': Q_(self.step_time_line.text()),
             })
             if self.one_button.isChecked():
-                if self.trigger_check.isChecked():
-                    sweep_mode = 'StepOneTrig'
-                else:
-                    sweep_mode = 'StepOne'
+                sweep_mode = 'StepOne'
             else:
-                if self.trigger_check.isChecked():
-                    sweep_mode = 'StepTwoTrig'
-                else:
-                    sweep_mode = 'StepTwo'
+               sweep_mode = 'StepTwo'
         values['sweep_mode'] = sweep_mode
 
         if self.wait_line.text() != "":

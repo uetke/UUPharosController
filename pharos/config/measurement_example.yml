@@ -15,41 +15,31 @@ monitor:
       interval_trigger: 0.01 nm
       sweep_mode: ContOne
       wavelength_sweeps: 1
-      timing_trigger: Step  # Options are Start/Stop/Step/None. See manual for references
   detectors:
   - Photodiode Test
   - Photodiode 2
-  daq:
-    trigger: external # external/internal
-    trigger_source: PFI0 # trigger port used for each analog to digital conversion
-    start_source: None # trigger port used for starting the measurement
-
+    
 scan:
   laser:
     name: Santec Laser
     params:
       start_wavelength: 1492 nm
-      stop_wavelength:  1493 nm
-      wavelength_speed:  1 nm/s
+      stop_wavelength:  1548 nm
+      wavelength_speed:  50 nm/s
       interval_trigger: 0.01 nm
       sweep_mode: ContOne
       wavelength_sweeps: 1
-      timing_trigger: Step  # Options are Start/Stop/Step/None. See manual for references
   axis:  # The laser doesn't need to appear here, it is always considered the first axis of the scan
     device:
       name: Rotation 1
-      range: [35deg, 36deg, 1deg]
+      range: [35deg, 55deg, 1deg]
       property: position
   shutter:
     port: PFI1
-    delay: 200ms
+    delay: 100ms
   detectors:
     - Photodiode Test
     - Photodiode 2
-  daq:
-    trigger: external # external/internal
-    trigger_source: PFI0 # trigger port used for each analog to digital conversion
-    start_source: None # trigger port used for starting the measurement
 
 finish:
   TSL-10:

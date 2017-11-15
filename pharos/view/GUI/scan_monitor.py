@@ -43,9 +43,8 @@ class ScanMonitorWidget(QtGui.QWidget):
         """Sets the axis names, limits and an initial empty dataset."""
         self.wavelength = axis['wavelength']
         units_wl = self.wavelength['stop'].u  # units
-        num_wl_points = ((self.wavelength['stop']-self.wavelength['start'])/self.wavelength['step']).to('')
-       
-        num_wl_points = int(num_wl_points.m)+1
+        num_wl_points = ((self.wavelength['stop']-self.wavelength['start'])/self.wavelength['step'])
+        num_wl_points = int(round(num_wl_points.m_as('')))+1
         self.num_wl_points = num_wl_points
         self.y_axis = axis['y_axis']
         self.setWindowTitle(self.y_axis['name'])
@@ -57,7 +56,7 @@ class ScanMonitorWidget(QtGui.QWidget):
         # self.viewport = GraphicsLayoutWidget()
 
         self.pos = [self.wavelength['start'].m, self.y_axis['start'].m]
-        self.accuracy = [self.wavelength['step'].m, self.y_axis['step'].m]
+        self.accuracy = [self.wavelength['step'].m_as(units_wl), self.y_axis['step'].m]
 
         if self.two_way:
             self.resize(1200, 500)

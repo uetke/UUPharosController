@@ -92,6 +92,9 @@ class ScanMonitorWidget(QtGui.QWidget):
 
             self.imv1.setImage(d1, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
             self.imv2.setImage(d2, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
+            vb = self.view1.getViewBox()
+            vb.autoRange()
+            vb = self.view2.getViewBox()
             vb.autoRange()
             self.layout.addWidget(self.imv1)
             self.layout.addWidget(self.imv2)

@@ -235,21 +235,19 @@ class MonitorMemory(QtGui.QMainWindow):
         vb = self.main_plot.plotItem.vb
         x = vb.mapSceneToView(event).x()
         y = vb.mapSceneToView(event).y()
-        self.x_mouse = x
-        self.y_mouse = y
-        self.status_bar.showMessage('({:8.4f},{:4.2f})'.format(self.x_mouse, self.y_mouse))
-        if modifiers == QtCore.Qt.ControlModifier:
-            if not self.show_label:
-                self.show_label = True
-                self.label.show()
-                self.main_plot.addItem(self.label)
-            self.label.setHtml("<span style='font-size: 12pt'>x=%0.4f</span> <br />   <span style='font-size: 12pt'>y1=%0.2f</span>" % (
-                x, y))
-            self.label.setPos(vb.mapSceneToView(event))
-        else:
-            if self.show_label:
-                self.label.hide()
-                self.show_label = False
+        self.status_bar.showMessage('({:8.4f},{:4.2f})'.format(self.x, self.y))
+        # if modifiers == QtCore.Qt.ControlModifier:
+        #     if not self.show_label:
+        #         self.show_label = True
+        #         self.label.show()
+        #         self.main_plot.addItem(self.label)
+        #     self.label.setHtml("<span style='font-size: 12pt'>x=%0.4f</span> <br />   <span style='font-size: 12pt'>y1=%0.2f</span>" % (
+        #         x, y))
+        #     self.label.setPos(vb.mapSceneToView(event))
+        # else:
+        #     if self.show_label:
+        #         self.label.hide()
+        #         self.show_label = False
 
     def set_pens(self):
         if self.do_average_plot:

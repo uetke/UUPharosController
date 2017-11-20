@@ -64,13 +64,13 @@ class MainWindow(QtGui.QMainWindow):
         QtCore.QObject.connect(self.monitor_timer, QtCore.SIGNAL('timeout()'), self.update_monitors)
         QtCore.QObject.connect(self.scan_timer, QtCore.SIGNAL('timeout()'), self.update_scans)
 
-        QtCore.QObject.connect(self.laser_scan_widget.start_button, QtCore.SIGNAL('clicked()'), self.start_monitor)
-        QtCore.QObject.connect(self.laser_scan_widget.stop_button, QtCore.SIGNAL('clicked()'), self.stop_monitor)
-        QtCore.QObject.connect(self.laser_scan_widget.pause_button, QtCore.SIGNAL('clicked()'), self.pause_monitor)
-        QtCore.QObject.connect(self.laser_scan_widget.start_scan_button, QtCore.SIGNAL('clicked()'), self.start_scan)
-        QtCore.QObject.connect(self.laser_scan_widget.stop_scan_button, QtCore.SIGNAL('clicked()'), self.stop_scan)
-        QtCore.QObject.connect(self.laser_scan_widget.pause_scan_button, QtCore.SIGNAL('clicked()'), self.pause_scan)
-
+        self.laser_scan_widget.start_button.clicked.connect(self.start_monitor)
+        self.laser_scan_widget.stop_button.clicked.connect(self.stop_monitor)
+        self.laser_scan_widget.pause_button.clicked.connect(self.pause_monitor)
+        self.laser_scan_widget.start_scan_button.clicked.connect(self.start_scan)
+        self.laser_scan_widget.stop_scan_button.clicked.connect(self.stop_scan)
+        self.laser_scan_widget.pause_scan_button.clicked.connect(self.pause_scan)
+        self.laser_scan_widget.save_all_button.clicked.connect(self.save_all_monitors)
         self.laser_widget.applyButton.clicked.connect(self.update_laser)
         self.laser_widget.readCurrent.clicked.connect(self.update_laser_widget)
         self.laser_timer.timeout.connect(self.update_values_from_laser)
@@ -401,6 +401,22 @@ class MainWindow(QtGui.QMainWindow):
         self.experiment.pause_continuous_scans()
         self.monitor_paused = True
         self.monitor_running = False
+
+    def save_all_monitors(self):
+        if self.directory is None:
+            self.choose_dir()
+        else:
+            self.monitor_widget.save_all_monitors(self.directory)
+
+    def choose_dir(self):
+        if self.directory is None:
+            if os.path.exists("D:/Data"):
+                self.directory = "D:/Data"
+            elif os.path.exists("~"):
+                self.directory = "~"
+
+        self.directory = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory", self.directory))
+        self.save()
 
     def closeEvent(self, event):
         quit_msg = "Are you sure you want to exit the program?"

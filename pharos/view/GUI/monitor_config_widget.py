@@ -102,7 +102,14 @@ class MonitorConfigWidget(QtGui.QWidget):
         devs_to_monitor = self.get_devices_checked()
         for dev in devs_to_monitor:
             self.monitors[dev.properties['name']]['widget'].memory = accumulations
-            print('Setting {} to {} accumulations'.format(dev.properties['name'], accumulations))
+
+    def save_all_monitors(self, directory=None):
+        """ Saves the data of all the checked monitors."""
+        devs_to_monitor = self.get_devices_checked()
+        for dev in devs_to_monitor:
+            if directory is not None:
+                self.monitors[dev.properties['name']]['widget'].directory = directory
+            self.monitors[dev.properties['name']]['widget'].save()
 
     def update_signal_values(self, data):
         """ Updates the data to the different monitors.

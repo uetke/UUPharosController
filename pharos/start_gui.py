@@ -10,10 +10,8 @@ import sys
 import os
 from PyQt4.Qt import QApplication
 
-from pharos.model.lib.session import session
-from pharos.model.lib.general_functions import from_yaml_to_devices
 from pharos.view.main_window import MainWindow
-from pharos.model.lib.general_functions import from_yaml_to_dict, start_logger, stop_logger
+from pharos.model.lib.general_functions import from_yaml_to_dict
 from pharos.model.experiment.measurement import Measurement
 
 os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorlabs\\Kinesis'

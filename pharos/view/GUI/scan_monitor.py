@@ -25,6 +25,8 @@ class ScanMonitorWidget(QtGui.QWidget):
         self.layout = QtGui.QHBoxLayout(self)
 
         self.two_way = False  # If the laser scan is two-ways
+        self.average = False  # Plot the average
+        self.difference = False  # Plot the difference
 
         self.file_menu = self.menu.addMenu("&File")
         self.save_action = QtGui.QAction("&Save", self)
@@ -55,7 +57,7 @@ class ScanMonitorWidget(QtGui.QWidget):
 
         # self.viewport = GraphicsLayoutWidget()
 
-        self.pos = [self.wavelength['start'].m, self.y_axis['start'].m]
+        self.pos = [self.wavelength['start'].m_as(units_wl), self.y_axis['start'].m]
         self.accuracy = [self.wavelength['step'].m_as(units_wl), self.y_axis['step'].m]
 
         if self.two_way:
@@ -166,6 +168,10 @@ class ScanMonitorWidget(QtGui.QWidget):
             d2 = d[:, -1:self.num_wl_points-1:-1]
             self.d1 = d1
             self.d2 = d2
+            if self.average:
+                d2 = (self.d1 + self.d2)/2
+            elif self.difference:
+                d2 = (self.d1 - self.d2)
             self.imv1.setImage(d1.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
             self.imv2.setImage(d2.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
         else:

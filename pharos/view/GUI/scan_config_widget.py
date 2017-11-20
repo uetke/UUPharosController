@@ -72,6 +72,14 @@ class ScanConfigWidget(QtGui.QWidget):
         for m in self.monitors:
             self.monitors[m]['widget'].two_way = two_way
 
+    def set_average_monitors(self, average=True):
+        for m in self.monitors:
+            self.monitors[m]['widget'].average = average
+
+    def set_difference_monitors(self, difference=True):
+        for m in self.monitors:
+            self.monitors[m]['widget'].difference = difference
+
     def close_all_monitors(self):
         for m in self.monitors:
             self.monitors[m]['widget'].close()

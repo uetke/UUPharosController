@@ -338,6 +338,11 @@ class MainWindow(QtGui.QMainWindow):
             self.scan_widget.open_monitor(devs_to_monitor)
             if self.experiment.scan['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.scan_widget.set_two_way_monitors(True)
+                if self.scan_widget.average_plot.isChecked():
+                    self.scan_widget.set_average_monitors(True)
+                elif self.scan_widget.difference_plot.isChecked():
+                    self.scan_widget.set_difference_monitors(True)
+
             self.scan_widget.set_axis_to_monitor(axis)
             self.worker_thread = WorkThread(self.experiment.do_scan)
             self.worker_thread.start()

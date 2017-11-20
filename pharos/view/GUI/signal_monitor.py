@@ -65,7 +65,7 @@ class SignalMonitorWidget(pg.GraphicsView):
         self.wavelength = wavelength
         if self.two_way:
             self.wavelength2 = wavelength[::-1]
-            self.ydata = np.zeros((2*len(self.wavelength)))
+            self.ydata = np.empty((2*len(self.wavelength)))
             self.len_ydata = int(len(self.ydata)/2)
             d1 = self.ydata[:self.len_ydata]
             d2 = self.ydata[self.len_ydata:]
@@ -75,7 +75,7 @@ class SignalMonitorWidget(pg.GraphicsView):
             self.p2.setDownsampling(auto=True, method='peak')
             #self.p2.setClipToView(True)
         else:
-            self.ydata = np.zeros((len(self.wavelength)))
+            self.ydata = np.empty((len(self.wavelength)))
             self.p = self.main_plot.plot(self.wavelength, self.ydata, pen={'color': "#b6dbff", 'width': 2})
             self.p.setDownsampling(auto=True, method='peak')
         self.data_length = len(self.ydata)

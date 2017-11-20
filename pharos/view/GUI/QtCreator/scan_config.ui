@@ -168,7 +168,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_3">
+       <widget class="QRadioButton" name="difference_plot">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Plots the difference of the two-way scans.&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; color:#ff0000;&quot;&gt;WARNING&lt;/span&gt;: Only works if two-way scans are selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>

@@ -92,7 +92,7 @@ class ScanMonitorWidget(QtGui.QWidget):
 
             self.imv1.setImage(d1, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
             self.imv2.setImage(d2, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
-
+            vb.autoRange()
             self.layout.addWidget(self.imv1)
             self.layout.addWidget(self.imv2)
 
@@ -111,6 +111,7 @@ class ScanMonitorWidget(QtGui.QWidget):
             self.data = np.zeros((num_wl_points * num_y_points))
             d = np.reshape(self.data, (self.num_wl_points, self.num_y_points))
             self.imv.setImage(d, pos=self.pos, scale=self.accuracy, autoLevels=True, autoRange=True, autoHistogramRange=True)
+            vb.autoRange()
             self.layout.addWidget(self.imv)
         self.setLayout(self.layout)
 
@@ -141,6 +142,8 @@ class ScanMonitorWidget(QtGui.QWidget):
         self.two_way = False
         self.pos = [0, 0]
         self.accuracy = [1, 1]
+        self.average = False  # Plot the average
+        self.difference = False  # Plot the difference
 
     def set_name(self, name):
         if self.name is not None:
@@ -172,12 +175,12 @@ class ScanMonitorWidget(QtGui.QWidget):
                 d2 = (self.d1 + self.d2)/2
             elif self.difference:
                 d2 = (self.d1 - self.d2)
-            self.imv1.setImage(d1.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
-            self.imv2.setImage(d2.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
+            self.imv1.setImage(d1.T, scale=self.accuracy, autoLevels=False, autoRange=False, autoHistogramRange=True)
+            self.imv2.setImage(d2.T, scale=self.accuracy, autoLevels=False, autoRange=False, autoHistogramRange=True)
         else:
             d = np.reshape(self.data, (self.num_y_points, self.num_wl_points))
             self.d = d
-            self.imv.setImage(d.T, autoLevels=False, autoRange=False, autoHistogramRange=False)
+            self.imv.setImage(d.T, scale=self.accuracy, autoLevels=False, autoRange=False, autoHistogramRange=True)
 
     def save(self):
         """Save the data to disk.

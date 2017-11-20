@@ -27,8 +27,8 @@ class ScanConfigWidget(QtGui.QWidget):
         self.devices = []
         self.monitors = {}
 
-        self.add_device_button.clicked[bool].connect(self.add_new_device)
-        self.remove_device_button.clicked[bool].connect(self.remove_last_device)
+        #self.add_device_button.clicked[bool].connect(self.add_new_device)
+        #self.remove_device_button.clicked[bool].connect(self.remove_last_device)
         self.i = 0
 
     def populate_devices(self, experiment):
@@ -46,6 +46,7 @@ class ScanConfigWidget(QtGui.QWidget):
     def configure_monitors(self, devs_to_monitor):
         for dev in devs_to_monitor:
             if dev.properties['name'] in self.monitors:
+                self.monitors[dev.properties['name']]['widget'].clear_data()
                 self.monitors[dev.properties['name']]['widget'].close()
                 self.monitors[dev.properties['name']]['widget'].deleteLater()
 

@@ -149,7 +149,6 @@ class ni(DaqBase):
         else:
             t = self.tasks[task]
         t.StartTask()  # Starts the measurement.
-        print('NI-Class: Starting: {}'.format(t))
 
     def read_analog(self, task, conditions):
         """Gets the analog values acquired with the triggerAnalog function. If more than one channel is acquired, the number of points corresponds to

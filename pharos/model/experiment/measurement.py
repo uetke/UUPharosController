@@ -147,13 +147,13 @@ class Measurement(object):
         laser = self.devices[scan['laser']['name']]
         if 'wavelength_sweeps' not in laser_params:
             laser_params['wavelength_sweeps'] = 1  # This to avoid conflicts in downstream code.
-        elif laser_params['wavelength_sweeps'] == 0:
+        elif laser_params['wavelength_sweeps'] != 1:
             laser_params['wavelength_sweeps'] = 1  # This to avoid conflicts in downstream code.
         
         laser_params['wavelength'] = laser_params['start_wavelength']
 
-        num_points = (laser_params['stop_wavelength'] - laser_params['start_wavelength']) / laser_params['interval_trigger'] * laser_params['wavelength_sweeps']
-        num_points = int(round(num_points.m_as('')))+1
+        num_points = (laser_params['stop_wavelength'] - laser_params['start_wavelength']) / laser_params['interval_trigger']
+        num_points = (int(round(num_points.m_as('')))+1) * laser_params['wavelength_sweeps']
 
         # Some NI DAQs misbehave with odd number of data points.
         if num_points % 2 != 0:
@@ -232,10 +232,11 @@ class Measurement(object):
                 conditions['sampling'] = 'continuous'
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable
-                print('Scan Task: {}'.format(self.daqs[d]['monitor_task']))
                 if not daq_driver.driver.is_task_complete(daq['monitor_task']):
                     daq_driver.stop_task(daq['monitor_task'])
+                #self.read_continuous_scans() # Empties the memory of the DAQ before starting a new measurement
                 daq_driver.driver.trigger_analog(None)
+                self.read_continuous_scans()
 
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']
 
@@ -264,7 +265,7 @@ class Measurement(object):
         while laser.driver.sweep_condition != 'Stop':
             sleep(approx_time_to_scan.m/config.monitor_read_scan)
         ni_daq.driver.digital_output(shutter['port'], False)
-
+        laser.driver.wavelength = scan['laser']['params']['start_wavelength']
         return True
 
     def do_scan(self):
@@ -416,6 +417,7 @@ class Measurement(object):
                 print('Task number: %s' % self.daqs[d]['monitor_task'])
                 # Store the values back to the class
                 self.monitor = monitor
+        self.read_continuous_scans() # Empties the memory of the DAQ before starting a new measurement
 
     def start_continuous_scans(self):
         """Starts the laser, and triggers the daqs. It assumes setup_continuous_scans was already called."""

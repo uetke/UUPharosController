@@ -30,6 +30,7 @@
     Having a dictionary
 
 """
+import yaml
 from PyQt4.QtCore import pyqtSignal, QObject
 import numpy as np
 from time import sleep
@@ -40,7 +41,6 @@ from pharos.config import config
 import os
 
 os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorlabs\\Kinesis'
-
 
 class Measurement(QObject):
     line_finished = pyqtSignal(dict)
@@ -701,9 +701,32 @@ class Measurement(QObject):
         ni_daq = self.devices['NI-DAQ']
         ni_daq.driver.digital_output(switch['port'], False) 
 
+    def save_data(self, data, filename):
+        """ Saves the data and adds the metadata of the experiment.
+        warning:: The filename will be overwritten.
 
+        :param data: Data to be saved
+        :param filename: complete path to the file where to save the data.
+        """
+        data_dic = {'monitor': self.monitor,
+                    'scan': self.scan,
+                    'data': data,
+                    'devices': self.devices,
+                    }
+        with open(filename, 'wb') as f:
+            f.write(yaml.dump(data_dic, default_flow_style=False).encode('ascii'))
 
 if __name__ == "__main__":
-    config_experiment = "config/measurement.yml"
+    config_experiment = "../../config/measurement.yml"
     experiment_dict = from_yaml_to_dict(config_experiment)
     experiment = Measurement(experiment_dict)
+    data = np.arange(1,100,0.1)
+    experiment.save_data(data, 'test.dat')
+
+    ## Now read the file
+
+    with open('test.dat', 'r') as f:
+        new_data = yaml.load(f)
+
+    print(new_data['monitor'])
+    print(new_data['data'])

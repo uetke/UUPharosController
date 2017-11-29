@@ -18,3 +18,4 @@ devices.yml
 devices_defaults.yml
 measurement.yml
 config.py
+*.dat

@@ -80,7 +80,11 @@ class MainWindow(QtGui.QMainWindow):
         self.monitor_running = False
         self.scan_running = False
         self.daq_enabled = False
-
+        self.directory = None
+        
+        if 'default_directory' in self.experiment.init:
+            self.directory = self.experiment.init['default_directory']
+        
         if self.laser.driver.sweep_condition != 'Stop':
             self.laser.driver.stop_sweep()
 
@@ -186,6 +190,8 @@ class MainWindow(QtGui.QMainWindow):
         if self.monitor_running or self.monitor_paused or self.scan_running:
             self.laser.driver.execute_sweep()
             print('Triggering the laser again.')
+            laser = self.experiment.devices[self.experiment.monitor['laser']['name']]
+            laser.apply_values(self.experiment.monitor['laser']['params'])
             return
         
         devs_to_monitor = self.monitor_widget.get_devices_checked()
@@ -232,9 +238,16 @@ class MainWindow(QtGui.QMainWindow):
             stop_wl = self.experiment.monitor['laser']['params']['stop_wavelength'].m_as(units)
             step = self.experiment.monitor['laser']['params']['interval_trigger'].m_as(units)
             num_points = round((stop_wl - start_wl) / step)+1
-
+            print('Main window number of points: {}'.format(num_points))
             xdata = np.linspace(start_wl, stop_wl, num_points)
-            
+            print('First wavelength: {}'.format(xdata[0]))
+            print('Last wavelength: {}'.format(xdata[-1]))
+            print('Length wavelength: {}'.format(len(xdata)))
+            print('Laser params')
+            laser = self.experiment.devices[self.experiment.monitor['laser']['name']]
+            print(laser.driver.stop_wavelength)
+            print(laser.driver.wavelength)
+            print(laser.driver.start_wavelength)
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)

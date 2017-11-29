@@ -61,6 +61,8 @@ class MonitorMemory(QtGui.QMainWindow):
         self.show_label = False
         self.do_average_plot = False
         self.lorentz_fitting = False
+        self.x_mouse = 0
+        self.y_mouse = 0
         self.label = pg.TextItem(border='w', fill=(0,0,255))
 
         self.plot_average = QtGui.QAction("Plot Average", self.main_plot.plotItem.vb.menu)
@@ -92,6 +94,8 @@ class MonitorMemory(QtGui.QMainWindow):
         self.show_label = False
         self.do_average_plot = False
         self.lorentz_fitting = False
+        self.x_mouse = 0
+        self.y_mouse = 0
         if self.params is not None:
             self.params.deleteLater()
         if self.params1 is not None:
@@ -205,7 +209,7 @@ class MonitorMemory(QtGui.QMainWindow):
     def save(self):
         if self.directory is not None:
             i = 0
-            filename = 'monitor_data_'
+            filename = 'monitor_data_' + self.name + '_'
             while os.path.isfile(os.path.join(self.directory, '%s%i.dat' % (filename, i))):
                 i += 1
             file = os.path.join(self.directory, '%s%i.dat' % (filename, i))
@@ -235,7 +239,9 @@ class MonitorMemory(QtGui.QMainWindow):
         vb = self.main_plot.plotItem.vb
         x = vb.mapSceneToView(event).x()
         y = vb.mapSceneToView(event).y()
-        self.status_bar.showMessage('({:8.4f},{:4.2f})'.format(self.x, self.y))
+        self.status_bar.showMessage('({:8.4f},{:4.2f})'.format(x, y))
+        self.y_mouse = y
+        self.x_mouse = x
         # if modifiers == QtCore.Qt.ControlModifier:
         #     if not self.show_label:
         #         self.show_label = True

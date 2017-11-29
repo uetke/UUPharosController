@@ -35,17 +35,20 @@ experiment.scan['laser']['params'].update({
 experiment.setup_scan()
 experiment.do_scan()
 ### READ ALL THE DATA ###
+
 data_scan = experiment.read_scans(0)
 for d in data_scan:
     print(d)
-    #print(data_scan[d])
-    print('test ka')
+    print(data_scan[d][0])
+    #print('len data = ', len(data_scan[d]))
+ 
     
 ### CHECK IF THERE IS REMAINING DATA IN THE DAQ ###
 data_scan = experiment.read_scans(-1)
 for d in data_scan:
     print(d)
     print(data_scan[d])
-    
+
+ 
 experiment.stop_scan()
 # stop_logger()

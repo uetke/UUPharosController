@@ -119,6 +119,7 @@ class ni(DaqBase):
         if 'start_mode' in conditions:
             if conditions['start_mode'] == 'digital':
                 trigger = "/Dev%s/%s" % (self.daq_num, conditions['start_source'])
+                edge = config.ni_start_edge
                 if 'start_edge' in conditions:
                     if conditions['start_edge'] == 'rising':
                         edge = ni.DAQmx_Val_Rising

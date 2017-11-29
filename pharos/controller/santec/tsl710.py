@@ -338,19 +338,19 @@ class tsl710(MessageBasedDriver):
 
     @Action()
     def close_shutter(self):
-        self.query('SC')
+        self.write('SC')
 
     @Action()
     def open_shutter(self):
-        self.query('SO')
+        self.write('SO')
 
     @Action()
     def enable_trigger(self):
-        self.query('TRE')
+        self.write('TRE')
 
     @Action()
     def disable_trigger(self):
-        self.query('TRD')
+        self.write('TRD')
 
     @Action()
     def lo(self):
@@ -358,7 +358,7 @@ class tsl710(MessageBasedDriver):
         Sets ON the LD current
         :return:
         """
-        self.query('LO')
+        self.write('LO')
 
     @Action()
     def lf(self):
@@ -366,15 +366,15 @@ class tsl710(MessageBasedDriver):
         Sets OFF the LD current.
         :return:
         """
-        self.query('LF')
+        self.write('LF')
 
     @Action()
     def coherent_control_on(self):
-        self.query('CO')
+        self.write('CO')
 
     @Action()
     def coherent_control_off(self):
-        self.query('CF')
+        self.write('CF')
 
 
 

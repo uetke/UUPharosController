@@ -30,7 +30,7 @@
     Having a dictionary
 
 """
-from PyQt4.QtCore import pyqtSignal
+from PyQt4.QtCore import pyqtSignal, QObject
 import numpy as np
 from time import sleep
 import time
@@ -42,7 +42,7 @@ import os
 os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorlabs\\Kinesis'
 
 
-class Measurement(object):
+class Measurement(QObject):
     line_finished = pyqtSignal(dict)
     line_scan_finished = pyqtSignal(dict)
 
@@ -56,6 +56,8 @@ class Measurement(object):
 
         :param measure: a dictionary with the necessary steps
         """
+        QObject.__init__(self)
+        
         self.measure = measure  # Dictionary of the measurement steps
         self.devices = {}  # Dictionary holding all the devices
         self.output_devices = [] # List of devices with output capabilities
@@ -177,7 +179,9 @@ class Measurement(object):
         devices_to_monitor = scan['detectors']
         
         for dev in devices_to_monitor:
-            dev = self.devices[dev] #added by Karindra 11/22/2017
+            #dev = self.devices[dev] # added by Karindra 11/22/2017 -> 
+                                    # Aquiles 29/11/17: This BROKE THE GUI. No time to fix it. 
+                                    # You are re-defining the 'dev' variable (that is part of the FOR')
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
             
         dev_to_scan = scan['axis']['device']['name']
@@ -274,7 +278,7 @@ class Measurement(object):
         ni_daq.driver.digital_output(shutter['port'], False)
         laser.driver.wavelength = scan['laser']['params']['start_wavelength']
         if self.wait_for_line:
-            data = self.read_scans(scan['line_points'])
+            data = self.read_scans(points=-1, timeout=-1)
             for d in data:
                 if len(data[d]) != scan['line_points']:
                     dd = np.zeros((scan['line_points'],))
@@ -289,23 +293,29 @@ class Measurement(object):
         monitor = self.monitor
         laser = self.devices[monitor['laser']['name']]
         ni_daq = self.devices['NI-DAQ']
-        num_sweeps = monitor['laser']['params']['wavelength_sweeps']
+        num_sweeps = int(monitor['laser']['params']['wavelength_sweeps'])
+        laser.driver.wavelength_sweeps = 1
         if num_sweeps == 0:
             num_sweeps = -1
         i = 0
-        while i != num_sweeps:
+        keep_doing_scans = True
+        while keep_doing_scans:
             laser.driver.execute_sweep()
             while laser.driver.sweep_condition != 'Stop':
                 sleep(config.laser_refresh)
             laser.driver.wavelength = monitor['laser']['params']['start_wavelength']
-            data = self.read_scans(monitor['line_points'])
+            data = self.read_scans(points=-1, timeout=-1)
             for d in data:
-                if len(data[d]) != monitor['line_points']:
+                if len(data[d]) < monitor['line_points']:
                     dd = np.zeros((monitor['line_points'],))
                     dd[:len(data[d])] = data[d]
                     data[d] = dd
             self.line_finished.emit(data)
-
+            i += 1
+            if i == num_sweeps:
+                keep_doing_scans = False
+                break
+            
     #added by Karindra
     def do_line_scan_shutter_closed(self):
         """ Does the wavelength scan.
@@ -484,10 +494,10 @@ class Measurement(object):
 
         # Some DAQ cards behave strangely when dealing with even/odd number of points.
         # Using an even number of data points makes it behave correctly 'always'
-        #if num_points % 2 != 0:
-        #    #  Increase the stop wavelength in one step in order to have an extra data point
-        #    monitor['laser']['params']['stop_wavelength'] += monitor['laser']['params']['interval_trigger']
-        #    num_points += 1
+        if num_points % 2 != 0:
+            #  Increase the stop wavelength in one step in order to have an extra data point
+            monitor['laser']['params']['stop_wavelength'] += monitor['laser']['params']['interval_trigger']
+            num_points += 1
 
         accuracy = monitor['laser']['params']['interval_trigger'] / monitor['laser']['params']['wavelength_speed']
 
@@ -582,12 +592,12 @@ class Measurement(object):
                 #added by Karindra
                 if points == 2:
                     total_points = 2*self.scan['total_points']
-                    conditions = {'points': total_points}
-                    conditions['buffer_length'] = total_points*len(daq['monitor'])                    
+                    conditions = {'points': total_points,
+                                  'buffer_length': total_points*len(daq['monitor']), }                    
                 else:
                     conditions = {'points': points,
                                   'buffer_length': points*len(daq['monitor']),
-                                  'timeout': 0, }
+                                  'timeout': timeout, }
                 vv, dd = daq_driver.driver.read_analog(self.daqs[d]['monitor_task'], conditions)
                 dd = dd[:vv*len(daq['monitor'])]
                 dd = np.reshape(dd, (len(daq['monitor']), int(vv)))

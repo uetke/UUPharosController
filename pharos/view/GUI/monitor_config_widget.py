@@ -3,7 +3,6 @@ from PyQt4 import QtCore, QtGui, uic
 # from pharos.view.GUI.signal_monitor import SignalMonitorWidget
 from pharos.view.GUI.monitor_with_memory import MonitorMemory as SignalMonitorWidget
 
-
 class MonitorConfigWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent=parent)
@@ -114,7 +113,6 @@ class MonitorConfigWidget(QtGui.QWidget):
     def update_signal_values(self, data):
         """ Updates the data to the different monitors.
         It is an intermadiate step that may not be needed."""
-
         for dev in data:
             self.monitors[dev]['widget'].set_ydata(data[dev])
             

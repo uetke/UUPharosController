@@ -18,7 +18,7 @@ class MonitorMemory(QtGui.QMainWindow):
 
         self.wavelength = None
         self.two_way = False
-        self.memory = 10  # Number of previous plots to save
+        self.memory = 1  # Number of previous plots to save
         self.starting_point = 0
 
         self.menu = QtGui.QMenuBar(self)
@@ -161,8 +161,11 @@ class MonitorMemory(QtGui.QMainWindow):
         if val_len + self.starting_point <= self.len_ydata:
             self.ydata[-1, self.starting_point:self.starting_point+val_len] = values
             self.starting_point += val_len
+            if self.starting_point >= self.len_ydata:
+                self.starting_point -= self.len_ydata
         else:
             # Have to split the data and roll the accumulation matrix
+            
             self.set_ydata(values[0:self.len_ydata-self.starting_point])
             self.ydata = np.roll(self.ydata, -1, axis=0)
             self.starting_point = 0
@@ -185,6 +188,7 @@ class MonitorMemory(QtGui.QMainWindow):
         else:
             for i in range(self.memory):
                 d = self.ydata[-i-1, :]
+                
                 self.p[i].setData(self.wavelength, d)
             if self.do_average_plot:
                 data_mean = np.mean(self.ydata, axis=0)

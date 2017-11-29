@@ -191,10 +191,16 @@ class MainWindow(QtGui.QMainWindow):
         triggers the laser and does not start the NI-card for acquiring.
         """
         if self.monitor_running or self.monitor_paused or self.scan_running:
-            self.laser.driver.execute_sweep()
-            print('Triggering the laser again.')
-            laser = self.experiment.devices[self.experiment.monitor['laser']['name']]
-            laser.apply_values(self.experiment.monitor['laser']['params'])
+            if self.monitor_widget.wait_for_each_line.isChecked():
+                self.experiment.wait_for_line = True
+                self.curr_sweep = 0  # Current number of wavelength sweep
+                self.worker_monitor_thread = WorkThread(self.experiment.continuous_scans_waiting)
+                self.worker_monitor_thread.start()
+            else:
+                self.laser.driver.execute_sweep()
+                print('Triggering the laser again.')
+                laser = self.experiment.devices[self.experiment.monitor['laser']['name']]
+                laser.apply_values(self.experiment.monitor['laser']['params'])
             return
         
         devs_to_monitor = self.monitor_widget.get_devices_checked()
@@ -402,10 +408,13 @@ class MainWindow(QtGui.QMainWindow):
             return
 
         if self.daq_enabled:
-            self.monitor_timer.stop()
-            data = self.experiment.read_continuous_scans()
-            self.monitor_widget.update_signal_values(data)
-            #self.update_monitors()
+            print('Stopping cont scans')
+            if self.worker_monitor_thread is not None:
+                print('Terminating worker thread')
+                self.worker_monitor_thread.terminate()
+            else:
+                self.monitor_timer.stop()
+                #self.update_monitors()
             self.experiment.stop_continuous_scans()
         else:
             self.experiment.stop_laser()

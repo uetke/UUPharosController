@@ -10,3 +10,4 @@ ni_read_timeout = 10
 monitor_read_scan = 30  # How often (in milliseconds) do we update the signal during 1 wavelength sweep
 
 laser_update = 500  # How often (in milliseconds) the laser properties are updated.
+laser_refresh = 0.1 # How often (in seconds) to check if the laser has finished scanning

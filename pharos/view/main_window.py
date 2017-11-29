@@ -30,6 +30,8 @@ class MainWindow(QtGui.QMainWindow):
         p = os.path.dirname(__file__)
         uic.loadUi(os.path.join(p, 'GUI/QtCreator/main_window.ui'), self)
         self.experiment = experiment
+        self.experiment.line_finished.connect(self.update_monitors)
+
         self.laser = self.experiment.devices[experiment.measure['scan']['laser']['name']]
         self.daqs = self.experiment.daqs
 
@@ -81,7 +83,8 @@ class MainWindow(QtGui.QMainWindow):
         self.scan_running = False
         self.daq_enabled = False
         self.directory = None
-        
+        self.curr_sweep = 0
+
         if 'default_directory' in self.experiment.init:
             self.directory = self.experiment.init['default_directory']
         
@@ -230,7 +233,7 @@ class MainWindow(QtGui.QMainWindow):
             self.monitor_widget.set_accumulations_to_monitor(accumulations)
 
             self.experiment.setup_continuous_scans()
-            self.experiment.start_continuous_scans()
+
             start_wl = self.experiment.monitor['laser']['params']['start_wavelength']
             units = start_wl.u
             # Convert everything to the units of the start_wl
@@ -238,22 +241,22 @@ class MainWindow(QtGui.QMainWindow):
             stop_wl = self.experiment.monitor['laser']['params']['stop_wavelength'].m_as(units)
             step = self.experiment.monitor['laser']['params']['interval_trigger'].m_as(units)
             num_points = round((stop_wl - start_wl) / step)+1
-            print('Main window number of points: {}'.format(num_points))
             xdata = np.linspace(start_wl, stop_wl, num_points)
-            print('First wavelength: {}'.format(xdata[0]))
-            print('Last wavelength: {}'.format(xdata[-1]))
-            print('Length wavelength: {}'.format(len(xdata)))
-            print('Laser params')
-            laser = self.experiment.devices[self.experiment.monitor['laser']['name']]
-            print(laser.driver.stop_wavelength)
-            print(laser.driver.wavelength)
-            print(laser.driver.start_wavelength)
             if self.experiment.monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
+            if self.monitor_widget.wait_for_each_line.isChecked():
+                self.experiment.wait_for_line = True
+                self.curr_sweep = 0  # Current number of wavelength sweep
+                self.worker_monitor_thread = WorkThread(self.experiment.continuous_scans_waiting)
+                self.worker_monitor_thread.start()
+            else:
+                self.worker_monitor_thread = None
+                self.experiment.wait_for_line = False
+                self.experiment.start_continuous_scans()
+                self.monitor_timer.start(config.monitor_read_scan)
 
             self.laser_condition = 'Running'
-            self.monitor_timer.start(config.monitor_read_scan)
             self.daq_enabled = True
         else:
             self.daq_enabled = False
@@ -360,7 +363,11 @@ class MainWindow(QtGui.QMainWindow):
             self.worker_thread = WorkThread(self.experiment.do_scan)
             self.worker_thread.start()
             time_to_scan = self.experiment.measure['scan']['approx_time_to_scan'].m_as(Q_('ms'))
-            self.scan_timer.start(config.monitor_read_scan)
+            if self.monitor_widget.wait_for_each_line.isChecked():
+                self.experiment.wait_for_line = True
+                self.experiment.line_scan_finished.connect(self.update_scans)
+            else:
+                self.scan_timer.start(config.monitor_read_scan)
             self.scan_running = True
             self.t0 = time.time()
 
@@ -375,13 +382,15 @@ class MainWindow(QtGui.QMainWindow):
         """ Not yet implemented, it just stops the scan."""
         self.stop_scan()
             
-    def update_scans(self):
-        data = self.experiment.read_continuous_scans()
+    def update_scans(self, data=None):
+        if data is None:
+            data = self.experiment.read_continuous_scans()
         self.scan_widget.update_signal_values(data)
 
-    def update_monitors(self):
+    def update_monitors(self, data=None):
         if self.daq_enabled:
-            data = self.experiment.read_continuous_scans()
+            if data is None:
+                data = self.experiment.read_continuous_scans()
             new_data = 0
             for d in data:
                 new_data += len(data[d])

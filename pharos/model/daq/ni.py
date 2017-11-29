@@ -171,7 +171,12 @@ class ni(DaqBase):
         else:
             data = np.zeros((config.ni_buffer,), dtype=np.float64)
 
-        t.ReadAnalogF64(points, config.ni_read_timeout, nidaq.DAQmx_Val_GroupByChannel,
+        if 'timeout' in conditions:
+            tout = conditions['timeout']
+        else:
+            tout = config.ni_read_timeout
+
+        t.ReadAnalogF64(points, tout, nidaq.DAQmx_Val_GroupByChannel,
                             data, len(data), nidaq.byref(read), None)
         values = read.value
         return values, data

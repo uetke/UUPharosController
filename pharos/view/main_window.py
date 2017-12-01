@@ -48,7 +48,7 @@ class MainWindow(QtGui.QMainWindow):
         self.laser_scan_widget.LaserWidgetDock.setWidget(self.laser_widget)
         self.laser_scan_widget.MonitorWidgetDock.setWidget(self.monitor_widget)
         self.laser_scan_widget.ScanWidgetDock.setWidget(self.scan_widget)
-
+        self.experiment.line_scan_finished.connect(self.update_scans)
         # Make connections
         QtCore.QObject.connect(self.wavelength_scan_button, QtCore.SIGNAL('clicked()'), self.laser_scan_widget.show)
 
@@ -237,7 +237,14 @@ class MainWindow(QtGui.QMainWindow):
                 self.laser_scan_widget.accumulations_line.setText('1')
                 accumulations = 1
             self.monitor_widget.set_accumulations_to_monitor(accumulations)
-
+            
+            if self.monitor_widget.wait_for_each_line.isChecked():
+                self.experiment.monitor['sampling'] = 'finite'
+                self.experiment.wait_for_line = True
+            else:
+                self.experiment.monitor['sampling'] = 'continuous'
+                self.experiment.wait_for_line = False
+                
             self.experiment.setup_continuous_scans()
 
             start_wl = self.experiment.monitor['laser']['params']['start_wavelength']
@@ -252,13 +259,11 @@ class MainWindow(QtGui.QMainWindow):
                 self.monitor_widget.set_two_way_monitors(True)
             self.monitor_widget.set_wavelength_to_monitor(xdata)
             if self.monitor_widget.wait_for_each_line.isChecked():
-                self.experiment.wait_for_line = True
                 self.curr_sweep = 0  # Current number of wavelength sweep
                 self.worker_monitor_thread = WorkThread(self.experiment.continuous_scans_waiting)
                 self.worker_monitor_thread.start()
             else:
                 self.worker_monitor_thread = None
-                self.experiment.wait_for_line = False
                 self.experiment.start_continuous_scans()
                 self.monitor_timer.start(config.monitor_read_scan)
 
@@ -337,6 +342,12 @@ class MainWindow(QtGui.QMainWindow):
             else:
                 self.experiment.scan['daq']['start_source'] = None
 
+            if self.monitor_widget.wait_for_each_line.isChecked():
+                self.experiment.scan['sampling'] = 'finite'
+                self.experiment.wait_for_line = True
+            else:
+                self.experiment.scan['sampling'] = 'continuous'
+                self.experiment.wait_for_line = False
             self.experiment.setup_scan()
 
             start_wl = self.experiment.scan['laser']['params']['start_wavelength']
@@ -366,14 +377,12 @@ class MainWindow(QtGui.QMainWindow):
                     self.scan_widget.set_difference_monitors(True)
 
             self.scan_widget.set_axis_to_monitor(axis)
+            time_to_scan = self.experiment.measure['scan']['approx_time_to_scan'].m_as(Q_('ms'))
+            if not self.monitor_widget.wait_for_each_line.isChecked():
+                self.scan_timer.start(config.monitor_read_scan)
+                
             self.worker_thread = WorkThread(self.experiment.do_scan)
             self.worker_thread.start()
-            time_to_scan = self.experiment.measure['scan']['approx_time_to_scan'].m_as(Q_('ms'))
-            if self.monitor_widget.wait_for_each_line.isChecked():
-                self.experiment.wait_for_line = True
-                self.experiment.line_scan_finished.connect(self.update_scans)
-            else:
-                self.scan_timer.start(config.monitor_read_scan)
             self.scan_running = True
             self.t0 = time.time()
 
@@ -381,7 +390,7 @@ class MainWindow(QtGui.QMainWindow):
         if self.scan_running:
             self.scan_timer.stop()
             self.experiment.stop_scan()
-            self.worker_thread.terminate()
+            #self.worker_thread.terminate()
             self.scan_running = False
 
     def pause_scan(self):
@@ -408,13 +417,7 @@ class MainWindow(QtGui.QMainWindow):
             return
 
         if self.daq_enabled:
-            print('Stopping cont scans')
-            if self.worker_monitor_thread is not None:
-                print('Terminating worker thread')
-                self.worker_monitor_thread.terminate()
-            else:
-                self.monitor_timer.stop()
-                #self.update_monitors()
+            self.monitor_timer.stop()
             self.experiment.stop_continuous_scans()
         else:
             self.experiment.stop_laser()

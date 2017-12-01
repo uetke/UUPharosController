@@ -48,9 +48,10 @@ class ScanConfigWidget(QtGui.QWidget):
             if dev.properties['name'] in self.monitors:
                 self.monitors[dev.properties['name']]['widget'].clear_data()
                 self.monitors[dev.properties['name']]['widget'].close()
-                self.monitors[dev.properties['name']]['widget'].deleteLater()
+                #self.monitors[dev.properties['name']]['widget'].deleteLater()
 
             self.monitors[dev.properties['name']] = {'widget': ScanMonitorWidget()}
+            self.monitors[dev.properties['name']]['widget'].clear_data()
             self.monitors[dev.properties['name']]['widget'].set_name(dev.properties['description'])
 
     def open_monitor(self, devs):

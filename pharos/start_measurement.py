@@ -32,23 +32,16 @@ experiment.scan['laser']['params'].update({
     'wavelength_sweeps': Q_(experiment.scan['laser']['params']['wavelength_sweeps']),
 })
 
+experiment.wait_for_line = True # True for reading data after each line (and accumulates into scan_data property
+experiment.scan['sampling'] = 'finite' # Sets the behavior of the DAQ. 'finite'/'continuous' acquisition mode.
 experiment.setup_scan()
 experiment.do_scan()
+
 ### READ ALL THE DATA ###
-
-data_scan = experiment.read_scans(0)
-for d in data_scan:
-    print(d)
-    print(data_scan[d][0])
-    #print('len data = ', len(data_scan[d]))
- 
-    
-### CHECK IF THERE IS REMAINING DATA IN THE DAQ ###
-data_scan = experiment.read_scans(-1)
-for d in data_scan:
-    print(d)
-    print(data_scan[d])
-
- 
-experiment.stop_scan()
-# stop_logger()
+data_scan = experiment.scan_data
+for i in range(len(data_scan)):
+    data = data_scan[i]
+    for d in data:
+        print('Length of {}: {}'.format(d,len(data[d])))
+        
+experiment.save_data(data_scan, 'F:\\Data\\test.dat')

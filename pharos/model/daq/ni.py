@@ -159,7 +159,7 @@ class ni(DaqBase):
         """
         if task is None:
             task = len(self.tasks)-1
-            
+         
         t = self.tasks[task]
         read = nidaq.int32()
         points = int(conditions['points'])
@@ -196,7 +196,6 @@ class ni(DaqBase):
             status = -1  # With this value, the digital output is set to High
         else:
             status = 0
-        print('Status: {}'.format(status))
         t.WriteDigitalScalarU32(nidaq.bool32(True), 0, status, None)
 
     def from_units_to_volts(self, value, dev):
@@ -263,7 +262,7 @@ class ni(DaqBase):
     def is_task_complete(self, task):
         t = self.tasks[task]
         d = nidaq.bool32()
-        t.GetTaskComplete(d)
+        an = t.GetTaskComplete(d)
         return d.value
         
     def stop_task(self, task=-1):

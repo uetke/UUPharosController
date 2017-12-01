@@ -39,7 +39,7 @@ from lantz import Q_
 from pharos.model.lib.general_functions import from_yaml_to_devices, from_yaml_to_dict
 from pharos.config import config
 import os
-
+from datetime import datetime
 os.environ['PATH'] = os.environ['PATH'] + ';' + 'C:\\Program Files (x86)\\Thorlabs\\Kinesis'
 
 class Measurement(QObject):
@@ -179,9 +179,8 @@ class Measurement(QObject):
         devices_to_monitor = scan['detectors']
         
         for dev in devices_to_monitor:
-            #dev = self.devices[dev] # added by Karindra 11/22/2017 -> 
-                                    # Aquiles 29/11/17: This BROKE THE GUI. No time to fix it. 
-                                    # You are re-defining the 'dev' variable (that is part of the FOR')
+            if isinstance(dev, str):
+                dev = self.devices[dev] # added by Karindra 11/22/2017 -> 
             self.daqs[dev.properties['connection']['device']]['monitor'].append(dev)
             
         dev_to_scan = scan['axis']['device']['name']
@@ -197,14 +196,13 @@ class Measurement(QObject):
             start = 1
             stop = dev_range[1]
             num_points_dev = stop
+            
         # This is temporal accuracy for the DAQ.
-        print('Number of points device: {}'.format(num_points_dev))
-        print('Number of points scan: {}'.format(num_points))
         accuracy = laser.params['interval_trigger'] / laser.params['wavelength_speed']
 
         conditions = {
             'accuracy': accuracy,
-            'points': num_points*num_points_dev,  # <-- in case of long 1D scan without Ref, remove factor of 2
+            'points': num_points,  # <-- in case of long 1D scan without Ref, remove factor of 2
         }
         scan['line_points'] = num_points
         scan['total_points'] = conditions['points']
@@ -239,20 +237,23 @@ class Measurement(QObject):
                         conditions['start_mode'] = 'digital'
                     else:
                         conditions['start_mode'] = 'software'
-
-                conditions['sampling'] = 'continuous'
+                
+                if 'sampling' in scan:
+                    conditions['sampling'] = scan['sampling']
+                else:
+                    conditions['sampling'] = 'continuous'
+                    
                 daq['monitor_task'] = daq_driver.driver.analog_input_setup(conditions)
                 self.daqs[d] = daq  # Store it back to the class variable
-                if not daq_driver.driver.is_task_complete(daq['monitor_task']):
-                    daq_driver.stop_task(daq['monitor_task'])
-                #self.read_continuous_scans() # Empties the memory of the DAQ before starting a new measurement
-                daq_driver.driver.trigger_analog(None)
-                self.read_continuous_scans()
+                if not self.wait_for_line:
+                    daq_driver.driver.trigger_analog(None)
+
 
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']
 
         scan['approx_time_to_scan'] = approx_time_to_scan
         self.scan = scan
+        self.keep_scanning = True
 
     def do_line_scan(self):
         """ Does the wavelength scan.
@@ -261,6 +262,7 @@ class Measurement(QObject):
         laser = self.devices[scan['laser']['name']]
         shutter = self.scan['shutter']
         ni_daq = self.devices['NI-DAQ']
+        daq = self.daqs['NI-DAQ']
         ni_daq.driver.digital_output(shutter['port'], False)
         if not isinstance(shutter['delay'], Q_):
             delay = Q_(shutter['delay'])
@@ -270,6 +272,9 @@ class Measurement(QObject):
         if delay > 0:
             time.sleep(delay)
         ni_daq.driver.digital_output(shutter['port'], True)
+        if ni_daq.driver.is_task_complete(daq['monitor_task']):
+            ni_daq.driver.stop_task(daq['monitor_task'])
+            ni_daq.driver.trigger_analog(daq['monitor_task'])
         laser.driver.execute_sweep()
         approx_time_to_scan = (laser.params['stop_wavelength'] - laser.params['start_wavelength']) / laser.params['wavelength_speed']*laser.params['wavelength_sweeps']
 
@@ -277,15 +282,7 @@ class Measurement(QObject):
             sleep(approx_time_to_scan.m/config.monitor_read_scan)
         ni_daq.driver.digital_output(shutter['port'], False)
         laser.driver.wavelength = scan['laser']['params']['start_wavelength']
-        if self.wait_for_line:
-            data = self.read_scans(points=-1, timeout=-1)
-            for d in data:
-                if len(data[d]) != scan['line_points']:
-                    dd = np.zeros((scan['line_points'],))
-                    dd[:len(data[d])] = data[d]
-                    data[d] = dd
-            self.line_scan_finished.emit(data)
-
+    
         return True
 
     def continuous_scans_waiting(self):
@@ -293,18 +290,24 @@ class Measurement(QObject):
         monitor = self.monitor
         laser = self.devices[monitor['laser']['name']]
         ni_daq = self.devices['NI-DAQ']
+        daq = self.daqs['NI-DAQ']
+        
         num_sweeps = int(monitor['laser']['params']['wavelength_sweeps'])
         laser.driver.wavelength_sweeps = 1
         if num_sweeps == 0:
             num_sweeps = -1
         i = 0
-        keep_doing_scans = True
-        while keep_doing_scans:
+        self.keep_doing_scans = True
+        while self.keep_doing_scans:
+            if ni_daq.driver.is_task_complete(daq['monitor_task']):
+                ni_daq.driver.stop_task(daq['monitor_task'])
+                ni_daq.driver.trigger_analog(daq['monitor_task'])
             laser.driver.execute_sweep()
             while laser.driver.sweep_condition != 'Stop':
                 sleep(config.laser_refresh)
             laser.driver.wavelength = monitor['laser']['params']['start_wavelength']
             data = self.read_scans(points=-1, timeout=-1)
+            
             for d in data:
                 if len(data[d]) < monitor['line_points']:
                     dd = np.zeros((monitor['line_points'],))
@@ -313,8 +316,9 @@ class Measurement(QObject):
             self.line_finished.emit(data)
             i += 1
             if i == num_sweeps:
-                keep_doing_scans = False
+                self.keep_doing_scans = False
                 break
+        ni_daq.driver.stop_task(daq['monitor_task'])
             
     #added by Karindra
     def do_line_scan_shutter_closed(self):
@@ -385,17 +389,36 @@ class Measurement(QObject):
             num_points_dev = stop
 
         num_points_dev += 1  # So the last bit of information is true.
-
+        self.scan_data = []
         for value in np.linspace(start, stop, num_points_dev, endpoint=True):
+            if not self.keep_scanning:
+                print('Stopping the scan')
+                break
+                
             if output != 'time':
                 self.set_value_to_device(dev_to_scan, {output: value * units})
                 dev = self.devices[dev_to_scan]
                 time.sleep(0.1)
                 while not dev.driver.finished_moving:
                     time.sleep(0.2)
-
+                
             self.do_line_scan()
-            
+            if self.wait_for_line:
+                data = self.read_scans(points=scan['line_points'], timeout=-1)
+                for d in data:
+                    if len(data[d]) != scan['line_points']:
+                        dd = np.zeros((scan['line_points'],))
+                        # Discard if there are more points than points available in the line.
+                        if len(data[d]) > scan['line_points']:
+                            data[d] = data[d][:scan['line_points']]
+                        dd[:len(data[d])] = data[d]
+                        data[d] = dd
+                self.line_scan_finished.emit(data)
+                self.scan_data.append(data)
+        ni_daq = self.devices['NI-DAQ']
+        daq = self.daqs['NI-DAQ']
+        if ni_daq.driver.is_task_complete(daq['monitor_task']):
+            ni_daq.driver.stop_task(daq['monitor_task'])
         return True
 
     #added by Karindra
@@ -440,7 +463,7 @@ class Measurement(QObject):
             for i in range(nr_runs):
                 print('run number = ', i)
                 self.do_line_scan_shutter_closed()
-                self.scan_data.append(self.read_scans(self.scan['line_points']*2))
+                self.scan_data.append(self.read_scans(-1)) #self.scan['line_points']*2
                 for d in self.scan_data[-1]:
                     print('Acquired {} from {}'.format(len(self.scan_data[-1][d]), d))
         return True
@@ -509,8 +532,12 @@ class Measurement(QObject):
 
         if monitor['laser']['params']['sweep_mode'] in ('ContTwo', 'StepTwo'):
             num_points = num_points*2
-
-        sampling = 'continuous'
+        
+        if 'sampling' in monitor:
+            sampling = monitor['sampling']
+        else:
+            sampling = 'continuous'
+        
         conditions = {
             'accuracy': accuracy,
             'points': num_points
@@ -555,13 +582,13 @@ class Measurement(QObject):
                 print('Task number: %s' % self.daqs[d]['monitor_task'])
                 # Store the values back to the class
                 self.monitor = monitor
-        self.read_continuous_scans() # Empties the memory of the DAQ before starting a new measurement
+        #self.read_continuous_scans() # Empties the memory of the DAQ before starting a new measurement
 
     def start_continuous_scans(self):
         """Starts the laser, and triggers the daqs. It assumes setup_continuous_scans was already called."""
         monitor = self.monitor
         laser = self.devices[monitor['laser']['name']]
-        
+        self.keep_doing_scans = True
         for d in self.daqs:
             daq = self.daqs[d]
             daq_driver = self.devices[d].driver
@@ -595,10 +622,17 @@ class Measurement(QObject):
                     conditions = {'points': total_points,
                                   'buffer_length': total_points*len(daq['monitor']), }                    
                 else:
+                    if points<0:
+                        buffer_length = config.ni_buffer*len(daq['monitor'])
+                    else:
+                        buffer_length = points*len(daq['monitor'])
                     conditions = {'points': points,
-                                  'buffer_length': points*len(daq['monitor']),
+                                  'buffer_length': buffer_length,
                                   'timeout': timeout, }
                 vv, dd = daq_driver.driver.read_analog(self.daqs[d]['monitor_task'], conditions)
+                # Try for a second time to see if there is better luck.
+                if vv == 0:
+                    vv, dd = daq_driver.driver.read_analog(self.daqs[d]['monitor_task'], conditions)
                 dd = dd[:vv*len(daq['monitor'])]
                 dd = np.reshape(dd, (len(daq['monitor']), int(vv)))
                 for i in range(len(daq['monitor'])):
@@ -627,19 +661,9 @@ class Measurement(QObject):
         laser.stop_sweep()
 
     def stop_scan(self):
-        scan = self.scan
-        self.stop_laser()
-        ni_daq = self.devices['NI-DAQ']
-        shutter = self.scan['shutter']
-        ni_daq.driver.digital_output(shutter['port'], False)
-        for d in self.daqs:
-            daq = self.daqs[d]
-            if len(daq['monitor']) > 0:
-                daq_driver = self.devices[d].driver
-                if not daq_driver.is_task_complete(daq['monitor_task']):
-                    daq_driver.stop_task(daq['monitor_task'])
-                    daq_driver.clear_task(daq['monitor_task'])
-
+        # This ensures that the line is completed and the scan finishes right after.
+        self.keep_scanning = False
+                
     def read_last_values(self):
         conditions = {'points': -1} # To read all the points available
         data = {}
@@ -658,17 +682,22 @@ class Measurement(QObject):
         return data
             
     def stop_continuous_scans(self):
-        monitor = self.monitor
-        laser = self.devices[monitor['laser']['name']].driver
-        laser.pause_sweep()
-        laser.stop_sweep()
-        for d in self.daqs:
-            daq = self.daqs[d]
-            if len(daq['monitor']) > 0:
-                daq_driver = self.devices[d].driver
-                if not daq_driver.is_task_complete(daq['monitor_task']):
-                    daq_driver.stop_task(daq['monitor_task'])
-                    daq_driver.clear_task(daq['monitor_task'])
+        
+        # If the scans are waiting for the line to finish, it will reach the end and stop
+        self.keep_doing_scans = False
+        
+        if not self.wait_for_line:
+            monitor = self.monitor
+            self.stop_laser()
+            for d in self.daqs:
+                daq = self.daqs[d]
+                if len(daq['monitor']) > 0:
+                    daq_driver = self.devices[d].driver
+                    print('Stopping monitor Task')
+                    try:
+                        daq_driver.stop_task(daq['monitor_task'])
+                    except:
+                        daq_driver.clear_task(daq['monitor_task'])
 
     def pause_continuous_scans(self):
         monitor = self.monitor
@@ -711,7 +740,7 @@ class Measurement(QObject):
         data_dic = {'monitor': self.monitor,
                     'scan': self.scan,
                     'data': data,
-                    'devices': self.devices,
+                    'date': datetime.now(),
                     }
         with open(filename, 'wb') as f:
             f.write(yaml.dump(data_dic, default_flow_style=False).encode('ascii'))

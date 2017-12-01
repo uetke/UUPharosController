@@ -54,7 +54,6 @@ class ScanMonitorWidget(QtGui.QWidget):
         num_y_points = ((self.y_axis['stop']-self.y_axis['start'])/self.y_axis['step']).to('')
         num_y_points = int(num_y_points.m)+1
         self.num_y_points = num_y_points
-
         # self.viewport = GraphicsLayoutWidget()
 
         self.pos = [self.wavelength['start'].m_as(units_wl), self.y_axis['start'].m]
@@ -119,31 +118,35 @@ class ScanMonitorWidget(QtGui.QWidget):
 
         # Tries to clear all the plots. Avoids verifying if the window is running for second time.
         try:
-            self.layout.removeWidget(self.main_plot1)
-            self.main_plot1.deleteLater()
+            self.layout.removeWidget(self.imv1)
+            self.imv1.deleteLater()
+            
         except:
             pass
         try:
-            self.layout.removeWidget(self.main_plot2)
-            self.main_plot2.deleteLater()
+            self.layout.removeWidget(self.imv2)
+            self.imv2.deleteLater()
         except:
             pass
         try:
-            self.layout.removeWidget(self.main_plot)
-            self.main_plot.deleteLater()
+            self.layout.removeWidget(self.imv)
+            self.imv.deleteLater()
         except:
             pass
 
+        self.name = None
+        self.id = None
         self.wavelength = None
         self.y_axis = None
         self.data = None
-        self.starting_point = 0
-        self.y_pos = 0
-        self.two_way = False
         self.pos = [0, 0]
         self.accuracy = [1, 1]
+        self.starting_point = 0
+        self.y_pos = 0
+        self.two_way = False  # If the laser scan is two-ways
         self.average = False  # Plot the average
         self.difference = False  # Plot the difference
+
 
     def set_name(self, name):
         if self.name is not None:
@@ -221,7 +224,7 @@ class ScanMonitorWidget(QtGui.QWidget):
                     np.savetxt(f, self.d2, fmt='%7.5f')
                 else:
                     np.savetxt(f, self.d, fmt='%7.5f')
-            print('Data seved to %s' % file)
+            print('Data saved to %s' % file)
         else:
             self.choose_dir()
 

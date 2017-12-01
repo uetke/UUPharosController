@@ -42,7 +42,7 @@ scan:
   axis:  # The laser doesn't need to appear here, it is always considered the first axis of the scan
     device:
       name: Rotation 1
-      range: [35deg, 36deg, 1.0deg]
+      range: [35deg, 35deg, 1.0deg]
       property: position
   shutter:
     port: PFI1

@@ -8,7 +8,7 @@ The Pharos setup relies on a Santec laser able to scan wavelengths at variable r
 
 The documentation of this software can be built using Sphinx, or can be found online at 
 
-http://documents.uetke.com/PharosController/
+https://pharos-controller.readthedocs.io/en/latest/
 
 ## Goals ##
 
